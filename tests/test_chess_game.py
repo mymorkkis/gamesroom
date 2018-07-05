@@ -3,6 +3,7 @@ from collections import namedtuple
 import unittest
 
 from src.chess_game import ChessGame
+from src.game_enums import Color
 from src.game_pieces.pawn import Pawn
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
 
@@ -11,13 +12,13 @@ class ChessGameTest(unittest.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.pawn = Pawn(color='black')
+        self.pawn = Pawn(Color.BLACK)
         self.chess_game = ChessGame()
         self.coords = namedtuple('Coords', 'x y')
         self.move = self.chess_game.move
         # Pretend Pawns are generic pieces for testing 'piece blocking move' raises error
-        self.piece = Pawn(color='black')
-        self.blocking_piece = Pawn(color='black')
+        self.piece = Pawn(Color.BLACK)
+        self.blocking_piece = Pawn(Color.BLACK)
 
     def test_has_max_board_width_of_8(self):
         assert self.chess_game.MAX_BOARD_HEIGHT == 8
@@ -42,7 +43,7 @@ class ChessGameTest(unittest.TestCase):
         assert not self.chess_game._legal_board_position(coords)
 
     def test_that_avoids_duplicate_positioning(self):
-        second_pawn = Pawn(color='black')
+        second_pawn = Pawn(Color.BLACK)
         coords = self.coords(x=6, y=3)
         self.chess_game.add(self.pawn, coords)
         self.chess_game.add(second_pawn, coords)
@@ -54,7 +55,7 @@ class ChessGameTest(unittest.TestCase):
 
     def test_limits_the_number_of_pawns(self):
         for count in range(10):
-            pawn = Pawn(color='black')
+            pawn = Pawn(Color.BLACK)
             row = count / self.chess_game.MAX_BOARD_WIDTH
             x_coord = count
             y_coord = count % self.chess_game.MAX_BOARD_WIDTH
@@ -91,8 +92,8 @@ class ChessGameTest(unittest.TestCase):
         assert self.pawn.y_coord == 4
 
     def test_captured_piece_removed_from_board(self):
-        white_pawn1 = Pawn(color='white')       
-        white_pawn2 = Pawn(color='white')
+        white_pawn1 = Pawn(Color.WHITE)       
+        white_pawn2 = Pawn(Color.WHITE)
         color = white_pawn2.color
         type_ = white_pawn2.type       
         self.chess_game.add(self.pawn, self.coords(x=6, y=6))

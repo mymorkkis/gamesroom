@@ -1,10 +1,11 @@
 """Module for Pawn class."""
+from src.game_enums import Color
 from src.game_pieces.game_piece import GamePiece
 
 
 class Pawn(GamePiece):
     """Pawn chess game piece. Inherits from GamePiece."""
-    def __init__(self, *, color):
+    def __init__(self, color):
         super().__init__()
         self.color = color
 
@@ -21,8 +22,8 @@ class Pawn(GamePiece):
         return False
 
     def _valid_y_coord(self):
-        if self.color == 'white':
+        if self.color == Color.WHITE:
             valid_y_coord = self.y_coord + 1
-        elif self.color == 'black':
+        elif self.color == Color.BLACK:
             valid_y_coord = self.y_coord - 1
         return valid_y_coord

@@ -1,6 +1,8 @@
 """GamePiece Abstract Base Class."""
 from abc import ABC, abstractmethod
 
+from src.game_enums import Color
+
 
 class GamePiece(ABC):
     """Abstract Base class for game pieces.
@@ -17,7 +19,7 @@ class GamePiece(ABC):
     """
     def __init__(self):
         self.type = self.__class__.__name__
-        self.color = None
+        self._color = None
         self.x_coord = None
         self.y_coord = None
 
@@ -25,8 +27,19 @@ class GamePiece(ABC):
         return f'{self.type}({self.color!r})'
 
     def __str__(self):
-        return (f'{self.color.title()} {self.type}: '
+        return (f'{self.color.name.title()} {self.type}: '
                 f'x_coord = {self.x_coord}, y_coord = {self.y_coord}')
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, color):
+        if color not in Color:
+            raise ValueError('Not a valid game color')
+        self._color = color
+    
 
     @abstractmethod
     def valid_move(self, coords):

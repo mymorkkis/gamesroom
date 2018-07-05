@@ -1,6 +1,7 @@
 """Test module for GamePieces ABC."""
 import unittest
 
+from src.game_enums import Color
 from src.game_pieces.game_piece import GamePiece
 from src.game_pieces.pawn import Pawn
 
@@ -11,8 +12,8 @@ class TestGamePiece(unittest.TestCase):
         self.assertRaises(TypeError, GamePiece)
 
     def test_that_child_class_inherits_properties(self):
-        pawn = Pawn(color='black')
-        test_repr = "Pawn('black')"
+        pawn = Pawn(Color.BLACK)
+        test_repr = "Pawn(<Color.BLACK: 2>)"
         test_str = 'Black Pawn: x_coord = None, y_coord = None'
 
         assert pawn.type == 'Pawn'

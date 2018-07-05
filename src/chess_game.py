@@ -1,6 +1,7 @@
 """Module for ChessGame class."""
 from collections import defaultdict
 
+from src.game_enums import Color
 from src.game_helper import move_direction
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
 
@@ -36,8 +37,8 @@ class ChessGame():
         self.board = [[None] * 8 for _ in range(8)]
         # TODO Handle Pawn promoting to an extra Queen etc
         self.pieces = {
-            'white': defaultdict(int),
-            'black': defaultdict(int)
+            Color.WHITE: defaultdict(int),
+            Color.BLACK: defaultdict(int)
         }
 
     def new_game(self):

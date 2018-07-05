@@ -3,6 +3,7 @@ from collections import namedtuple
 import unittest
 
 from src.chess_game import ChessGame
+from src.game_enums import Color
 from src.game_pieces.queen import Queen
 
 class TestQueen(unittest.TestCase):
@@ -10,7 +11,7 @@ class TestQueen(unittest.TestCase):
         super().setUp()
 
         self.chess_game = ChessGame()
-        self.queen = Queen(color='black')
+        self.queen = Queen(Color.BLACK)
         self.coords = namedtuple('Coords', 'x y')
         self.start_coords = self.coords(x=7, y=4)
         self.chess_game.add(self.queen, self.start_coords)

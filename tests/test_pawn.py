@@ -3,6 +3,7 @@ from collections import namedtuple
 import unittest
 
 from src.chess_game import ChessGame
+from src.game_enums import Color
 from src.game_errors import InvalidMoveError
 from src.game_pieces.pawn import Pawn
 
@@ -14,8 +15,8 @@ class TestPawn(unittest.TestCase):
         self.chess_game = ChessGame()
         self.coords = namedtuple('Coords', 'x y')
         self.start_coords = self.coords(x=6, y=3)
-        self.black_pawn = Pawn(color='black')
-        self.white_pawn = Pawn(color='white')
+        self.black_pawn = Pawn(Color.BLACK)
+        self.white_pawn = Pawn(Color.WHITE)
 
     def test_that_add_sets_x_coordinates(self):
         self.chess_game.add(self.black_pawn, self.start_coords)

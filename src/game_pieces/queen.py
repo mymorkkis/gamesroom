@@ -5,7 +5,7 @@ from src.game_helper import move_direction
 
 class Queen(GamePiece):
     """Queen chess game piece. Inherits from GamePiece."""
-    def __init__(self, *, color):
+    def __init__(self, color):
         super().__init__()
         self.color = color
 

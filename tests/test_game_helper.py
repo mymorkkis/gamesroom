@@ -3,6 +3,7 @@ from collections import namedtuple
 import unittest
 
 from src.chess_game import ChessGame
+from src.game_enums import Color
 from src.game_helper import move_direction
 from src.game_pieces.pawn import Pawn
 
@@ -11,7 +12,7 @@ class ChessGameTest(unittest.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.pawn = Pawn(color='black')
+        self.pawn = Pawn(Color.BLACK)
         self.chess_game = ChessGame()
         self.coords = namedtuple('Coords', 'x y')
         self.start_coords = self.coords(x=4, y=4)
