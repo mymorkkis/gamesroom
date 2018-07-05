@@ -9,7 +9,7 @@ class GamePiece(ABC):
 
        Attributes:
             type:    Class name as str
-            color:   Piece color (black/white)
+            color:   Piece color
             x_coord: Piece current x_coordinate on board
             y_coord: Piece current y_coordinate on board
 
@@ -37,6 +37,7 @@ class GamePiece(ABC):
     @color.setter
     def color(self, color):
         if color not in Color:
+            # AttributeError thrown if invalid Color enum
             raise ValueError('Not a valid game color')
         self._color = color
     
