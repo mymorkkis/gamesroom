@@ -1,62 +1,74 @@
 """Test module for Pawn game piece."""
 from collections import namedtuple
-import unittest
+import pytest
 
 from src.chess_game import ChessGame
 from src.game_enums import Color
-from src.game_errors import InvalidMoveError
 from src.game_pieces.pawn import Pawn
 
 
-class TestPawn(unittest.TestCase):
-    def setUp(self):
-        super().setUp()
-
-        self.chess_game = ChessGame()
-        self.coords = namedtuple('Coords', 'x y')
-        self.start_coords = self.coords(x=6, y=3)
-        self.black_pawn = Pawn(Color.BLACK)
-        self.white_pawn = Pawn(Color.WHITE)
-
-    def test_that_add_sets_x_coordinates(self):
-        self.chess_game.add(self.black_pawn, self.start_coords)
-
-        assert self.black_pawn.x_coord == 6
-
-    def test_that_add_sets_y_coordinate(self):
-        self.chess_game.add(self.black_pawn, self.start_coords)
-
-        assert self.black_pawn.y_coord == 3
-
-    def test_that_move_illegal_coords_right_does_not_move(self):
-        to_coords = self.coords(x=7, y=3)
-        self.chess_game.add(self.black_pawn, self.start_coords)
-
-        self.assertRaises(InvalidMoveError, self.chess_game.move, self.start_coords, to_coords)
-        assert self.black_pawn.x_coord == 6
-        assert self.black_pawn.y_coord == 3
-
-    def test_that_move_illegal_coords_left_does_not_move(self):
-        to_coords = self.coords(x=4, y=3)
-        self.chess_game.add(self.black_pawn, self.start_coords)
-
-        self.assertRaises(InvalidMoveError, self.chess_game.move, self.start_coords, to_coords)
-        assert self.black_pawn.x_coord == 6
-        assert self.black_pawn.y_coord == 3
+Coords = namedtuple('Coords', 'x y')
 
 
-    def test_that_black_move_to_legal_coords_left_does_move(self):
-        to_coords = self.coords(x=6, y=2)
-        self.chess_game.add(self.black_pawn, self.start_coords)
-        self.chess_game.move(self.start_coords, to_coords)
+@pytest.fixture(scope='module')
+def black_pawn():
+    game = ChessGame()
+    start_coords = Coords(x=1, y=6)
+    pawn = Pawn(Color.BLACK)
+    game.add(pawn, start_coords)
+    return pawn
 
-        assert self.black_pawn.x_coord == 6
-        assert self.black_pawn.y_coord == 2
 
-    def test_that_white_move_to_legal_coords_left_does_move(self):
-        to_coords = self.coords(x=6, y=4)
-        self.chess_game.add(self.white_pawn, self.start_coords)
-        self.chess_game.move(self.start_coords, to_coords)
-        
-        assert self.white_pawn.x_coord == 6
-        assert self.white_pawn.y_coord == 4
+@pytest.fixture(scope='module')
+def white_pawn():
+    game = ChessGame()
+    start_coords = Coords(x=1, y=1)
+    pawn = Pawn(Color.WHITE)
+    game.add(pawn, start_coords)
+    return pawn
+
+
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=1, y=5), True),
+    # TODO Add test to confirm 2 spaces on first move
+    (Coords(x=1, y=7), False),
+    (Coords(x=0, y=5), False),
+    (Coords(x=2, y=5), False),
+    (Coords(x=1, y=3), False)
+])
+def test_black_pawn_valid_move(black_pawn, coords, rt_val):
+    assert black_pawn.valid_move(coords) == rt_val
+
+
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=1, y=2), True),
+    # TODO Add test to confirm 2 spaces on first move
+    (Coords(x=1, y=0), False),
+    (Coords(x=0, y=2), False),
+    (Coords(x=2, y=2), False),
+    (Coords(x=1, y=4), False)
+])
+def test_white_pawn_valid_move(white_pawn, coords, rt_val):
+    assert white_pawn.valid_move(coords) == rt_val
+
+
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=2, y=5), True),
+    (Coords(x=0, y=5), True),
+    (Coords(x=1, y=5), False),
+    (Coords(x=1, y=7), False),
+    (Coords(x=1, y=6), False)
+])
+def test_black_pawn_valid_capture(black_pawn, coords, rt_val):
+    assert black_pawn.valid_capture(coords) == rt_val
+
+
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=2, y=2), True),
+    (Coords(x=0, y=2), True),
+    (Coords(x=1, y=2), False),
+    (Coords(x=1, y=0), False),
+    (Coords(x=1, y=1), False)
+])
+def test_white_pawn_valid_capture(white_pawn, coords, rt_val):
+    assert white_pawn.valid_capture(coords) == rt_val
