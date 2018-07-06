@@ -1,5 +1,5 @@
 """Module for ChessGame class."""
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from src.game_enums import Color, Direction
 from src.game_helper import move_direction
@@ -72,27 +72,9 @@ class ChessGame():
                 PieceNotFoundError: If no piece found at from coordinates.
                 InvalidMoveError:   If attempted move not in-line with game rules.
         """
-        if not self._coords_on_board(from_coords):
-            raise NotOnBoardError(from_coords, 'From coordinates not valid board coordinates')
-
-        if not self._coords_on_board(to_coords):
-            raise NotOnBoardError(to_coords, 'To coordinates not valid board coordinates')
-
-        piece = self.board[from_coords.x][from_coords.y]
-        if not piece:
-            raise PieceNotFoundError(from_coords, 'No piece found at from coordinates')
-
-        if from_coords == to_coords:
-            raise InvalidMoveError(from_coords, to_coords, 'Move to same square invalid')
-
-        if self._pieces_blocking_move(piece, to_coords):
-            raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
-
-        if not self._valid_piece_move(piece, to_coords):
-            raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
-        
-        # No exceptions raised, safe to move piece
-        self._move(piece, to_coords)
+        if not self._move_errors(from_coords, to_coords):
+            piece = self.board[from_coords.x][from_coords.y]
+            self._move(piece, to_coords)
 
     def _move(self, piece, coords):
         """Clear current piece postion, remove captured piece, place piece on new coordinates."""
@@ -117,6 +99,29 @@ class ChessGame():
         piece.x_coord = coords.x
         piece.y_coord = coords.y
 
+    def _move_errors(self, from_coords, to_coords):
+        """Helper function for move. Raise errors or return False."""
+        if not self._coords_on_board(from_coords):
+            raise NotOnBoardError(from_coords, 'From coordinates not valid board coordinates')
+
+        if not self._coords_on_board(to_coords):
+            raise NotOnBoardError(to_coords, 'To coordinates not valid board coordinates')
+
+        if from_coords == to_coords:
+            raise InvalidMoveError(from_coords, to_coords, 'Move to same square invalid')
+
+        piece = self.board[from_coords.x][from_coords.y]
+        if not piece:
+            raise PieceNotFoundError(from_coords, 'No piece found at from coordinates')
+
+        if self._piece_blocking_move(piece, to_coords):
+            raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
+
+        if not self._valid_piece_move(piece, to_coords):
+            raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
+
+        return False  # No move errors
+
     def _coords_on_board(self, coords):
         """Helper method. Return bool"""
         if (coords.x not in range(self.MAX_BOARD_WIDTH) 
@@ -124,16 +129,16 @@ class ChessGame():
             return False
         return True
 
-    def _pieces_blocking_move(self, piece, coords):
+    def _piece_blocking_move(self, piece, to_coords):
         """Helper method. Return bool."""
         if piece.type == 'Knight':  # Knight can jump over pieces
             return False
 
         # Sort coords so logical direction of move not important
         # (x=5, y=6) -> (x=1, y=2) same as (x=1, y=2) -> (x=5, y=6)
-        min_x_coord, max_x_coord = sorted([piece.x_coord, coords.x])
-        min_y_coord, max_y_coord = sorted([piece.y_coord, coords.y])
-        direction = move_direction(piece, coords)
+        min_x_coord, max_x_coord = sorted([piece.x_coord, to_coords.x])
+        min_y_coord, max_y_coord = sorted([piece.y_coord, to_coords.y])
+        direction = move_direction(piece, to_coords)
 
         if direction == Direction.VERTICAL:
             for next_y_coord in range(min_y_coord + 1, max_y_coord):
@@ -149,9 +154,12 @@ class ChessGame():
                 if self.board[next_x_coord][next_y_coord] is not None:
                     return True
                 next_y_coord += 1 
+        else:  # Should never reach here
+            coords = namedtuple('Coords', 'x y')
+            from_coords = coords(x=piece.x_coord, y=piece.y_coord)
+            raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
 
-        # No pieces blocking
-        return False
+        return False  # No pieces blocking
 
     def _valid_piece_move(self, piece, to_coords):
         """Check if to_coords are valid move or capture for piece. Return bool."""
