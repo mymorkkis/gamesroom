@@ -1,37 +1,44 @@
 """Test module for Queen game piece."""
 from collections import namedtuple
-import unittest
+import pytest
 
 from src.chess_game import ChessGame
 from src.game_enums import Color
 from src.game_pieces.queen import Queen
 
-class TestQueen(unittest.TestCase):
-    def setUp(self):
-        super().setUp()
 
-        self.chess_game = ChessGame()
-        self.queen = Queen(Color.BLACK)
-        self.coords = namedtuple('Coords', 'x y')
-        self.start_coords = self.coords(x=7, y=4)
-        self.chess_game.add(self.queen, self.start_coords)
+COORDS = namedtuple('Coords', 'x y')
 
-    def test_horizontal_move_valid(self):
-        valid = self.queen.valid_move(self.coords(x=1, y=4))
-        assert valid
+@pytest.fixture(scope='module')
+def queen():
+    """Setup game and return queen"""
+    chess_game = ChessGame()
+    game_queen = Queen(Color.BLACK)
+    start_coords = COORDS(x=7, y=4)
+    chess_game.add(game_queen, start_coords)
+    return game_queen
 
-    def test_vertical_capture_valid(self):
-        valid = self.queen.valid_capture(self.coords(x=7, y=6))
-        assert valid
 
-    def test_diagonal_move_valid(self):
-        valid = self.queen.valid_move(self.coords(x=5, y=2))
-        assert valid
+def test_horizontal_move_valid(queen):
+    valid = queen.valid_move(COORDS(x=1, y=4))
+    assert valid
 
-    def test_nonlinear_move_not_valid(self):
-        valid = self.queen.valid_move(self.coords(x=1, y=5))
-        assert not valid
 
-    def test_nonlinear_capture_not_valid(self):
-        valid = self.queen.valid_move(self.coords(x=6, y=2))
-        assert not valid
+def test_vertical_capture_valid(queen):
+    valid = queen.valid_capture(COORDS(x=7, y=6))
+    assert valid
+
+
+def test_diagonal_move_valid(queen):
+    valid = queen.valid_move(COORDS(x=5, y=2))
+    assert valid
+
+
+def test_nonlinear_move_not_valid(queen):
+    valid = queen.valid_move(COORDS(x=1, y=5))
+    assert not valid
+
+
+def test_nonlinear_capture_not_valid(queen):
+    valid = queen.valid_move(COORDS(x=6, y=2))
+    assert not valid
