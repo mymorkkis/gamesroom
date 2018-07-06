@@ -126,7 +126,7 @@ class ChessGame():
 
     def _pieces_blocking_move(self, piece, coords):
         """Helper method. Return bool."""
-        if piece.type == 'Knight': # Knight can jump over pieces
+        if piece.type == 'Knight':  # Knight can jump over pieces
             return False
 
         # Sort coords so logical direction of move not important

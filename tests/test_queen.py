@@ -9,9 +9,10 @@ from src.game_pieces.queen import Queen
 
 COORDS = namedtuple('Coords', 'x y')
 
+
 @pytest.fixture(scope='module')
 def queen():
-    """Setup game and return queen"""
+    """Setup Queen start coords. Return Queen"""
     chess_game = ChessGame()
     game_queen = Queen(Color.BLACK)
     start_coords = COORDS(x=7, y=4)

@@ -1,4 +1,4 @@
-"""Test module form ChessBoard class."""
+"""Test module form ChessGame class."""
 from collections import namedtuple
 import unittest
 
