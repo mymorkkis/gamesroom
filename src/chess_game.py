@@ -1,7 +1,7 @@
 """Module for ChessGame class."""
 from collections import defaultdict
 
-from src.game_enums import Color
+from src.game_enums import Color, Direction
 from src.game_helper import move_direction
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
 
@@ -135,15 +135,15 @@ class ChessGame():
         min_y_coord, max_y_coord = sorted([piece.y_coord, coords.y])
         direction = move_direction(piece, coords)
 
-        if direction == 'vertical':
+        if direction == Direction.VERTICAL:
             for next_y_coord in range(min_y_coord + 1, max_y_coord):
                 if self.board[piece.x_coord][next_y_coord] is not None:
                     return True
-        elif direction == 'horizontal':
+        elif direction == Direction.HORIZONTAL:
             for next_x_coord in range(min_x_coord + 1, max_x_coord):
                 if self.board[next_x_coord][piece.y_coord] is not None:
                     return True
-        elif direction == 'diagonal':
+        elif direction == Direction.DIAGONAL:
             next_y_coord = min_y_coord + 1
             for next_x_coord in range(min_x_coord + 1, max_x_coord):
                 if self.board[next_x_coord][next_y_coord] is not None:

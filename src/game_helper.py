@@ -3,20 +3,19 @@
    Functions:
         move_direction: Return str representation of move direction.
 """
+from src.game_enums import Direction
+
+
 def move_direction(piece, to_coords):
-    """Calculate direction from piece to coordinates. Return str.
-       
-       Return values: 'diagonal', 'horizontal', 'vertical', 'non_linear'
-    """
+    """Calculate direction from piece to coordinates. Return Direction enum."""
     if _diagonal_movement(piece, to_coords):
-        direction = 'diagonal'
+        return Direction.DIAGONAL
     elif piece.x_coord != to_coords.x and piece.y_coord == to_coords.y:
-        direction = 'horizontal'
+        return Direction.HORIZONTAL
     elif piece.y_coord != to_coords.y and piece.x_coord == to_coords.x:
-        direction = 'vertical'
+        return Direction.VERTICAL
     else:
-        direction = 'non_linear'
-    return direction
+        return Direction.NON_LINEAR
 
 
 def _diagonal_movement(piece, coords):

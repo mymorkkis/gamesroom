@@ -31,24 +31,20 @@ def test_invalid_game_color_throws_error():
     with pytest.raises(ValueError):
         Pawn('white')
 
-    with pytest.raises(ValueError):
-        Pawn(99)
-
 
 def test_abstract_methods_require_implementing():
+    # No capture method
     class TestPiece(GamePiece):
         def move():
             pass
 
-    # No capture method
     with pytest.raises(TypeError):
         TestPiece()
 
-
+    # No move method
     class TestPiece(GamePiece):
         def capture():
             pass
 
-    # No move method
     with pytest.raises(TypeError):
         TestPiece()

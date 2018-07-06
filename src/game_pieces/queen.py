@@ -1,4 +1,5 @@
 """Module for Queen class."""
+from src.game_enums import Direction
 from src.game_pieces.game_piece import GamePiece
 from src.game_helper import move_direction
 
@@ -17,6 +18,6 @@ class Queen(GamePiece):
 
     def _valid(self, coords):
         # Any linear move/capture valid for Queen
-        if move_direction(self, coords) != 'non_linear':
+        if move_direction(self, coords) != Direction.NON_LINEAR:
             return True
         return False

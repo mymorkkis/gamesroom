@@ -3,10 +3,10 @@
    Color: WHITE
           BLACK
 
-   Movement: HORIZONTAL
-             DIAGONAL
-             VERTICAL
-             NON_LINEAR
+   Direction: HORIZONTAL
+              DIAGONAL
+              VERTICAL
+              NON_LINEAR
 
 '''
 from enum import Enum, auto
@@ -16,8 +16,8 @@ class Color(Enum):
     BLACK = auto()
 
 
-class Movement(Enum):
+class Direction(Enum):
     HORIZONTAL = auto()
     DIAGONAL = auto()
-    VERTICATL = auto()
+    VERTICAL = auto()
     NON_LINEAR = auto()
