@@ -18,32 +18,32 @@ def pawn():
     chess_game.add(black_pawn, start_coords)
     return black_pawn
 
-def test_move_direction_diagonal_up(pawn):
-    to_coords = Coords(x=2, y=2)
-    direction = move_direction(pawn, to_coords)
-    assert direction == Direction.DIAGONAL
-
 def test_move_direction_diagonal_down(pawn):
     to_coords = Coords(x=6, y=6)
     direction = move_direction(pawn, to_coords)
     assert direction == Direction.DIAGONAL
 
-def test_move_direction_horizontal(pawn):
+def test_move_direction_diagonal_up(pawn):
+    to_coords = Coords(x=2, y=2)
+    direction = move_direction(pawn, to_coords)
+    assert direction == Direction.DIAGONAL
+
+def test_move_direction_horizontal_down(pawn):
     to_coords = Coords(x=2, y=4)
     direction = move_direction(pawn, to_coords)
     assert direction == Direction.HORIZONTAL
 
-def test_move_direction_horizontal(pawn):
+def test_move_direction_horizontal_up(pawn):
     to_coords = Coords(x=6, y=4)
     direction = move_direction(pawn, to_coords)
     assert direction == Direction.HORIZONTAL
 
-def test_move_direction_vertical(pawn):
+def test_move_direction_vertical_down(pawn):
     to_coords = Coords(x=4, y=2)
     direction = move_direction(pawn, to_coords)
     assert direction == Direction.VERTICAL
 
-def test_move_direction_vertical(pawn):
+def test_move_direction_vertical_up(pawn):
     to_coords = Coords(x=4, y=6)
     direction = move_direction(pawn, to_coords)
     assert direction == Direction.VERTICAL
@@ -53,7 +53,6 @@ def test_move_direction_non_linear(pawn):
     direction = move_direction(pawn, to_coords)
     assert direction == Direction.NON_LINEAR
 
-def test_move_direction_non_linear(pawn):
     to_coords = Coords(x=3, y=2)
     direction = move_direction(pawn, to_coords)
     assert direction == Direction.NON_LINEAR
