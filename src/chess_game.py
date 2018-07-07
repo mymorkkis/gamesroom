@@ -2,8 +2,11 @@
 from collections import defaultdict, namedtuple
 
 from src.game_enums import Color, Direction
-from src.game_helper import move_direction
-from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
+from src.game_errors import InvalidMoveError
+from src.game_helper import legal_start_position, move_direction, move_errors
+
+
+Coords = namedtuple('Coords', 'x y')
 
 
 class ChessGame():
@@ -14,16 +17,16 @@ class ChessGame():
             pieces: dict of defaultdict(int), tracks pieces on board
 
        Constants:
-            MAX_BOARD_WIDTH:  8
-            MAX_BOARD_HEIGHT: 8
+            BOARD_WIDTH:  8
+            BOARD_HEIGHT: 8
             MAX_PIECES: dict of max pieces per color; Piecename: max
 
         Methods:
             add:  add piece to board
             move: move piece from coordinates, to coordinates 
     """
-    MAX_BOARD_WIDTH = 8
-    MAX_BOARD_HEIGHT = 8
+    BOARD_WIDTH = 8
+    BOARD_HEIGHT = 8
     MAX_PIECES = {
         'Pawn': 8,
         'Knight': 2,
@@ -56,7 +59,7 @@ class ChessGame():
                 piece:  Any chess piece devived from GamePiece ABC
                 coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
         """
-        if self._legal_board_position(coords) and not self._max_quantity(piece):
+        if legal_start_position(self.board, coords) and not self._max_quantity(piece):
             self.pieces[piece.color][piece.type] += 1
             self._place(piece, coords)
 
@@ -72,8 +75,11 @@ class ChessGame():
                 PieceNotFoundError: If no piece found at from coordinates.
                 InvalidMoveError:   If attempted move not in-line with game rules.
         """
-        if not self._move_errors(from_coords, to_coords):
-            piece = self.board[from_coords.x][from_coords.y]
+        piece = self.board[from_coords.x][from_coords.y]
+
+        if (not move_errors(piece, from_coords, to_coords, self.BOARD_WIDTH, self.BOARD_HEIGHT)
+                and not self._piece_blocking_move(piece, to_coords) 
+                and self._valid_piece_move(piece, to_coords)):
             self._move(piece, to_coords)
 
     def _move(self, piece, coords):
@@ -99,41 +105,14 @@ class ChessGame():
         piece.x_coord = coords.x
         piece.y_coord = coords.y
 
-    def _move_errors(self, from_coords, to_coords):
-        """Helper function for move. Raise errors or return False."""
-        if not self._coords_on_board(from_coords):
-            raise NotOnBoardError(from_coords, 'From coordinates not valid board coordinates')
-
-        if not self._coords_on_board(to_coords):
-            raise NotOnBoardError(to_coords, 'To coordinates not valid board coordinates')
-
-        if from_coords == to_coords:
-            raise InvalidMoveError(from_coords, to_coords, 'Move to same square invalid')
-
-        piece = self.board[from_coords.x][from_coords.y]
-        if not piece:
-            raise PieceNotFoundError(from_coords, 'No piece found at from coordinates')
-
-        if self._piece_blocking_move(piece, to_coords):
-            raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
-
-        if not self._valid_piece_move(piece, to_coords):
-            raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
-
-        return False  # No move errors
-
-    def _coords_on_board(self, coords):
-        """Helper method. Return bool"""
-        if (coords.x not in range(self.MAX_BOARD_WIDTH) 
-                or coords.y not in range(self.MAX_BOARD_HEIGHT)):
-            return False
-        return True
-
     def _piece_blocking_move(self, piece, to_coords):
         """Helper method. Return bool."""
-        if piece.type == 'Knight':  # Knight can jump over pieces
+        from_coords = Coords(x=piece.x_coord, y=piece.y_coord)
+        if piece.type == 'Knight' or not self._piece_blocking(piece, from_coords, to_coords):
             return False
+        raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
 
+    def _piece_blocking(self, piece, from_coords, to_coords):
         # Sort coords so logical direction of move not important
         # (x=5, y=6) -> (x=1, y=2) same as (x=1, y=2) -> (x=5, y=6)
         min_x_coord, max_x_coord = sorted([piece.x_coord, to_coords.x])
@@ -155,28 +134,23 @@ class ChessGame():
                     return True
                 next_y_coord += 1 
         else:  # Should never reach here
-            coords = namedtuple('Coords', 'x y')
-            from_coords = coords(x=piece.x_coord, y=piece.y_coord)
             raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
-
-        return False  # No pieces blocking
+            
+        return False  # No piece blocking
 
     def _valid_piece_move(self, piece, to_coords):
         """Check if to_coords are valid move or capture for piece. Return bool."""
         if self.board[to_coords.x][to_coords.y] is None:  
             # Empty square == move
-            return piece.valid_move(to_coords)
-        # Occupied square == capture
-        return piece.valid_capture(to_coords)
+            valid = piece.valid_move(to_coords)
+        else:  # Occupied square == capture
+            valid = piece.valid_capture(to_coords)
 
-    def _legal_board_position(self, coords):
-        """Check passed coordinates are valid. Return bool."""
-        try:
-            if self.board[coords.x][coords.y] is None:
-                return True
-            return False
-        except IndexError:  # Not on ChessBoard
-            return False
+        if not valid:
+            from_coords = Coords(x=piece.x_coord, y=piece.y_coord)
+            raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
+
+        return True
 
     def _max_quantity(self, piece):
         """Check quantity of passed piece on board. Return bool."""
