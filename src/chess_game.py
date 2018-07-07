@@ -78,7 +78,7 @@ class ChessGame():
         piece = self.board[from_coords.x][from_coords.y]
 
         if (not move_errors(piece, from_coords, to_coords, self.BOARD_WIDTH, self.BOARD_HEIGHT)
-                and not self._piece_blocking_move(piece, to_coords) 
+                and not self._piece_blocking_move(from_coords, to_coords) 
                 and self._valid_piece_move(piece, to_coords)):
             self._move(piece, to_coords)
 
@@ -105,27 +105,30 @@ class ChessGame():
         piece.x_coord = coords.x
         piece.y_coord = coords.y
 
-    def _piece_blocking_move(self, piece, to_coords):
-        """Helper method. Return bool."""
-        from_coords = Coords(x=piece.x_coord, y=piece.y_coord)
-        if piece.type == 'Knight' or not self._piece_blocking(piece, from_coords, to_coords):
+    def _piece_blocking_move(self, from_coords, to_coords):
+        """Check if piece blocking move. Return bool or raise InvalidMoveError."""
+        if not self._piece_blocking(from_coords, to_coords):
             return False
         raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
 
-    def _piece_blocking(self, piece, from_coords, to_coords):
+    def _piece_blocking(self, from_coords, to_coords):
+        """Helper method. Return bool."""
         # Sort coords so logical direction of move not important
         # (x=5, y=6) -> (x=1, y=2) same as (x=1, y=2) -> (x=5, y=6)
-        min_x_coord, max_x_coord = sorted([piece.x_coord, to_coords.x])
-        min_y_coord, max_y_coord = sorted([piece.y_coord, to_coords.y])
-        direction = move_direction(piece, to_coords)
+        min_x_coord, max_x_coord = sorted([from_coords.x, to_coords.x])
+        min_y_coord, max_y_coord = sorted([from_coords.y, to_coords.y])
+        direction = move_direction(from_coords, to_coords)
 
-        if direction == Direction.VERTICAL:
+        if direction == Direction.NON_LINEAR:
+            # Only Knights move non_linear and they can jump over pieces
+            return False
+        elif direction == Direction.VERTICAL:
             for next_y_coord in range(min_y_coord + 1, max_y_coord):
-                if self.board[piece.x_coord][next_y_coord] is not None:
+                if self.board[from_coords.x][next_y_coord] is not None:
                     return True
         elif direction == Direction.HORIZONTAL:
             for next_x_coord in range(min_x_coord + 1, max_x_coord):
-                if self.board[next_x_coord][piece.y_coord] is not None:
+                if self.board[next_x_coord][from_coords.y] is not None:
                     return True
         elif direction == Direction.DIAGONAL:
             next_y_coord = min_y_coord + 1
@@ -133,8 +136,6 @@ class ChessGame():
                 if self.board[next_x_coord][next_y_coord] is not None:
                     return True
                 next_y_coord += 1 
-        else:  # Should never reach here
-            raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
             
         return False  # No piece blocking
 
