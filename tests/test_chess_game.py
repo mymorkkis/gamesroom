@@ -130,28 +130,6 @@
 #         assert not white_pawn2.x_coord
 #         assert not white_pawn2.x_coord
 #         assert self.chess_game.pieces[color][type_] == 0
-
-#     def test_invalid_from_coords_raises_exception(self):
-#         from_coords = self.coords(x=1, y=50)
-#         to_coords = self.coords(x=1, y=6)
-#         self.assertRaises(NotOnBoardError, self.move, from_coords, to_coords)
-
-#     def test_invalid_to_coords_raises_exception(self):
-#         from_coords = self.coords(x=1, y=6)
-#         to_coords = self.coords(x=50, y=7)
-#         self.assertRaises(NotOnBoardError, self.move, from_coords, to_coords)
-
-#     def test_empty_from_coords_raises_exception(self):
-#         from_coords = self.coords(x=1, y=6)
-#         to_coords = self.coords(x=1, y=5)
-#         self.assertRaises(PieceNotFoundError, self.move, from_coords, to_coords)
-
-#     def test_same_from_and_to_coords_raise_exception(self):
-#         self.chess_game.add(self.piece, self.coords(1, 2))
-#         from_coords = self.coords(x=1, y=2)
-#         to_coords = self.coords(x=1, y=2)
-#         self.assertRaises(InvalidMoveError, self.move, from_coords, to_coords)       
-
 #     def test_piece_blocking_vertical_move_raises_exception(self):
 #         self.chess_game.add(self.piece, self.coords(2, 2))
 #         self.chess_game.add(self.blocking_piece, self.coords(2, 3))

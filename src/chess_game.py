@@ -1,9 +1,9 @@
 """Module for ChessGame class."""
 from collections import defaultdict, namedtuple
 
-from src.game_enums import Color, Direction
+from src.game_enums import Color
 from src.game_errors import InvalidMoveError
-from src.game_helper import legal_start_position, move_direction, move_errors
+from src.game_helper import legal_start_position, move_errors, piece_blocking
 
 
 Coords = namedtuple('Coords', 'x y')
@@ -107,37 +107,9 @@ class ChessGame():
 
     def _piece_blocking_move(self, from_coords, to_coords):
         """Check if piece blocking move. Return bool or raise InvalidMoveError."""
-        if not self._piece_blocking(from_coords, to_coords):
+        if not piece_blocking(self.board, from_coords, to_coords):
             return False
         raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
-
-    def _piece_blocking(self, from_coords, to_coords):
-        """Helper method. Return bool."""
-        # Sort coords so logical direction of move not important
-        # (x=5, y=6) -> (x=1, y=2) same as (x=1, y=2) -> (x=5, y=6)
-        min_x_coord, max_x_coord = sorted([from_coords.x, to_coords.x])
-        min_y_coord, max_y_coord = sorted([from_coords.y, to_coords.y])
-        direction = move_direction(from_coords, to_coords)
-
-        if direction == Direction.NON_LINEAR:
-            # Only Knights move non_linear and they can jump over pieces
-            return False
-        elif direction == Direction.VERTICAL:
-            for next_y_coord in range(min_y_coord + 1, max_y_coord):
-                if self.board[from_coords.x][next_y_coord] is not None:
-                    return True
-        elif direction == Direction.HORIZONTAL:
-            for next_x_coord in range(min_x_coord + 1, max_x_coord):
-                if self.board[next_x_coord][from_coords.y] is not None:
-                    return True
-        elif direction == Direction.DIAGONAL:
-            next_y_coord = min_y_coord + 1
-            for next_x_coord in range(min_x_coord + 1, max_x_coord):
-                if self.board[next_x_coord][next_y_coord] is not None:
-                    return True
-                next_y_coord += 1 
-            
-        return False  # No piece blocking
 
     def _valid_piece_move(self, piece, to_coords):
         """Check if to_coords are valid move or capture for piece. Return bool."""

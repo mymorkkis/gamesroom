@@ -42,6 +42,34 @@ def move_errors(piece, from_coords, to_coords, board_width, board_hight):
 
     return False
 
+def piece_blocking(board, from_coords, to_coords):
+    """Helper method. Return bool."""
+    # Sort coords so logical direction of move not important
+    # (x=5, y=6) -> (x=1, y=2) same as (x=1, y=2) -> (x=5, y=6)
+    min_x_coord, max_x_coord = sorted([from_coords.x, to_coords.x])
+    min_y_coord, max_y_coord = sorted([from_coords.y, to_coords.y])
+    direction = move_direction(from_coords, to_coords)
+
+    if direction == Direction.NON_LINEAR:
+        # Only Knights move non_linear and they can jump over pieces
+        return False
+    elif direction == Direction.VERTICAL:
+        for next_y_coord in range(min_y_coord + 1, max_y_coord):
+            if board[from_coords.x][next_y_coord] is not None:
+                return True
+    elif direction == Direction.HORIZONTAL:
+        for next_x_coord in range(min_x_coord + 1, max_x_coord):
+            if board[next_x_coord][from_coords.y] is not None:
+                return True
+    elif direction == Direction.DIAGONAL:
+        next_y_coord = min_y_coord + 1
+        for next_x_coord in range(min_x_coord + 1, max_x_coord):
+            if board[next_x_coord][next_y_coord] is not None:
+                return True
+            next_y_coord += 1 
+        
+    return False  # No piece blocking
+
 
 def coords_on_board(coords, board_width, board_hight):
     """Check if coordinates withing board range. Return bool"""
