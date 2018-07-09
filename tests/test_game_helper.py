@@ -3,7 +3,7 @@ import pytest
 
 from src.chess_game import ChessGame
 from src.game_enums import Color, Direction
-from src.game_helper import Coords, legal_start_position, move_direction, move_errors
+from src.game_helper import Coords, legal_start_position, move_direction, coord_errors
 from src.game_pieces.pawn import Pawn
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
 
@@ -68,28 +68,28 @@ def test_move_direction_non_linear(pawn):
 def test_move_errors_return_false_if_no_errors(pawn):
     from_coords = Coords(x=pawn.x_coord, y=pawn.y_coord)
     to_coords = Coords(x=4, y=3)
-    assert not move_errors(pawn, from_coords, to_coords, 8, 8)
+    assert not coord_errors(pawn, from_coords, to_coords, 8, 8)
 
 
 def test_invalid_from_coords_raises_exception(pawn):
     from_coords = Coords(x=1, y=50)  # From coordinates not on board
     to_coords = Coords(x=1, y=6)
     with pytest.raises(NotOnBoardError):
-        move_errors(pawn, from_coords, to_coords, 8, 8)
+        coord_errors(pawn, from_coords, to_coords, 8, 8)
 
 
 def test_invalid_to_coords_raises_exception(pawn):
     from_coords = Coords(x=pawn.x_coord, y=pawn.y_coord)
     to_coords = Coords(x=50, y=7)  # To coordinates not on board
     with pytest.raises(NotOnBoardError):
-        move_errors(pawn, from_coords, to_coords, 8, 8)
+        coord_errors(pawn, from_coords, to_coords, 8, 8)
 
 
 def test_same_from_and_to_coords_raise_exception(pawn):
     from_coords = Coords(x=4, y=4)
     to_coords = Coords(x=4, y=4)
     with pytest.raises(InvalidMoveError):
-        move_errors(pawn, from_coords, to_coords, 8, 8)
+        coord_errors(pawn, from_coords, to_coords, 8, 8)
 
 
 def test_no_piece_at_from_coords_raises_exception():
@@ -97,7 +97,7 @@ def test_no_piece_at_from_coords_raises_exception():
     to_coords = Coords(x=1, y=5)
     with pytest.raises(PieceNotFoundError):
         # No piece passed to function
-        move_errors(None, from_coords, to_coords, 8, 8)
+        coord_errors(None, from_coords, to_coords, 8, 8)
 
 
 def test_legal_start_position():

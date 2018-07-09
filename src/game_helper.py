@@ -32,7 +32,7 @@ def _diagonal_movement(from_coords, to_coords):
     return (max_x_coord - min_x_coord) == (max_y_coord - min_y_coord)
 
 
-def move_errors(piece, from_coords, to_coords, board_width, board_hight):
+def coord_errors(piece, from_coords, to_coords, board_width, board_hight):
     """Helper function for move. Raise errors or return False."""
     if not coords_on_board(from_coords, board_width, board_hight):
         raise NotOnBoardError(from_coords, 'From coordinates not valid board coordinates')

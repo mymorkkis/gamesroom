@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from src.game_enums import Color
 from src.game_errors import InvalidMoveError
-from src.game_helper import Coords, legal_start_position, move_errors, piece_blocking
+from src.game_helper import Coords, legal_start_position, coord_errors, piece_blocking
 
 
 class ChessGame():
@@ -73,28 +73,24 @@ class ChessGame():
                 InvalidMoveError:   If attempted move not in-line with game rules.
         """
         piece = self.board[from_coords.x][from_coords.y]
+        args = piece, from_coords, to_coords, self.BOARD_WIDTH, self.BOARD_HEIGHT
 
-        if (not move_errors(piece, from_coords, to_coords, self.BOARD_WIDTH, self.BOARD_HEIGHT)
-                and not self._piece_blocking_move(from_coords, to_coords) 
-                and self._valid_piece_move(piece, to_coords)):
-            self._move(piece, to_coords)
+        if not coord_errors(*args) and not self._piece_blocking_move(from_coords, to_coords):
+            if self._valid_piece_move(piece, to_coords):
+                # Remove piece from current coordinates
+                self.board[piece.x_coord][piece.y_coord] = None
 
-    def _move(self, piece, coords):
-        """Clear current piece postion, remove captured piece, place piece on new coordinates."""
-        # Empty piece current square
-        self.board[piece.x_coord][piece.y_coord] = None
+                # If move is capture, remove captured piece
+                board_postion = self.board[to_coords.x][to_coords.y]
+                if board_postion is not None:
+                    captured_piece = board_postion
+                    captured_piece.x_coord = None
+                    captured_piece.y_coord = None
+                    board_postion = None
+                    self.pieces[captured_piece.color][captured_piece.type] -= 1
 
-        # If move is capture, remove captured piece
-        board_postion = self.board[coords.x][coords.y]
-        if board_postion is not None:
-            captured_piece = board_postion
-            captured_piece.x_coord = None
-            captured_piece.y_coord = None
-            board_postion = None
-            self.pieces[captured_piece.color][captured_piece.type] -= 1
-
-        # Place piece at new coordinates
-        self._place(piece, coords)
+                # Place piece at new coordinates
+                self._place(piece, to_coords)
 
     def _place(self, piece, coords):
         """Add piece to coordinates and update piece coordinates."""
