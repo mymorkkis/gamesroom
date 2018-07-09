@@ -1,10 +1,6 @@
 """Test module for game_errors."""
-from collections import namedtuple
-
+from src.game_helper import Coords
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
-
-
-Coords = namedtuple('Coords', 'x y')
 
 
 def test_invalid_move_error():

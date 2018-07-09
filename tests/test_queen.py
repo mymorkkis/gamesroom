@@ -1,13 +1,10 @@
 """Test module for Queen game piece."""
-from collections import namedtuple
 import pytest
 
 from src.chess_game import ChessGame
 from src.game_enums import Color
+from src.game_helper import Coords
 from src.game_pieces.queen import Queen
-
-
-Coords = namedtuple('Coords', 'x y')
 
 
 @pytest.fixture(scope='module')

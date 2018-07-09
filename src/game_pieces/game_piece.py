@@ -43,11 +43,11 @@ class GamePiece(ABC):
     
 
     @abstractmethod
-    def valid_move(self, coords):
+    def valid_move(self, to_coords):
         """Confirm if move at passed coordinates supported by this piece. Return bool."""
         raise NotImplementedError() 
 
     @abstractmethod
-    def valid_capture(self, coords):
+    def valid_capture(self, to_coords):
         """Confirm if capture at passed coordinates supported by this piece. Return bool."""
         raise NotImplementedError() 

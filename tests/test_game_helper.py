@@ -1,15 +1,11 @@
 """Test module form game_helper module."""
-from collections import namedtuple
 import pytest
 
 from src.chess_game import ChessGame
 from src.game_enums import Color, Direction
-from src.game_helper import legal_start_position, move_direction, move_errors
+from src.game_helper import Coords, legal_start_position, move_direction, move_errors
 from src.game_pieces.pawn import Pawn
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
-
-
-Coords = namedtuple('Coords', 'x y')
 
 
 @pytest.fixture(scope='module')
@@ -22,42 +18,50 @@ def pawn():
 
 
 def test_move_direction_diagonal(pawn):
+    from_coords = Coords(x=pawn.x_coord, y=pawn.y_coord)
     to_coords = Coords(x=6, y=6)
-    direction = move_direction(pawn, to_coords)
+    direction = move_direction(from_coords, to_coords)
     assert direction == Direction.DIAGONAL
 
+    from_coords = Coords(x=pawn.x_coord, y=pawn.y_coord)
     to_coords = Coords(x=2, y=2)
-    direction = move_direction(pawn, to_coords)
+    direction = move_direction(from_coords, to_coords)
     assert direction == Direction.DIAGONAL
 
 
 def test_move_direction_horizontal(pawn):
+    from_coords = Coords(x=pawn.x_coord, y=pawn.y_coord)
     to_coords = Coords(x=2, y=4)
-    direction = move_direction(pawn, to_coords)
+    direction = move_direction(from_coords, to_coords)
     assert direction == Direction.HORIZONTAL
 
+    from_coords = Coords(x=pawn.x_coord, y=pawn.y_coord)
     to_coords = Coords(x=6, y=4)
-    direction = move_direction(pawn, to_coords)
+    direction = move_direction(from_coords, to_coords)
     assert direction == Direction.HORIZONTAL
 
 
 def test_move_direction_vertical(pawn):
+    from_coords = Coords(x=pawn.x_coord, y=pawn.y_coord)
     to_coords = Coords(x=4, y=2)
-    direction = move_direction(pawn, to_coords)
+    direction = move_direction(from_coords, to_coords)
     assert direction == Direction.VERTICAL
 
+    from_coords = Coords(x=pawn.x_coord, y=pawn.y_coord)
     to_coords = Coords(x=4, y=6)
-    direction = move_direction(pawn, to_coords)
+    direction = move_direction(from_coords, to_coords)
     assert direction == Direction.VERTICAL
 
 
 def test_move_direction_non_linear(pawn):
+    from_coords = Coords(x=pawn.x_coord, y=pawn.y_coord)
     to_coords = Coords(x=5, y=6)
-    direction = move_direction(pawn, to_coords)
+    direction = move_direction(from_coords, to_coords)
     assert direction == Direction.NON_LINEAR
 
+    from_coords = Coords(x=pawn.x_coord, y=pawn.y_coord)
     to_coords = Coords(x=3, y=2)
-    direction = move_direction(pawn, to_coords)
+    direction = move_direction(from_coords, to_coords)
     assert direction == Direction.NON_LINEAR
 
 

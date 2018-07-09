@@ -1,12 +1,9 @@
 """Module for ChessGame class."""
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 
 from src.game_enums import Color
 from src.game_errors import InvalidMoveError
-from src.game_helper import legal_start_position, move_errors, piece_blocking
-
-
-Coords = namedtuple('Coords', 'x y')
+from src.game_helper import Coords, legal_start_position, move_errors, piece_blocking
 
 
 class ChessGame():
