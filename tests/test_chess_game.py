@@ -6,7 +6,7 @@ from src.chess_game import ChessGame
 from src.game_enums import Color
 from src.game_helper import Coords
 from src.game_pieces.pawn import Pawn
-from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
+from src.game_errors import InvalidMoveError, NotOnBoardError
 
 
 @pytest.fixture(scope='function')
@@ -110,52 +110,15 @@ def test_captured_piece_removed_from_board(game, piece, opponent_piece):
     assert game.pieces[opponent_piece.color][opponent_piece.type] == 0
 
 
-# def test_piece_blocking_vertical_move_raises_exception(game, piece, opponent_piece):
-#     game.add(piece, Coords(x=2, y=2))
-#     game.add(opponent_piece, Coords(x=2, y=3))
-#     from_coords = self.coords(2, 2)
-#     to_coords = self.coords(2, 4)
-#     self.assertRaises(InvalidMoveError, self.move, from_coords, to_coords)
+def test_piece_blocking_move_raises_exception(game, piece, opponent_piece):
+    game.add(piece, Coords(x=0, y=1))
+    game.add(opponent_piece, Coords(x=0, y=2))
+    with pytest.raises(InvalidMoveError):
+        game.move(Coords(x=0, y=1), Coords(x=0, y=3))
 
-# def test_piece_blocking_vertical_move_down_raises_exception(self):
-#     self.chess_game.add(self.piece, self.coords(2, 6))
-#     self.chess_game.add(self.blocking_piece, self.coords(2, 4))
-#     from_coords = self.coords(2, 6)
-#     to_coords = self.coords(2, 2)
-#     self.assertRaises(InvalidMoveError, self.move, from_coords, to_coords)
 
-# def test_piece_blocking_horizontal_move_raises_exception(self):
-#     self.chess_game.add(self.piece, self.coords(2, 2))
-#     self.chess_game.add(self.blocking_piece, self.coords(4, 2))
-#     from_coords = self.coords(2, 2)
-#     to_coords = self.coords(5, 2)
-#     self.assertRaises(InvalidMoveError, self.move, from_coords, to_coords)
-
-# def test_piece_blocking_diagonal_move_raises_exception(self):
-#     self.chess_game.add(self.piece, self.coords(1, 2))
-#     self.chess_game.add(self.blocking_piece, self.coords(3, 4))
-#     from_coords = self.coords(1, 2)
-#     to_coords = self.coords(4, 5)
-#     self.assertRaises(InvalidMoveError, self.move, from_coords, to_coords)
-
-# def test_piece_blocking_diagonal_down_move_raises_exception(self):
-#     self.chess_game.add(self.piece, self.coords(6, 7))
-#     self.chess_game.add(self.blocking_piece, self.coords(3, 4))
-#     from_coords = self.coords(6, 7)
-#     to_coords = self.coords(1, 2)
-#     self.assertRaises(InvalidMoveError, self.move, from_coords, to_coords)
-
-# def test_invalid_move_for_piece_raises_exception(self):
-#     from_coords = self.coords(x=1, y=2)
-#     to_coords = self.coords(x=2, y=2)
-#     self.chess_game.add(self.pawn, from_coords)
-#     # Pawn cant move horizontal
-#     self.assertRaises(InvalidMoveError, self.move, from_coords, to_coords)
-
-# def test_invalid_capture_for_piece_raises_exception(self):
-#     from_coords = self.coords(x=1, y=6)
-#     to_coords = self.coords(x=1, y=5)
-#     self.chess_game.add(self.pawn, from_coords)
-#     self.chess_game.add(self.piece, to_coords)
-#     # Pawn cant capture vertically
-#     self.assertRaises(InvalidMoveError, self.move, from_coords, to_coords)
+def test_invalid_piece_move_raises_exception(game, piece):
+    game.add(piece, Coords(x=0, y=1))
+    with pytest.raises(InvalidMoveError):
+        # Pawn can't move horizontally
+        game.move(Coords(x=0, y=1), Coords(x=1, y=1))

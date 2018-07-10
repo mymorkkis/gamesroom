@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from src.game_enums import Color
 from src.game_errors import InvalidMoveError
-from src.game_helper import Coords, legal_start_position, coord_errors, piece_blocking
+from src.game_helper import chess_piece_blocking, coord_errors, Coords, legal_start_position
 
 
 class ChessGame():
@@ -100,7 +100,7 @@ class ChessGame():
 
     def _piece_blocking_move(self, from_coords, to_coords):
         """Check if piece blocking move. Return bool or raise InvalidMoveError."""
-        if not piece_blocking(self.board, from_coords, to_coords):
+        if not chess_piece_blocking(self.board, from_coords, to_coords):
             return False
         raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
 

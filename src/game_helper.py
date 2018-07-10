@@ -32,6 +32,16 @@ def _diagonal_movement(from_coords, to_coords):
     return (max_x_coord - min_x_coord) == (max_y_coord - min_y_coord)
 
 
+def legal_start_position(board, coords):
+    """Check passed coordinates are valid. Return bool or raise NotOnBoardError."""
+    try:
+        if board[coords.x][coords.y] is None:
+            return True
+        return False
+    except IndexError:
+        raise NotOnBoardError(coords, 'Start coordingates not on board')
+
+
 def coord_errors(piece, from_coords, to_coords, board_width, board_hight):
     """Helper function for move. Raise errors or return False."""
     if not coords_on_board(from_coords, board_width, board_hight):
@@ -48,7 +58,15 @@ def coord_errors(piece, from_coords, to_coords, board_width, board_hight):
 
     return False
 
-def piece_blocking(board, from_coords, to_coords):
+
+def coords_on_board(coords, board_width, board_hight):
+    """Check if coordinates withing board range. Return bool"""
+    if coords.x not in range(board_width) or coords.y not in range(board_hight):
+        return False
+    return True
+
+
+def chess_piece_blocking(board, from_coords, to_coords):
     """Helper method. Return bool."""
     # Sort coords so logical direction of move not important
     # (x=5, y=6) -> (x=1, y=2) same as (x=1, y=2) -> (x=5, y=6)
@@ -75,20 +93,3 @@ def piece_blocking(board, from_coords, to_coords):
             next_y_coord += 1 
         
     return False  # No piece blocking
-
-
-def coords_on_board(coords, board_width, board_hight):
-    """Check if coordinates withing board range. Return bool"""
-    if coords.x not in range(board_width) or coords.y not in range(board_hight):
-        return False
-    return True
-
-
-def legal_start_position(board, coords):
-    """Check passed coordinates are valid. Return bool or raise NotOnBoardError."""
-    try:
-        if board[coords.x][coords.y] is None:
-            return True
-        return False
-    except IndexError:
-        raise NotOnBoardError(coords, 'Start coordingates not on board')
