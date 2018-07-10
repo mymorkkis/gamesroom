@@ -26,46 +26,48 @@ def white_pawn():
 
 
 @pytest.mark.parametrize('coords, rt_val', [
-    (Coords(x=1, y=5), True),
-    # TODO Add test to confirm 2 spaces on first move
-    (Coords(x=1, y=7), False),
-    (Coords(x=0, y=5), False),
+    (Coords(x=1, y=5), True),   # Can move forward one space
+    (Coords(x=1, y=4), True),   # 2 spaces forward allowed on first move
+    (Coords(x=1, y=7), False),  # Can't move backwards
+    (Coords(x=0, y=5), False),  # Can only move horizontally
     (Coords(x=2, y=5), False),
-    (Coords(x=1, y=3), False)
+    (Coords(x=1, y=3), False)   # Can't move forward more than one (or two) spaces
 ])
 def test_black_pawn_valid_move(black_pawn, coords, rt_val):
     assert black_pawn.valid_move(coords) == rt_val
 
 
 @pytest.mark.parametrize('coords, rt_val', [
-    (Coords(x=1, y=2), True),
-    # TODO Add test to confirm 2 spaces on first move
-    (Coords(x=1, y=0), False),
-    (Coords(x=0, y=2), False),
+    (Coords(x=1, y=2), True),   # Can move forward one space
+    (Coords(x=1, y=3), True),   # 2 spaces forward allowed on first move
+    (Coords(x=1, y=0), False),  # Can't move backwards
+    (Coords(x=0, y=2), False),  # Can only move horizontally
     (Coords(x=2, y=2), False),
-    (Coords(x=1, y=4), False)
+    (Coords(x=1, y=4), False)   # Can't move forward more than one (or two) spaces
 ])
 def test_white_pawn_valid_move(white_pawn, coords, rt_val):
     assert white_pawn.valid_move(coords) == rt_val
 
 
 @pytest.mark.parametrize('coords, rt_val', [
-    (Coords(x=2, y=5), True),
+    (Coords(x=2, y=5), True),   # Can capture one space diagonally
     (Coords(x=0, y=5), True),
-    (Coords(x=1, y=5), False),
-    (Coords(x=1, y=7), False),
-    (Coords(x=1, y=6), False)
+    (Coords(x=0, y=4), False),  # Can't capture two spaces forward on first move
+    (Coords(x=1, y=5), False),  # Can't capture forwards
+    (Coords(x=1, y=7), False),  # Can't caputre backwards
+    (Coords(x=3, y=4), False)   # Can't capture two spaces diagonally
 ])
 def test_black_pawn_valid_capture(black_pawn, coords, rt_val):
     assert black_pawn.valid_capture(coords) == rt_val
 
 
 @pytest.mark.parametrize('coords, rt_val', [
-    (Coords(x=2, y=2), True),
+    (Coords(x=2, y=2), True),   # Can capture one space diagonally
     (Coords(x=0, y=2), True),
-    (Coords(x=1, y=2), False),
-    (Coords(x=1, y=0), False),
-    (Coords(x=1, y=1), False)
+    (Coords(x=0, y=3), False),  # Can't capture two spaces forward on first move
+    (Coords(x=1, y=2), False),  # Can't capture forwards
+    (Coords(x=1, y=0), False),  # Can't caputre backwards
+    (Coords(x=3, y=3), False)   # Can't capture two spaces diagonally
 ])
 def test_white_pawn_valid_capture(white_pawn, coords, rt_val):
     assert white_pawn.valid_capture(coords) == rt_val
