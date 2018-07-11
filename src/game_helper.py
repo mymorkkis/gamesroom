@@ -14,7 +14,7 @@ Coords = namedtuple('Coords', 'x y')
 
 def move_direction(from_coords, to_coords):
     """Calculate direction from from_coordinates to coordinates. Return Direction enum."""
-    if _diagonal_movement(from_coords, to_coords):
+    if abs(from_coords.x - to_coords.x) == abs(from_coords.y - to_coords.y):
         return Direction.DIAGONAL
     elif from_coords.x != to_coords.x and from_coords.y == to_coords.y:
         return Direction.HORIZONTAL
@@ -22,14 +22,6 @@ def move_direction(from_coords, to_coords):
         return Direction.VERTICAL
     else:
         return Direction.NON_LINEAR
-
-
-def _diagonal_movement(from_coords, to_coords):
-    """Helper function for move_direction. Return bool."""
-    min_x_coord, max_x_coord = sorted([from_coords.x, to_coords.x])
-    min_y_coord, max_y_coord = sorted([from_coords.y, to_coords.y])
-    # Only diagonal if distance equal lengths
-    return (max_x_coord - min_x_coord) == (max_y_coord - min_y_coord)
 
 
 def legal_start_position(board, coords):
