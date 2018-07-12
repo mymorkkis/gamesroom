@@ -1,4 +1,4 @@
-"""GamePiece Abstract Base Class."""
+"""Module for GamePiece abstract base class."""
 from abc import ABC, abstractmethod
 
 from src.game_enums import Color

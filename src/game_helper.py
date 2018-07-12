@@ -1,7 +1,14 @@
-"""Module of helper functions for chess game.
+"""Module of helper functions for games.
+
+   Object:
+        Coords: namedtuple('Coords', 'x y')
 
    Functions:
-        move_direction: Return str representation of move direction.
+        move_direction: Return move direction as Direction enum type.
+        legal_start_position: Check passed start coordinates are valid.
+        coord_errors: Check for errors in passed board coordinates.
+        coords_on_board: Check coordinates are on board.
+        chess_piece_blocking: Check if piece blocking chess game move.
 """
 from collections import namedtuple
 
@@ -13,7 +20,15 @@ Coords = namedtuple('Coords', 'x y')
 
 
 def move_direction(from_coords, to_coords):
-    """Calculate direction from from_coordinates to coordinates. Return Direction enum."""
+    """Calculate direction from from_coordinates to coordinates. Return Direction enum.
+
+       Args:
+            from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
+            to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
+
+       Returns:
+            Direction enum type
+    """
     if abs(from_coords.x - to_coords.x) == abs(from_coords.y - to_coords.y):
         return Direction.DIAGONAL
     elif from_coords.x != to_coords.x and from_coords.y == to_coords.y:
@@ -35,7 +50,23 @@ def legal_start_position(board, coords):
 
 
 def coord_errors(piece, from_coords, to_coords, board_width, board_hight):
-    """Helper function for move. Raise errors or return False."""
+    """Check for errors in passed board coordinates.
+
+       Args:
+            piece:       Game piece found at from_coords
+            from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
+            to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
+            board_width: int
+            board_hight: int
+
+       Raises:
+            NotOnBoardError:    If either passed coordinates are not in board grid.
+            InvalidMoveError:   If from_coords and to_coords are the same.
+            PieceNotFoundError: If no piece found at from coordinates.
+
+       Returns:
+            False (or raises error)
+    """
     if not coords_on_board(from_coords, board_width, board_hight):
         raise NotOnBoardError(from_coords, 'From coordinates not valid board coordinates')
 
@@ -52,19 +83,19 @@ def coord_errors(piece, from_coords, to_coords, board_width, board_hight):
 
 
 def coords_on_board(coords, board_width, board_hight):
-    """Check if coordinates withing board range. Return bool"""
-    if coords.x not in range(board_width) or coords.y not in range(board_hight):
-        return False
-    return True
+    """Check if coordinates within board range. Return bool"""
+    if coords.x in range(board_width) and coords.y in range(board_hight):
+        return True
+    return False
 
 
 def chess_piece_blocking(board, from_coords, to_coords):
-    """Helper method. Return bool."""
+    """Check if any piece blocking move from_coords to_coords. Return bool."""
+    direction = move_direction(from_coords, to_coords)
     # Sort coords so logical direction of move not important
     # (x=5, y=6) -> (x=1, y=2) same as (x=1, y=2) -> (x=5, y=6)
     min_x_coord, max_x_coord = sorted([from_coords.x, to_coords.x])
     min_y_coord, max_y_coord = sorted([from_coords.y, to_coords.y])
-    direction = move_direction(from_coords, to_coords)
 
     if direction == Direction.NON_LINEAR:
         # Only Knights move non_linear and they can jump over pieces
