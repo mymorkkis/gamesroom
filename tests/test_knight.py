@@ -30,6 +30,24 @@ def knight():
     (Coords(x=2, y=4), False),  # Can't move horizontally
     (Coords(x=5, y=5), False),  # Can't move diagonally
     (Coords(x=2, y=8), False),  # Can't move non_linear movement more than 3 spaces
-])  # Capture also tested as uses same logic as move
-def test_knight_valid_move_and_capture(knight, coords, rt_val):
+])
+def test_knight_valid_move(knight, coords, rt_val):
     assert knight.valid_move(coords) == rt_val
+
+
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=5, y=6), True),
+    (Coords(x=5, y=2), True),
+    (Coords(x=6, y=5), True),
+    (Coords(x=6, y=3), True),
+    (Coords(x=3, y=6), True),
+    (Coords(x=3, y=2), True),  
+    (Coords(x=2, y=5), True),
+    (Coords(x=2, y=3), True),
+    (Coords(x=4, y=6), False),  # Can't capture vertically
+    (Coords(x=2, y=4), False),  # Can't capture horizontally
+    (Coords(x=5, y=5), False),  # Can't capture diagonally
+    (Coords(x=2, y=8), False),  # Can't capture non_linear movement more than 3 spaces
+])
+def test_knight_valid_capture(knight, coords, rt_val):
+    assert knight.valid_capture(coords) == rt_val

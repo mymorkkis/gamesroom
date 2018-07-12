@@ -17,26 +17,21 @@ def queen():
     return game_queen
 
 
-def test_horizontal_move_valid(queen):
-    valid = queen.valid_move(Coords(x=1, y=4))
-    assert valid
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=1, y=4), True),   # Can move horizontally
+    (Coords(x=7, y=6), True),   # Can move vertically
+    (Coords(x=5, y=2), True),   # Can move diagonally
+    (Coords(x=1, y=5), False),  # Can't move in non_linear direction
+])
+def test_queen_valid_move(queen, coords, rt_val):
+    assert queen.valid_move(coords) == rt_val
 
 
-def test_vertical_capture_valid(queen):
-    valid = queen.valid_capture(Coords(x=7, y=6))
-    assert valid
-
-
-def test_diagonal_move_valid(queen):
-    valid = queen.valid_move(Coords(x=5, y=2))
-    assert valid
-
-
-def test_nonlinear_move_not_valid(queen):
-    valid = queen.valid_move(Coords(x=1, y=5))
-    assert not valid
-
-
-def test_nonlinear_capture_not_valid(queen):
-    valid = queen.valid_move(Coords(x=6, y=2))
-    assert not valid
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=1, y=4), True),   # Can capture horizontally
+    (Coords(x=7, y=6), True),   # Can capture vertically
+    (Coords(x=5, y=2), True),   # Can capture diagonally
+    (Coords(x=1, y=5), False),  # Can't capture in non_linear direction
+])
+def test_queen_valid_capture(queen, coords, rt_val):
+    assert queen.valid_capture(coords) == rt_val

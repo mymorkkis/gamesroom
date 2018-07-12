@@ -17,31 +17,21 @@ def rook():
     return game_rook
 
 
-def test_horizontal_move_valid(rook):
-    valid = rook.valid_move(Coords(x=1, y=4))
-    assert valid
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=1, y=4), True),   # Can move horizontally
+    (Coords(x=7, y=6), True),   # Can move vertically
+    (Coords(x=5, y=2), False),  # Can't move diagonally
+    (Coords(x=1, y=5), False),  # Can't move in non_linear direction
+])
+def test_rook_valid_move(rook, coords, rt_val):
+    assert rook.valid_move(coords) == rt_val
 
 
-def test_horizontal_capture_valid(rook):
-    valid = rook.valid_capture(Coords(x=4, y=4))
-    assert valid
-
-
-def test_vertical_move_valid(rook):
-    valid = rook.valid_move(Coords(x=7, y=6))
-    assert valid
-
-
-def test_vertical_capture_valid(rook):
-    valid = rook.valid_capture(Coords(x=7, y=2))
-    assert valid
-
-
-def test_diagonal_move_not_valid(rook):
-    valid = rook.valid_move(Coords(x=5, y=2))
-    assert not valid
-
-
-def test_nonlinear_capture_not_valid(rook):
-    valid = rook.valid_capture(Coords(x=6, y=2))
-    assert not valid
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=1, y=4), True),   # Can capture horizontally
+    (Coords(x=7, y=6), True),   # Can capture vertically
+    (Coords(x=5, y=2), False),  # Can't capture diagonally
+    (Coords(x=1, y=5), False),  # Can't capture in non_linear direction
+])
+def test_rook_valid_capture(rook, coords, rt_val):
+    assert rook.valid_capture(coords) == rt_val

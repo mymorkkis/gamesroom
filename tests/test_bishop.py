@@ -17,26 +17,21 @@ def bishop():
     return game_bishop
 
 
-def test_diagonal_move_valid(bishop):
-    valid = bishop.valid_move(Coords(x=5, y=2))
-    assert valid
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=5, y=2), True),   # Can move diagonally
+    (Coords(x=1, y=4), False),  # Can't move horizontally
+    (Coords(x=7, y=6), False),  # Can't move vertically
+    (Coords(x=1, y=5), False),  # Can't move in non_linear direction
+])
+def test_bishop_valid_move(bishop, coords, rt_val):
+    assert bishop.valid_move(coords) == rt_val
 
 
-def test_diagonal_capture_valid(bishop):
-    valid = bishop.valid_capture(Coords(x=4, y=1))
-    assert valid
-
-
-def test_horizontal_move_not_valid(bishop):
-    valid = bishop.valid_move(Coords(x=1, y=4))
-    assert not valid
-
-
-def test_vertical_capture_not_valid(bishop):
-    valid = bishop.valid_capture(Coords(x=7, y=2))
-    assert not valid
-
-
-def test_nonlinear_move_not_valid(bishop):
-    valid = bishop.valid_move(Coords(x=6, y=2))
-    assert not valid
+@pytest.mark.parametrize('coords, rt_val', [
+    (Coords(x=5, y=2), True),   # Can capture diagonally
+    (Coords(x=1, y=4), False),  # Can't capture horizontally
+    (Coords(x=7, y=6), False),  # Can't capture vertically
+    (Coords(x=1, y=5), False),  # Can't capture in non_linear direction
+])
+def test_bishop_valid_capture(bishop, coords, rt_val):
+    assert bishop.valid_capture(coords) == rt_val
