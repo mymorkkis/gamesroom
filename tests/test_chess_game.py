@@ -28,8 +28,6 @@ def opponent_piece():
 
 
 def test_chess_game_initialized_correctly(game):
-    assert game.BOARD_HEIGHT == 8
-    assert game.BOARD_WIDTH == 8
     assert game.MAX_PIECES == {
         'Pawn': 8,
         'Knight': 2,

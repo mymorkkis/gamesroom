@@ -49,28 +49,25 @@ def legal_start_position(board, coords):
         raise NotOnBoardError(coords, 'Start coordingates not on board')
 
 
-def coord_errors(piece, from_coords, to_coords, board_width, board_hight):
+def coord_errors(piece, board, from_coords, to_coords):
     """Check for errors in passed board coordinates.
 
        Args:
             piece:       Game piece found at from_coords
+            board:       Game board
             from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
             to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
-            board_width: int
-            board_hight: int
 
        Raises:
             NotOnBoardError:    If either passed coordinates are not in board grid.
             InvalidMoveError:   If from_coords and to_coords are the same.
             PieceNotFoundError: If no piece found at from coordinates.
 
-       Returns:
-            False (or raises error)
     """
-    if not coords_on_board(from_coords, board_width, board_hight):
+    if not coords_on_board(board, from_coords):
         raise NotOnBoardError(from_coords, 'From coordinates not valid board coordinates')
 
-    if not coords_on_board(to_coords, board_width, board_hight):
+    if not coords_on_board(board, to_coords):
         raise NotOnBoardError(to_coords, 'To coordinates not valid board coordinates')
 
     if from_coords == to_coords:
@@ -79,12 +76,10 @@ def coord_errors(piece, from_coords, to_coords, board_width, board_hight):
     if not piece:
         raise PieceNotFoundError(from_coords, 'No piece found at from coordinates')
 
-    return False
 
-
-def coords_on_board(coords, board_width, board_hight):
+def coords_on_board(board, coords):
     """Check if coordinates within board range. Return bool"""
-    if coords.x in range(board_width) and coords.y in range(board_hight):
+    if coords.x < len(board) and coords.y < len(board):
         return True
     return False
 

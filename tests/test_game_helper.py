@@ -84,39 +84,39 @@ def test_legal_start_position():
         legal_start_position(board, pos)
 
 
-def test_coord_errors_returns_false_if_no_errors(piece):
+def test_coord_errors_returns_false_if_no_errors(game, piece):
     from_coords = Coords(x=piece.x_coord, y=piece.y_coord)
     to_coords = Coords(x=4, y=3)
-    assert not coord_errors(piece, from_coords, to_coords, 8, 8)
+    assert not coord_errors(piece, game.board, from_coords, to_coords)
 
 
-def test_invalid_from_coords_raises_exception(piece):
+def test_invalid_from_coords_raises_exception(game, piece):
     from_coords = Coords(x=1, y=50)  # From coordinates not on board
     to_coords = Coords(x=1, y=6)
     with pytest.raises(NotOnBoardError):
-        coord_errors(piece, from_coords, to_coords, 8, 8)
+        coord_errors(piece, game.board, from_coords, to_coords)
 
 
-def test_invalid_to_coords_raises_exception(piece):
+def test_invalid_to_coords_raises_exception(piece, game):
     from_coords = Coords(x=piece.x_coord, y=piece.y_coord)
     to_coords = Coords(x=50, y=7)  # To coordinates not on board
     with pytest.raises(NotOnBoardError):
-        coord_errors(piece, from_coords, to_coords, 8, 8)
+        coord_errors(piece, game.board, from_coords, to_coords)
 
 
-def test_same_from_and_to_coords_raise_exception(piece):
+def test_same_from_and_to_coords_raise_exception(piece, game):
     from_coords = Coords(x=4, y=4)
     to_coords = Coords(x=4, y=4)
     with pytest.raises(InvalidMoveError):
-        coord_errors(piece, from_coords, to_coords, 8, 8)
+        coord_errors(piece, game.board, from_coords, to_coords)
 
 
-def test_no_piece_at_from_coords_raises_exception():
+def test_no_piece_at_from_coords_raises_exception(game):
     from_coords = Coords(x=1, y=6)
     to_coords = Coords(x=1, y=5)
     with pytest.raises(PieceNotFoundError):
         # No piece passed to function
-        coord_errors(None, from_coords, to_coords, 8, 8)
+        coord_errors(None, game.board, from_coords, to_coords)
 
 
 def test_piece_blocking_diagonal_move_returns_true(game):
