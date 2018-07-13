@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from src.game_enums import Color
 from src.game_errors import InvalidMoveError
-from src.game_helper import chess_piece_blocking, coord_errors, Coords, legal_start_position
+from src.game_helper import chess_piece_blocking, check_coord_errors, legal_start_position
 
 
 class ChessGame():
@@ -94,29 +94,21 @@ class ChessGame():
 
     def _move_errors(self, piece, board, from_coords, to_coords):
         """Helper function for move. Raise errors or return False."""
-        coord_errors(piece, board, from_coords, to_coords)
-        self._piece_blocking_move(from_coords, to_coords)
-        self._valid_piece_move(piece, to_coords)
-        return False
+        check_coord_errors(piece, board, from_coords, to_coords)
 
-    def _piece_blocking_move(self, from_coords, to_coords):
-        """Check if piece blocking move. Return bool or raise InvalidMoveError."""
-        if not chess_piece_blocking(self.board, from_coords, to_coords):
-            return False
-        raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
+        if chess_piece_blocking(board, from_coords, to_coords):
+            raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
+        
+        if not self._valid_piece_move(piece, to_coords):
+            raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
+
+        return False
 
     def _valid_piece_move(self, piece, to_coords):
         """Check if to_coords are valid move or capture for piece. Return bool."""
         if self.board[to_coords.x][to_coords.y] is None:
-            valid = piece.valid_move(to_coords)
-        else:  # Occupied square == capture
-            valid = piece.valid_capture(to_coords)
-
-        if not valid:
-            from_coords = Coords(x=piece.x_coord, y=piece.y_coord)
-            raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
-
-        return True
+            return piece.valid_move(to_coords)  # Empty square == move
+        return piece.valid_capture(to_coords)   # Occupied square == capture
 
     def _max_quantity(self, piece):
         """Check quantity of passed piece on board. Return bool."""

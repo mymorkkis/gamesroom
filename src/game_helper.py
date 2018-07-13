@@ -49,7 +49,7 @@ def legal_start_position(board, coords):
         raise NotOnBoardError(coords, 'Start coordingates not on board')
 
 
-def coord_errors(piece, board, from_coords, to_coords):
+def check_coord_errors(piece, board, from_coords, to_coords):
     """Check for errors in passed board coordinates.
 
        Args:
