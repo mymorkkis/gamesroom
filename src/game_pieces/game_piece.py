@@ -30,6 +30,11 @@ class GamePiece(ABC):
         return (f'{self.color.name.title()} {self.type}: '
                 f'x_coord = {self.x_coord}, y_coord = {self.y_coord}')
 
+    def __eq__(self, other):
+        if other.__class__ is self.__class__:
+            return (self.type, self.color) == (other.type, other.color)
+        return NotImplemented
+
     @property
     def color(self):
         return self._color

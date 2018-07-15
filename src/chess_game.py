@@ -3,7 +3,9 @@ from collections import defaultdict
 
 from src.game_enums import Color
 from src.game_errors import InvalidMoveError
-from src.game_helper import chess_piece_blocking, check_coord_errors, legal_start_position
+from src.game_helper import (chess_piece_blocking, check_coord_errors, 
+                             Coords, legal_start_position)
+from src.game_setup import new_chess_setup
 
 
 class ChessGame():
@@ -37,13 +39,31 @@ class ChessGame():
             Color.BLACK: defaultdict(int)
         }
 
-    def new_game(self):
-        # TODO Add functionality to create new board with full set of pieces
-        raise NotImplementedError()
+    def setup_board(self, setup=None):
+        """Setup board for new or previously stored game.
+           
+           Optional Args:
+                setup: dict of pieces for game restore. 
 
-    def restore_game(self):
-        # TODO Add functionality to restore game at given point in time
-        raise NotImplementedError()
+           Setup dict expected in the following key/value format:
+                key = str representation of game coordinates xy
+                value = chess GamePiece
+                e.g. "32": Queen.WHITE
+                White Queen will be placed on Coords(x=3, y=2)
+        """
+        if setup is None:
+            setup = new_chess_setup()
+        # else check passed coords are all valid first?
+
+        # Traverse board nested list adding any pieces found in setup dictionary
+        for x_idx, inner in enumerate(self.board):
+            for y_idx, _ in enumerate(inner):
+                dict_key = f'{x_idx}{y_idx}'
+                piece = setup.get(dict_key)
+                if piece:
+                    self.pieces[piece.color][piece.type] += 1
+                    coords = Coords(x_idx, y_idx)   
+                    self._place(piece, coords)
 
     def add(self, piece, coords):
         """Add piece to board at given coordinates. Update piece to have same coordinates.

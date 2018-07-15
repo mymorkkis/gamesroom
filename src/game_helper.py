@@ -46,7 +46,7 @@ def legal_start_position(board, coords):
             return True
         return False
     except IndexError:
-        raise NotOnBoardError(coords, 'Start coordingates not on board')
+        raise NotOnBoardError(coords, 'Start coordinates not on board')
 
 
 def check_coord_errors(piece, board, from_coords, to_coords):
