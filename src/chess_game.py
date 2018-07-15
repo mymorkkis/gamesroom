@@ -2,7 +2,7 @@
 from collections import defaultdict
 
 from src.game_enums import Color
-from src.game_errors import InvalidMoveError
+from src.game_errors import InvalidMoveError, NotOnBoardError
 from src.game_helper import (chess_piece_blocking, check_coord_errors, 
                              Coords, legal_start_position)
 from src.game_setup import new_chess_setup
@@ -49,21 +49,18 @@ class ChessGame():
                 key = str representation of game coordinates xy
                 value = chess GamePiece
                 e.g. "32": Queen.WHITE
-                White Queen will be placed on Coords(x=3, y=2)
+                White Queen will be placed at Coords(x=3, y=2)
         """
         if setup is None:
             setup = new_chess_setup()
-        # else check passed coords are all valid first?
 
-        # Traverse board nested list adding any pieces found in setup dictionary
-        for x_idx, inner in enumerate(self.board):
-            for y_idx, _ in enumerate(inner):
-                dict_key = f'{x_idx}{y_idx}'
-                piece = setup.get(dict_key)
-                if piece:
-                    self.pieces[piece.color][piece.type] += 1
-                    coords = Coords(x_idx, y_idx)   
-                    self._place(piece, coords)
+        for coord, piece in setup.items():
+            try:
+                coords = Coords(x=int(coord[0]), y=int(coord[1]))
+                self._place(piece, coords)
+                self.pieces[piece.color][piece.type] += 1
+            except IndexError:
+                raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')          
 
     def add(self, piece, coords):
         """Add piece to board at given coordinates. Update piece to have same coordinates.
