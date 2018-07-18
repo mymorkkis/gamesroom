@@ -1,11 +1,9 @@
 """Test module form ChessGame class."""
-from collections import defaultdict
 import pytest
 
-from src.chess_game import ChessGame
 from src.game_enums import Color
-from src.game_helper import Coords
-from src.game_errors import InvalidMoveError, NotOnBoardError
+from src.game_helper import add, Coords
+from src.game_errors import InvalidMoveError
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King 
@@ -15,44 +13,19 @@ from src.game_pieces.queen import Queen
 from src.game_pieces.rook import Rook
 
 
-@pytest.fixture(scope='function')
-def game():
-    chess_game = ChessGame()
-    return chess_game
-
-
-@pytest.fixture(scope='function')
-def new_game(game):
-    game.setup_board()
-    return game
-
-
-@pytest.fixture(scope='function')
-def piece():
-    white_piece = Pawn(Color.WHITE)
-    return white_piece
-
-
-@pytest.fixture(scope='function')
-def opponent_piece():
-    black_piece = Pawn(Color.BLACK)
-    return black_piece
-
-
-def test_chess_game_initialized_correctly(game):
-    assert game.MAX_PIECES == {
-        'Pawn': 8,
-        'Knight': 2,
-        'Bishop': 2,
-        'Rook': 2,
-        'Queen': 1,
-        'King': 1
-    }
-    assert game.board == [[None] * 8 for _ in range(8)]
-    assert game.pieces == {
-        Color.WHITE: defaultdict(int),
-        Color.BLACK: defaultdict(int)
-    }
+@pytest.mark.parametrize('piece_type, value', [
+    ('Rook', 2),
+    ('Knight', 2),
+    ('Bishop', 2),
+    ('Queen', 1),
+    ('King', 1),
+    ('Pawn', 8),
+    ('Rook', 2),
+    ('Rook', 2),
+])
+def test_new_chess_game_has_correct_no_of_pieces(new_game, piece_type, value):
+    for piece_color in (Color.WHITE, Color.BLACK):
+        assert new_game.pieces[piece_color][piece_type] == value
 
 
 @pytest.mark.parametrize('coords, piece', [
@@ -97,84 +70,53 @@ def test_chess_game_initialized_correctly(game):
     (Coords(x=7, y=5), None),
     (Coords(x=4, y=5), None), 
 ])
-def test_new_chess_game_setup_correctly(new_game, coords, piece):
+def test_new_chess_game_board_setup_correctly(new_game, coords, piece):
     assert new_game.board[coords.x][coords.y] == piece
 
 
-# def test_piece_added_to_board(game, piece):
-#     game.add(piece, Coords(x=0, y=1))
-#     assert game.board[0][1] == piece
-#     assert piece.x_coord == 0
-#     assert piece.y_coord == 1
-#     assert game.pieces[piece.color][piece.type] == 1
+# TODO Test game.restore() constructor
 
 
-# def test_multiple_pieces_not_added_to_same_board_position(game, piece):
-#     game.add(piece, Coords(x=0, y=1))
-#     piece2 = Pawn(Color.WHITE)
-#     game.add(piece2, Coords(x=0, y=1))
-#     assert piece2.x_coord is None
-#     assert piece2.y_coord is None
-#     assert game.pieces[piece2.color][piece2.type] == 1
-
-
-# def test_piece_not_added_at_ilegal_coordinates(game, piece):
-#     with pytest.raises(NotOnBoardError):
-#         game.add(piece, Coords(x=10, y=10))
-#     assert piece.x_coord is None
-#     assert piece.y_coord is None
-#     assert game.pieces[piece.color][piece.type] == 0
-
-
-# def test_pieces_dont_pass_max_quantity(game, piece):
-#     # 8 Pawns allowed per color
-#     for y_coordinate in range(8):
-#         x_coord = 2
-#         y_coord = y_coordinate
-#         game.add(piece, Coords(x=x_coord, y=y_coord))
-#     assert game.pieces[piece.color][piece.type] == 8
-#     # No more Pawns accepted
-#     game.add(piece, Coords(x=3, y=0))  
-#     assert game.pieces[piece.color][piece.type] == 8
-
-
-def test_piece_moved_on_board(game, piece):
-    game.add(piece, Coords(x=0, y=1))
-    assert game.board[0][1] == piece
+def test_piece_moved_on_board(game):
+    add(Pawn(Color.WHITE), game.board, Coords(x=0, y=1), game.pieces)
+    piece = game.board[0][1]
+    # Move to postion is empty
+    assert game.board[0][2] is None
     game.move(Coords(x=0, y=1), Coords(x=0, y=2))
-    # Previous positon empty
+    # Start position now empty
     assert game.board[0][1] is None
-    # New postion occupied and piece coordinates updated
-    assert game.board[0][2] == piece
+    # Move to postion now occupied and piece coordinates updated
+    assert game.board[0][2] == Pawn(Color.WHITE)
     assert piece.x_coord == 0
     assert piece.y_coord == 2
 
 
-def test_captured_piece_removed_from_board(game, piece, opponent_piece):
-    game.add(piece, Coords(x=0, y=1))
-    game.add(opponent_piece, Coords(x=1, y=2))
+def test_captured_piece_removed_from_board(game):
+    add(Pawn(Color.WHITE), game.board, Coords(x=1, y=1), game.pieces)
+    add(Pawn(Color.BLACK), game.board, Coords(x=2, y=2), game.pieces)
+    opponent_piece = game.board[2][2]
     assert game.pieces[opponent_piece.color][opponent_piece.type] == 1
     # Attack opponent
-    game.move(Coords(x=0, y=1), Coords(x=1, y=2))
+    game.move(Coords(x=1, y=1), Coords(x=2, y=2))
     # Previous position empty
-    assert game.board[0][1] is None
+    assert game.board[1][1] is None
     # Captured piece removed and replaced by attacking piece
-    assert game.board[1][2] == piece
-    # Captured piece no longer on board
+    assert game.board[2][2] == Pawn(Color.WHITE)
+    # Captured piece no longer on board and removed from game pieces
     assert opponent_piece.x_coord is None
     assert opponent_piece.y_coord is None
     assert game.pieces[opponent_piece.color][opponent_piece.type] == 0
 
 
-def test_piece_blocking_move_raises_exception(game, piece, opponent_piece):
-    game.add(piece, Coords(x=0, y=1))
-    game.add(opponent_piece, Coords(x=0, y=2))
+def test_piece_blocking_move_raises_exception(game):
+    add(Pawn(Color.WHITE), game.board, Coords(x=0, y=1), game.pieces)
+    add(Pawn(Color.BLACK), game.board, Coords(x=2, y=2), game.pieces)
     with pytest.raises(InvalidMoveError):
         game.move(Coords(x=0, y=1), Coords(x=0, y=3))
 
 
-def test_invalid_piece_move_raises_exception(game, piece):
-    game.add(piece, Coords(x=0, y=1))
+def test_invalid_piece_move_raises_exception(game):
+    add(Pawn(Color.WHITE), game.board, Coords(x=0, y=1), game.pieces)
     with pytest.raises(InvalidMoveError):
         # Pawn can't move horizontally
         game.move(Coords(x=0, y=1), Coords(x=1, y=1))

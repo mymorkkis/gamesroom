@@ -1,7 +1,6 @@
 """Test module for Pawn game piece."""
 import pytest
 
-from src.chess_game import ChessGame
 from src.game_enums import Color
 from src.game_helper import Coords
 from src.game_pieces.pawn import Pawn
@@ -9,19 +8,19 @@ from src.game_pieces.pawn import Pawn
 
 @pytest.fixture(scope='module')
 def black_pawn():
-    game = ChessGame()
-    start_coords = Coords(x=1, y=6)
+    """Setup Pawn start coords. Return Pawn"""
     pawn = Pawn(Color.BLACK)
-    game.add(pawn, start_coords)
+    pawn.x_coord = 1
+    pawn.y_coord = 6
     return pawn
 
 
 @pytest.fixture(scope='module')
 def white_pawn():
-    game = ChessGame()
-    start_coords = Coords(x=1, y=1)
+    """Setup Pawn start coords. Return Pawn"""
     pawn = Pawn(Color.WHITE)
-    game.add(pawn, start_coords)
+    pawn.x_coord = 1
+    pawn.y_coord = 1
     return pawn
 
 

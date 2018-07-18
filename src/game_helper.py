@@ -19,6 +19,22 @@ from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundErro
 Coords = namedtuple('Coords', 'x y')
 
 
+def add(piece, board, coords, pieces):
+    """Add piece on board at given coordinates and update piece coordinates. Increment pieces.
+
+       Raises:
+            NotOnBoardError
+    """
+    # TODO Error if wrong piece color / piece type
+    try:
+        board[coords.x][coords.y] = piece
+        piece.x_coord = coords.x
+        piece.y_coord = coords.y
+        pieces[piece.color][piece.type] += 1
+    except IndexError:
+        raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
+
+
 def move_direction(from_coords, to_coords):
     """Calculate direction from from_coordinates to coordinates. Return Direction enum.
 
@@ -37,16 +53,6 @@ def move_direction(from_coords, to_coords):
         return Direction.VERTICAL
     else:
         return Direction.NON_LINEAR
-
-
-def legal_start_position(board, coords):
-    """Check passed coordinates are valid. Return bool or raise NotOnBoardError."""
-    try:
-        if board[coords.x][coords.y] is None:
-            return True
-        return False
-    except IndexError:
-        raise NotOnBoardError(coords, 'Start coordinates not on board')
 
 
 def check_coord_errors(piece, board, from_coords, to_coords):
