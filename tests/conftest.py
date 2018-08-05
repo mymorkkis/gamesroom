@@ -15,7 +15,7 @@ def new_game():
 
 @pytest.fixture(scope='module')
 def game():
-    chess_game = ChessGame.restore({})
+    chess_game = ChessGame(restore_positions={})
     return chess_game
 
 

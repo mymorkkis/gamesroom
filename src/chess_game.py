@@ -10,42 +10,35 @@ from src.game_errors import InvalidMoveError
 class ChessGame():
     """Main game logic for chess game.
 
+       Optional Argument:
+            restore_positions: 
+                dict of pieces for game restore
+                expected in the following key/value format:
+                key = str representation of game coordinates xy
+                value = chess GamePiece
+                e.g. "32": Queen.WHITE
+                White Queen will be placed at Coords(x=3, y=2)
+
        Attributes:
             board:  8 * 8 grid (list of lists)
             pieces: dict of defaultdict(int), tracks pieces on board
 
        Methods:
-            setup_board: setup board for new or previously stored game
-            move:        move piece from coordinates, to coordinates 
+            move: move piece from coordinates, to coordinates 
     """
-    def __init__(self, game_positions=None):
+    def __init__(self, restore_positions=None):
         self.pieces = {
             Color.WHITE: defaultdict(int),
             Color.BLACK: defaultdict(int)
         }
-        self.board = self._setup_board(game_positions)
-
-    # def _setup_board(self):
-    #     board = [[None] * 8 for _ in range(8)]
-    #     start_pieces = new_chess_setup()
-    #     for coord, piece in start_pieces.items():
-    #         coords = Coords(x=int(coord[0]), y=int(coord[1]))
-    #         board[coords.x][coords.y] = piece
-    #         piece.x_coord = coords.x
-    #         piece.y_coord = coords.y
-    #         self.pieces[piece.color][piece.type] += 1
-    #     return board
-
-    @classmethod
-    def restore(cls, restore_positions):
-        return cls(game_positions=restore_positions)
+        self.board = self._setup_board(restore_positions)
 
     def move(self, from_coords, to_coords):
         """Move piece from coordinates, to coordianates. Remove captured piece, if any.
 
            Args:
-                from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
-                to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
+                from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
+                to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
 
            Raises:
                 NotOnBoardError:    If either passed coordinates are not in board grid.
@@ -58,17 +51,7 @@ class ChessGame():
             self._move(piece, from_coords, to_coords)
 
     def _setup_board(self, game_positions):
-        """Setup board for new or previously stored game.
-           
-           Optional Args:
-                setup: dict of pieces for game restore. 
-
-           Setup dict expected in the following key/value format:
-                key = str representation of game coordinates xy
-                value = chess GamePiece
-                e.g. "32": Queen.WHITE
-                White Queen will be placed at Coords(x=3, y=2)
-        """
+        """Setup board for new or previously stored game."""
         board = [[None] * 8 for _ in range(8)]
 
         if game_positions is None:

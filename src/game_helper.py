@@ -1,7 +1,7 @@
 """Module of helper functions for games.
 
    Object:
-        Coords: namedtuple('Coords', 'x y')
+        Coords: namedtuple('Coords', 'x y').
 
    Functions:
         move_direction: Return move direction as Direction enum type.
@@ -39,11 +39,11 @@ def move_direction(from_coords, to_coords):
     """Calculate direction from from_coordinates to coordinates. Return Direction enum.
 
        Args:
-            from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
-            to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
+            from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
+            to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
 
        Returns:
-            Direction enum type
+            Direction enum type.
     """
     if abs(from_coords.x - to_coords.x) == abs(from_coords.y - to_coords.y):
         return Direction.DIAGONAL
@@ -59,10 +59,10 @@ def check_coord_errors(piece, board, from_coords, to_coords):
     """Check for errors in passed board coordinates.
 
        Args:
-            piece:       Game piece found at from_coords
-            board:       Game board
-            from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
-            to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1)
+            piece:       Game piece found at from_coords.
+            board:       Game board.
+            from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
+            to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
 
        Raises:
             NotOnBoardError:    If either passed coordinates are not in board grid.
@@ -84,10 +84,8 @@ def check_coord_errors(piece, board, from_coords, to_coords):
 
 
 def coords_on_board(board, coords):
-    """Check if coordinates within board range. Return bool"""
-    if coords.x < len(board) and coords.y < len(board):
-        return True
-    return False
+    """Check if coordinates within board range. Return bool."""
+    return coords.x < len(board) and coords.y < len(board)
 
 
 def chess_piece_blocking(board, from_coords, to_coords):
