@@ -2,7 +2,7 @@
 import pytest
 
 from src.game_enums import Direction
-from src.game_helper import chess_piece_blocking, check_coord_errors, Coords, move_direction
+from src.game_helper import check_coord_errors, Coords, move_direction
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
 
 
@@ -48,53 +48,3 @@ def test_no_piece_at_from_coords_raises_exception(game):
     with pytest.raises(PieceNotFoundError):
         # No piece passed to function
         check_coord_errors(None, game.board, from_coords, to_coords)
-
-
-def test_piece_blocking_diagonal_move_returns_true(game):
-    # Piece at Coords(4, 4)
-    from_coords = Coords(x=3, y=3)
-    to_coords = Coords(x=6, y=6)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
-    # Assert test works in both directions
-    from_coords = Coords(x=6, y=6)
-    to_coords = Coords(x=3, y=3)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
-
-
-def test_piece_blocking_horizontal_move_returns_true(game):
-    # Piece at Coords(4, 4)
-    from_coords = Coords(x=2, y=4)
-    to_coords = Coords(x=6, y=4)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
-    # Assert test works in both directions
-    from_coords = Coords(x=6, y=4)
-    to_coords = Coords(x=2, y=4)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
-
-
-def test_piece_blocking_vertical_move_returns_true(game):
-    # Piece at Coords(4, 4)
-    from_coords = Coords(x=4, y=2)
-    to_coords = Coords(x=4, y=6)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
-    # Assert test works in both directions
-    from_coords = Coords(x=4, y=6)
-    to_coords = Coords(x=4, y=2)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
-
-
-def test_piece_blocking_non_linear_move_returns_false(game):
-    # Piece at Coords(4, 4)
-    from_coords = Coords(x=3, y=3)
-    to_coords = Coords(x=4, y=5)
-    assert not chess_piece_blocking(game.board, from_coords, to_coords)
-    # Assert test works in both directions
-    from_coords = Coords(x=4, y=5)
-    to_coords = Coords(x=3, y=3)
-    assert not chess_piece_blocking(game.board, from_coords, to_coords)
-
-
-def test_no_piece_blocking_returns_false(game):
-    from_coords = Coords(x=4, y=4)
-    to_coords = Coords(x=4, y=6)
-    assert not chess_piece_blocking(game.board, from_coords, to_coords)

@@ -2,8 +2,8 @@
 from collections import defaultdict
 
 from src.game_enums import Color
-from src.game_helper import add, chess_piece_blocking, check_coord_errors, Coords
-from src.game_setup import new_chess_setup
+from src.game_helper import add, check_coord_errors, Coords
+from src.chess_helper import chess_piece_blocking, new_chess_setup
 from src.game_errors import InvalidMoveError
 
 
