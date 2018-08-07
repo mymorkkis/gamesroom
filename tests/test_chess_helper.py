@@ -1,10 +1,10 @@
 """Test module form chess_helper module."""
 import pytest
 
-from src.chess_helper import chess_piece_blocking
+from src.game_helper import add
 from src.game_enums import Color
 from src.game_helper import Coords
-from src.chess_helper import chess_piece_blocking, new_chess_setup
+from src.chess_helper import chess_piece_blocking, king_in_check, new_chess_setup
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King 
@@ -105,8 +105,21 @@ def test_no_piece_blocking_returns_false(game):
     assert not chess_piece_blocking(game.board, from_coords, to_coords)
 
 
-# @pytest.mark.parametrize('coords, oppenent_piece' [
-#     (Coords(x=4, y=4), )
+# @pytest.mark.parametrize('coords, opponent_piece', [
+#     (Coords(x=4, y=4), Bishop(Color.BLACK)),
+#     (Coords(x=5, y=5), Queen(Color.BLACK)),
+#     (Coords(x=1, y=3), Pawn(Color.BLACK)),
+#     (Coords(x=3, y=3), Pawn(Color.BLACK)),
+#     (Coords(x=2, y=1), King(Color.BLACK)),
+#     (Coords(x=1, y=4), Knight(Color.BLACK)),
+#     (Coords(x=4, y=3), Knight(Color.BLACK)),
+#     (Coords(x=2, y=4), Rook(Color.BLACK)),
+#     (Coords(x=4, y=3), Queen(Color.BLACK)),
+#     (Coords(x=3, y=1), Queen(Color.BLACK)),
+#     (Coords(x=0, y=0), Bishop(Color.BLACK)),
+#     (Coords(x=0, y=2), Rook(Color.BLACK))
 # ])
-# def test_king_in_check_returns_true(coords, opponent_piece):
-#     pass
+# def test_king_in_check_returns_true(game, white_king, coords, opponent_piece):
+#     add(opponent_piece, game.board, coords, game.pieces)
+#     king_coords = white_king.x, white_king.y
+#     assert not king_in_check(king_coords, game.board, opponent_color=opponent_piece.color)
