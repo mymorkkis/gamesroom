@@ -10,8 +10,7 @@ from src.game_pieces.bishop import Bishop
 def bishop():
     """Setup Bishop start coords. Return Bishop"""
     game_bishop = Bishop(Color.BLACK)
-    game_bishop.x_coord = 7
-    game_bishop.y_coord = 4
+    game_bishop.coords = Coords(x=7, y=4)
     return game_bishop
 
 

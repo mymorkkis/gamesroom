@@ -17,8 +17,7 @@ class Bishop(GamePiece):
         return self._valid(to_coords)
 
     def _valid(self, to_coords):
-        from_coords = Coords(x=self.x_coord, y=self.y_coord)
         # Any diagonal move/capture valid for Bishop
-        if move_direction(from_coords, to_coords) == Direction.DIAGONAL:
+        if move_direction(self.coords, to_coords) == Direction.DIAGONAL:
             return True
         return False

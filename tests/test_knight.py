@@ -10,8 +10,7 @@ from src.game_pieces.knight import Knight
 def knight():
     """Setup Knight start coords. Return Knight"""
     game_knight = Knight(Color.BLACK)
-    game_knight.x_coord = 4
-    game_knight.y_coord = 4
+    game_knight.coords = Coords(x=4, y=4)
     return game_knight
 
 

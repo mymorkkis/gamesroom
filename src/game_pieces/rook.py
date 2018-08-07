@@ -17,8 +17,7 @@ class Rook(GamePiece):
         return self._valid(to_coords)
 
     def _valid(self, to_coords):
-        from_coords = Coords(x=self.x_coord, y=self.y_coord)
         # Any vertical or horizontal move/capture valid for Rook
-        if move_direction(from_coords, to_coords) in (Direction.VERTICAL, Direction.HORIZONTAL):
+        if move_direction(self.coords, to_coords) in (Direction.VERTICAL, Direction.HORIZONTAL):
             return True
         return False

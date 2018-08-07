@@ -71,16 +71,13 @@ class ChessGame():
         board_postion = self.board[to_coords.x][to_coords.y]
         if board_postion is not None:
             captured_piece = board_postion
-            captured_piece.x_coord = None
-            captured_piece.y_coord = None
+            captured_piece.coords = None
             board_postion = None
             self.pieces[captured_piece.color][captured_piece.type] -= 1
 
         # add piece at new coordinates
         self.board[to_coords.x][to_coords.y] = piece
-        piece.x_coord = to_coords.x
-        piece.y_coord = to_coords.y
-
+        piece.coords = to_coords
 
     def _move_errors(self, piece, board, from_coords, to_coords):
         """Helper function for move. Raise errors or return False."""

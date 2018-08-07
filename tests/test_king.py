@@ -10,8 +10,7 @@ from src.game_pieces.king import King
 def king():
     """Setup King start coords. Return King"""
     game_king = King(Color.BLACK)
-    game_king.x_coord = 1
-    game_king.y_coord = 1
+    game_king.coords = Coords(x=1, y=1)
     return game_king
 
 

@@ -8,10 +8,9 @@ class GamePiece(ABC):
     """Abstract Base class for game pieces.
 
        Attributes:
-            type:    Class name as str
-            color:   Piece color (Color Enum)
-            x_coord: Piece current x_coordinate on board
-            y_coord: Piece current y_coordinate on board
+            type:   Class name as str
+            color:  Piece color (Color Enum)
+            coords: Piece current coordinates on board
 
        Abstract methods:
             valid_move:    Logic to decide valid move for piece
@@ -20,15 +19,13 @@ class GamePiece(ABC):
     def __init__(self):
         self.type = self.__class__.__name__
         self._color = None
-        self.x_coord = None
-        self.y_coord = None
+        self.coords = None
 
     def __repr__(self):
         return f'{self.type}({self.color!r})'
 
     def __str__(self):
-        return (f'{self.color.name.title()} {self.type}: '
-                f'x_coord = {self.x_coord}, y_coord = {self.y_coord}')
+        return f'{self.color.name.title()} {self.type}: {self.coords!r}'
 
     def __eq__(self, other):
         if other.__class__ is self.__class__:

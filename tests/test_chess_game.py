@@ -87,8 +87,8 @@ def test_piece_moved_on_board(game):
     assert game.board[0][1] is None
     # Move to postion now occupied and piece coordinates updated
     assert game.board[0][2] == Pawn(Color.WHITE)
-    assert piece.x_coord == 0
-    assert piece.y_coord == 2
+    assert piece.coords.x == 0
+    assert piece.coords.y == 2
 
 
 def test_captured_piece_removed_from_board(game):
@@ -103,8 +103,7 @@ def test_captured_piece_removed_from_board(game):
     # Captured piece removed and replaced by attacking piece
     assert game.board[2][2] == Pawn(Color.WHITE)
     # Captured piece no longer on board and removed from game pieces
-    assert opponent_piece.x_coord is None
-    assert opponent_piece.y_coord is None
+    assert opponent_piece.coords is None
     assert game.pieces[opponent_piece.color][opponent_piece.type] == 0
 
 

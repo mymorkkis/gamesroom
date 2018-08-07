@@ -10,8 +10,7 @@ from src.game_pieces.queen import Queen
 def queen():
     """Setup Queen start coords. Return Queen"""
     game_queen = Queen(Color.BLACK)
-    game_queen.x_coord = 7
-    game_queen.y_coord = 4
+    game_queen.coords = Coords(x=7, y=4)
     return game_queen
 
 

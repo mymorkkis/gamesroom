@@ -15,8 +15,8 @@ class King(GamePiece):
         return self._valid(to_coords)
 
     def _valid(self, to_coords):
-        x_abs = abs(self.x_coord - to_coords.x)
-        y_abs = abs(self.y_coord - to_coords.y)
+        x_abs = abs(self.coords.x - to_coords.x)
+        y_abs = abs(self.coords.y - to_coords.y)
         # King can only move/capture one space along
         if x_abs + y_abs in (1, 2):
             return True

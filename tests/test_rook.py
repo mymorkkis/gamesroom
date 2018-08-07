@@ -10,8 +10,7 @@ from src.game_pieces.rook import Rook
 def rook():
     """Setup Rook start coords. Return Rook"""
     game_rook = Rook(Color.BLACK)
-    game_rook.x_coord = 7
-    game_rook.y_coord = 4
+    game_rook.coords = Coords(x=7, y=4)
     return game_rook
 
 

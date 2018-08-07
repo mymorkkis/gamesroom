@@ -28,8 +28,7 @@ def add(piece, board, coords, pieces):
     # TODO Error if wrong piece color / piece type
     try:
         board[coords.x][coords.y] = piece
-        piece.x_coord = coords.x
-        piece.y_coord = coords.y
+        piece.coords = coords
         pieces[piece.color][piece.type] += 1
     except IndexError:
         raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')

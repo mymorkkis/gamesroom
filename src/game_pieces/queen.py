@@ -17,8 +17,7 @@ class Queen(GamePiece):
         return self._valid(to_coords)
 
     def _valid(self, to_coords):
-        from_coords = Coords(x=self.x_coord, y=self.y_coord)
         # Any linear move/capture valid for Queen
-        if move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
+        if move_direction(self.coords, to_coords) != Direction.NON_LINEAR:
             return True
         return False

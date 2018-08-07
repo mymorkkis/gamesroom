@@ -10,8 +10,7 @@ from src.game_pieces.pawn import Pawn
 def black_pawn():
     """Setup Pawn start coords. Return Pawn"""
     pawn = Pawn(Color.BLACK)
-    pawn.x_coord = 1
-    pawn.y_coord = 6
+    pawn.coords = Coords(x=1, y=6)
     return pawn
 
 
@@ -19,8 +18,7 @@ def black_pawn():
 def white_pawn():
     """Setup Pawn start coords. Return Pawn"""
     pawn = Pawn(Color.WHITE)
-    pawn.x_coord = 1
-    pawn.y_coord = 1
+    pawn.coords = Coords(x=1, y=1)
     return pawn
 
 
