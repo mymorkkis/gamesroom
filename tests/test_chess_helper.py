@@ -105,21 +105,24 @@ def test_no_piece_blocking_returns_false(game):
     assert not chess_piece_blocking(game.board, from_coords, to_coords)
 
 
-# @pytest.mark.parametrize('coords, opponent_piece', [
-#     (Coords(x=4, y=4), Bishop(Color.BLACK)),
-#     (Coords(x=5, y=5), Queen(Color.BLACK)),
-#     (Coords(x=1, y=3), Pawn(Color.BLACK)),
-#     (Coords(x=3, y=3), Pawn(Color.BLACK)),
-#     (Coords(x=2, y=1), King(Color.BLACK)),
-#     (Coords(x=1, y=4), Knight(Color.BLACK)),
-#     (Coords(x=4, y=3), Knight(Color.BLACK)),
-#     (Coords(x=2, y=4), Rook(Color.BLACK)),
-#     (Coords(x=4, y=3), Queen(Color.BLACK)),
-#     (Coords(x=3, y=1), Queen(Color.BLACK)),
-#     (Coords(x=0, y=0), Bishop(Color.BLACK)),
-#     (Coords(x=0, y=2), Rook(Color.BLACK))
-# ])
-# def test_king_in_check_returns_true(game, white_king, coords, opponent_piece):
-#     add(opponent_piece, game.board, coords, game.pieces)
-#     king_coords = white_king.x, white_king.y
-#     assert not king_in_check(king_coords, game.board, opponent_color=opponent_piece.color)
+@pytest.mark.parametrize('coords, opponent_piece', [
+    (Coords(x=4, y=4), Bishop(Color.BLACK)),
+    (Coords(x=5, y=5), Queen(Color.BLACK)),
+    (Coords(x=1, y=3), Pawn(Color.BLACK)),
+    (Coords(x=3, y=3), Pawn(Color.BLACK)),
+    (Coords(x=2, y=1), King(Color.BLACK)),
+    (Coords(x=1, y=4), Knight(Color.BLACK)),
+    (Coords(x=4, y=3), Knight(Color.BLACK)),
+    (Coords(x=2, y=4), Rook(Color.BLACK)),
+    (Coords(x=4, y=2), Queen(Color.BLACK)),
+    (Coords(x=3, y=1), Queen(Color.BLACK)),
+    (Coords(x=0, y=0), Bishop(Color.BLACK)),
+    (Coords(x=0, y=2), Rook(Color.BLACK))
+])
+def test_king_in_check_returns_true(game, white_king, coords, opponent_piece):
+    add(opponent_piece, game.board, coords, game.pieces)
+    assert king_in_check(white_king.coords, game.board, opponent_color=opponent_piece.color)
+    # Clear piece for next test
+    game.board[coords.x][coords.y] = None
+
+# TODO test for black_king

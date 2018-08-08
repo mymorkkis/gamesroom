@@ -85,22 +85,23 @@ def king_in_check(king_coords, board, *, opponent_color=None):
     if _knight_check(king_coords, board, opponent_color):
         return True
     if _check_by_other_piece(king_coords, board, opponent_color):
-        return True
+        return True   
     return False  # King not in check
 
 
 def _white_pawn_check(king_coords, board):
     x, y = king_coords
-    pawn = Pawn(Color.WHITE)
-    return board[y + 1][x + 1] == pawn or board[y + 1][x - 1] == pawn
+    return (board[x + 1][y - 1] == Pawn(Color.WHITE)
+                or board[x - 1][y - 1] == Pawn(Color.WHITE))
 
 
 def _black_pawn_check(king_coords, board):
     x, y = king_coords
-    pawn = Pawn(Color.BLACK)
-    return board[y - 1][x + 1] == pawn or board[y - 1][x - 1] == pawn
+    return (board[x + 1][y + 1] == Pawn(Color.BLACK)
+                or board[x - 1][y + 1] == Pawn(Color.BLACK))
 
 
+# TODO Will this ever raise an index out of bounds error?
 def _knight_check(king_coords, board, opponent_color):
     x, y = king_coords
     knight = Knight(opponent_color)
@@ -139,9 +140,8 @@ def _check_by_other_piece(king_coords, board, opponent_color):
         return False
                     
 
-
-
 DIRECTIONS = 'N NE E SE S SW W NW'.split()
+
 
 NEXT_MOVE_COORD = { 
     'N': lambda x, y: (x, y + 1),
