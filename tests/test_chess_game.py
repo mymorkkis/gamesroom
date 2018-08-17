@@ -6,8 +6,8 @@ from src.game_helper import add, Coords
 from src.game_errors import InvalidMoveError
 
 from src.game_pieces.bishop import Bishop
-from src.game_pieces.king import King 
-from src.game_pieces.knight import Knight 
+from src.game_pieces.king import King
+from src.game_pieces.knight import Knight
 from src.game_pieces.pawn import Pawn
 from src.game_pieces.queen import Queen
 from src.game_pieces.rook import Rook
@@ -21,7 +21,7 @@ from src.game_pieces.rook import Rook
     ('King', 1),
     ('Pawn', 8),
     ('Rook', 2),
-    ('Rook', 2),
+    ('Rook', 2)
 ])
 def test_new_chess_game_has_correct_no_of_pieces(new_game, piece_type, value):
     for piece_color in (Color.WHITE, Color.BLACK):
@@ -68,25 +68,23 @@ def test_new_chess_game_has_correct_no_of_pieces(new_game, piece_type, value):
     (Coords(x=2, y=4), None),
     (Coords(x=6, y=4), None),
     (Coords(x=7, y=5), None),
-    (Coords(x=4, y=5), None), 
+    (Coords(x=4, y=5), None)
 ])
 def test_new_chess_game_board_setup_correctly(new_game, coords, piece):
     assert new_game.board[coords.x][coords.y] == piece
 
 
-# TODO Test game.restore() constructor
-
-
 def test_piece_moved_on_board(game):
     add(Pawn(Color.WHITE), game.board, Coords(x=0, y=1), game.pieces)
-    piece = game.board[0][1]
+    # piece = game.board[0][1]
     # Move to postion is empty
     assert game.board[0][2] is None
     game.move(Coords(x=0, y=1), Coords(x=0, y=2))
     # Start position now empty
     assert game.board[0][1] is None
-    # Move to postion now occupied and piece coordinates updated
-    assert game.board[0][2] == Pawn(Color.WHITE)
+    # Move_to postion now_ occupied and piece coordinates updated
+    piece = game.board[0][2]
+    assert piece == Pawn(Color.WHITE)
     assert piece.coords.x == 0
     assert piece.coords.y == 2
 

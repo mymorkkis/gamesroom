@@ -54,7 +54,7 @@ def move_direction(from_coords, to_coords):
         return Direction.NON_LINEAR
 
 
-def check_coord_errors(piece, board, from_coords, to_coords):
+def check_coord_errors(board, from_coords, to_coords):
     """Check for errors in passed board coordinates.
 
        Args:
@@ -78,6 +78,7 @@ def check_coord_errors(piece, board, from_coords, to_coords):
     if from_coords == to_coords:
         raise InvalidMoveError(from_coords, to_coords, 'Move to same square invalid')
 
+    piece = board[from_coords.x][from_coords.y]
     if not piece:
         raise PieceNotFoundError(from_coords, 'No piece found at from coordinates')
 

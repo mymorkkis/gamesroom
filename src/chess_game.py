@@ -5,6 +5,7 @@ from src.game_enums import Color
 from src.game_helper import add, check_coord_errors, Coords
 from src.chess_helper import chess_piece_blocking, new_chess_setup
 from src.game_errors import InvalidMoveError
+from src.chess_helper import king_in_check
 
 
 class ChessGame():
@@ -32,6 +33,16 @@ class ChessGame():
             Color.BLACK: defaultdict(int)
         }
         self.board = self._setup_board(restore_positions)
+        self.game_kings = {
+            Color.WHITE: {
+                'coords': Coords(x=-1, y=-1),
+                'in_check': False
+            },
+            Color.BLACK: {
+                'coords': Coords(x=-1, y=-1),
+                'in_check': False
+            }
+        }
 
     def move(self, from_coords, to_coords):
         """Move piece from coordinates, to coordianates. Remove captured piece, if any.
@@ -45,9 +56,8 @@ class ChessGame():
                 PieceNotFoundError: If no piece found at from coordinates.
                 InvalidMoveError:   If attempted move not in-line with game rules.
         """
-        piece = self.board[from_coords.x][from_coords.y]
-
-        if not self._move_errors(piece, self.board, from_coords, to_coords):
+        if not self._move_errors(self.board, from_coords, to_coords):
+            piece = self.board[from_coords.x][from_coords.y]
             self._move(piece, from_coords, to_coords)
 
     def _setup_board(self, game_positions):
@@ -75,19 +85,32 @@ class ChessGame():
             board_postion = None
             self.pieces[captured_piece.color][captured_piece.type] -= 1
 
-        # add piece at new coordinates
+        # Add piece at new coordinates
         self.board[to_coords.x][to_coords.y] = piece
         piece.coords = to_coords
+        if piece.type == 'King':
+            self.game_kings[piece.color]['coords'] = piece.coords
 
-    def _move_errors(self, piece, board, from_coords, to_coords):
+        # Check if oppenent put in check
+        opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
+        king_coords = self.game_kings[opponent_color]['coords']
+        if king_in_check(king_coords, self.board, piece.color):
+            self.game_kings[opponent_color]['in_check'] = True
+
+    def _move_errors(self, board, from_coords, to_coords):
         """Helper function for move. Raise errors or return False."""
-        check_coord_errors(piece, board, from_coords, to_coords)
+        check_coord_errors(board, from_coords, to_coords)
 
         if chess_piece_blocking(board, from_coords, to_coords):
             raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
 
+        piece = self.board[from_coords.x][from_coords.y]
+
         if not self._valid_piece_move(piece, to_coords):
             raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
+
+        if self._own_king_in_check(board, piece, to_coords):
+            raise InvalidMoveError(from_coords, to_coords, 'Cannot place yourself in check')
 
         return False
 
@@ -96,3 +119,18 @@ class ChessGame():
         if self.board[to_coords.x][to_coords.y] is None:
             return piece.valid_move(to_coords)  # Empty square == move
         return piece.valid_capture(to_coords)   # Occupied square == capture
+
+    def _own_king_in_check(self, board, piece, to_coords):
+        # Temporarily put piece in position to see if it will lead to check
+        to_piece = board[to_coords.x][to_coords.y]
+        board[to_coords.x][to_coords.y] = piece
+        # Find postion of king to check
+        opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
+        king_coords = self.game_kings[piece.color]['coords']
+        if king_in_check(king_coords, board, opponent_color):
+            # Put piece (or None) back
+            board[to_coords.x][to_coords.y] = to_piece
+            return True
+        # Put piece (or None) back
+        board[to_coords.x][to_coords.y] = to_piece
+        return False

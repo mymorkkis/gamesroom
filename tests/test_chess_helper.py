@@ -7,8 +7,8 @@ from src.game_helper import Coords
 from src.chess_helper import chess_piece_blocking, king_in_check, new_chess_setup
 
 from src.game_pieces.bishop import Bishop
-from src.game_pieces.king import King 
-from src.game_pieces.knight import Knight 
+from src.game_pieces.king import King
+from src.game_pieces.knight import Knight
 from src.game_pieces.pawn import Pawn
 from src.game_pieces.queen import Queen
 from src.game_pieces.rook import Rook
@@ -49,9 +49,9 @@ CHESS_SETUP = new_chess_setup()
     ('47', King(Color.BLACK)),
     ('57', Bishop(Color.BLACK)),
     ('67', Knight(Color.BLACK)),
-    ('77', Rook(Color.BLACK)), 
+    ('77', Rook(Color.BLACK)),
 ])
-def test_new_chess_game_setup_correctly(key, piece):    
+def test_new_chess_game_setup_correctly(key, piece):
     assert CHESS_SETUP[key] == piece
 
 
