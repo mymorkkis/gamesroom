@@ -78,10 +78,12 @@ def chess_piece_blocking(board, from_coords, to_coords):
 
 
 def king_in_check(king_coords, board, *, opponent_color=None):
-    if opponent_color == Color.WHITE and _white_pawn_check(king_coords, board):
+    if _pawn_check(king_coords, board, opponent_color):
         return True
-    if opponent_color == Color.BLACK and _black_pawn_check(king_coords, board):
-        return True
+    # if opponent_color == Color.WHITE and _white_pawn_check(king_coords, board):
+    #     return True
+    # if opponent_color == Color.BLACK and _black_pawn_check(king_coords, board):
+    #     return True
     if _knight_check(king_coords, board, opponent_color):
         return True
     if _check_by_other_piece(king_coords, board, opponent_color):
@@ -89,16 +91,24 @@ def king_in_check(king_coords, board, *, opponent_color=None):
     return False  # King not in check
 
 
-def _white_pawn_check(king_coords, board):
+def _pawn_check(king_coords, board, opponent_color):
     x, y = king_coords
-    return (board[x + 1][y - 1] == Pawn(Color.WHITE)
-                or board[x - 1][y - 1] == Pawn(Color.WHITE))
+    pawn = Pawn(opponent_color)
+    if opponent_color == Color.WHITE:
+        return board[x + 1][y - 1] == pawn or board[x - 1][y - 1] == pawn
+    if opponent_color == Color.BLACK:
+        return board[x + 1][y + 1] == pawn or board[x - 1][y + 1] == pawn
+
+# def _white_pawn_check(king_coords, board):
+#     x, y = king_coords
+#     return (board[x + 1][y - 1] == Pawn(Color.WHITE)
+#                 or board[x - 1][y - 1] == Pawn(Color.WHITE))
 
 
-def _black_pawn_check(king_coords, board):
-    x, y = king_coords
-    return (board[x + 1][y + 1] == Pawn(Color.BLACK)
-                or board[x - 1][y + 1] == Pawn(Color.BLACK))
+# def _black_pawn_check(king_coords, board):
+#     x, y = king_coords
+#     return (board[x + 1][y + 1] == Pawn(Color.BLACK)
+#                 or board[x - 1][y + 1] == Pawn(Color.BLACK))
 
 
 # TODO Will this ever raise an index out of bounds error?
