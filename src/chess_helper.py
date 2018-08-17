@@ -1,7 +1,7 @@
 """Helper functions for ChessGame."""
 from src.game_enums import Color
 from src.game_enums import Direction
-from src.game_helper import Coords, coords_on_board, move_direction
+from src.game_helper import coords_on_board, move_direction
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King 
@@ -77,7 +77,7 @@ def chess_piece_blocking(board, from_coords, to_coords):
     return False  # No piece blocking
 
 
-def king_in_check(king_coords, board, *, opponent_color=None):
+def king_in_check(king_coords, board, opponent_color):
     if _pawn_check(king_coords, board, opponent_color):
         return True
     if _knight_check(king_coords, board, opponent_color):
