@@ -1,7 +1,7 @@
 """Helper functions for ChessGame."""
 from src.game_enums import Color
 from src.game_enums import Direction
-from src.game_helper import move_direction
+from src.game_helper import Coords, coords_on_board, move_direction
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King 
@@ -88,51 +88,64 @@ def king_in_check(king_coords, board, *, opponent_color=None):
 
 
 def _pawn_check(king_coords, board, opponent_color):
-    x, y = king_coords
     pawn = Pawn(opponent_color)
     if opponent_color == Color.WHITE:
-        return board[x + 1][y - 1] == pawn or board[x - 1][y - 1] == pawn
+        x, y = king_coords.x + 1, king_coords.y - 1
+        if coords_on_board(board, x, y) and board[x][y] == pawn:
+            return True
+        x, y = king_coords.x - 1, king_coords.y - 1
+        if coords_on_board(board, x, y) and board[x][y] == pawn:
+            return True
     if opponent_color == Color.BLACK:
-        return board[x + 1][y + 1] == pawn or board[x - 1][y + 1] == pawn
+        x, y = king_coords.x + 1, king_coords.y + 1
+        if coords_on_board(board, x, y) and board[x][y] == pawn:
+            return True
+        x, y = king_coords.x - 1, king_coords.y + 1
+        if coords_on_board(board, x, y) and board[x][y] == pawn:
+            return True
+    return False
 
 
-# TODO Will this ever raise an index out of bounds error?
 def _knight_check(king_coords, board, opponent_color):
-    x, y = king_coords
-    knight = Knight(opponent_color)
-    return (board[x + 1][y + 2] == knight
-            or board[x + 1][y - 2] == knight
-            or board[x + 2][y + 1] == knight
-            or board[x + 2][y - 1] == knight
-            or board[x - 1][y + 2] == knight
-            or board[x - 1][y - 2] == knight
-            or board[x - 2][y + 1] == knight
-            or board[x - 2][y - 1] == knight)
+    test_coords = [
+        (king_coords.x + 1, king_coords.y + 2),
+        (king_coords.x + 1, king_coords.y - 2),
+        (king_coords.x + 2, king_coords.y + 1),
+        (king_coords.x + 2, king_coords.y - 1),
+        (king_coords.x - 1, king_coords.y + 2),
+        (king_coords.x - 1, king_coords.y - 2),
+        (king_coords.x - 2, king_coords.y + 1),
+        (king_coords.x - 2, king_coords.y - 1),
+    ]
+    for coord in test_coords:
+        x, y = coord[0], coord[1]
+        if coords_on_board(board, x, y) and board[x][y] == Knight(opponent_color):
+            return True
+    return False
 
 
 def _check_by_other_piece(king_coords, board, opponent_color):
     for direction in DIRECTIONS:
         next_x, next_y = king_coords
         king_is_threat = True
-        try:
-            while True:
-                next_x, next_y = NEXT_MOVE_COORD[direction](next_x, next_y)
-                piece = board[next_x][next_y]
-                if piece and piece.color != opponent_color:
-                    continue  # Own piece blocking possible check from this direction
-                if piece and piece.color == opponent_color:
-                    if piece.type == 'King' and king_is_threat:
-                        return True
-                    elif direction in {'N', 'E', 'S', 'W'} and piece.type in {'Rook', 'Queen'}:
-                        return True
-                    elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.type in {'Bishop', 'Queen'}:
-                        return True
-                    break  # out of 'while True'. Either own piece, Pawn or Knight so not in check for this direction:
-                if king_is_threat:  # King can only attack one square over in each direction
-                    king_is_threat = False
-        except IndexError:  # Reached end of board
-            continue  # to next direction
-        return False
+        while True:
+            next_x, next_y = NEXT_MOVE_COORD[direction](next_x, next_y)
+            if not coords_on_board(board, next_x, next_y):
+                break 
+            piece = board[next_x][next_y]
+            if piece and piece.color != opponent_color:
+                break  # Own piece blocking possible check from this direction
+            if piece and piece.color == opponent_color:
+                if piece.type == 'King' and king_is_threat:
+                    return True
+                elif direction in {'N', 'E', 'S', 'W'} and piece.type in {'Rook', 'Queen'}:
+                    return True
+                elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.type in {'Bishop', 'Queen'}:
+                    return True
+                break  # Either Pawn or Knight so not in check for this direction:
+            if king_is_threat:  
+                king_is_threat = False  # King can only attack one square over in each direction
+    return False
                     
 
 DIRECTIONS = 'N NE E SE S SW W NW'.split()

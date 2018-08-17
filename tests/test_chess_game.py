@@ -109,7 +109,8 @@ def test_captured_piece_removed_from_board(game):
 
 def test_piece_blocking_move_raises_exception(game):
     add(Pawn(Color.WHITE), game.board, Coords(x=0, y=1), game.pieces)
-    add(Pawn(Color.BLACK), game.board, Coords(x=2, y=2), game.pieces)
+    add(Pawn(Color.BLACK), game.board, Coords(x=0, y=2), game.pieces)
+    print(game.board)
     with pytest.raises(InvalidMoveError):
         game.move(Coords(x=0, y=1), Coords(x=0, y=3))
 

@@ -69,10 +69,10 @@ def check_coord_errors(piece, board, from_coords, to_coords):
             PieceNotFoundError: If no piece found at from coordinates.
 
     """
-    if not coords_on_board(board, from_coords):
+    if not coords_on_board(board, from_coords.x, from_coords.y):
         raise NotOnBoardError(from_coords, 'From coordinates not valid board coordinates')
 
-    if not coords_on_board(board, to_coords):
+    if not coords_on_board(board, to_coords.x, to_coords.y):
         raise NotOnBoardError(to_coords, 'To coordinates not valid board coordinates')
 
     if from_coords == to_coords:
@@ -82,6 +82,6 @@ def check_coord_errors(piece, board, from_coords, to_coords):
         raise PieceNotFoundError(from_coords, 'No piece found at from coordinates')
 
 
-def coords_on_board(board, coords):
-    """Check if coordinates within board range. Return bool."""
-    return coords.x < len(board) and coords.y < len(board)
+def coords_on_board(board, x_coord, y_coord):
+    """Check if coordinates within board range (negative indexing not allowed). Return bool."""
+    return 0 <= x_coord < len(board) and 0 <= y_coord < len(board)
