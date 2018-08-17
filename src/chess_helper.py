@@ -4,16 +4,16 @@ from src.game_enums import Direction
 from src.game_helper import coords_on_board, move_direction
 
 from src.game_pieces.bishop import Bishop
-from src.game_pieces.king import King 
-from src.game_pieces.knight import Knight 
+from src.game_pieces.king import King
+from src.game_pieces.knight import Knight
 from src.game_pieces.pawn import Pawn
 from src.game_pieces.queen import Queen
 from src.game_pieces.rook import Rook
 
 
 def new_chess_setup():
-    """Return dictionary of new chess game default piece postitions. 
-       
+    """Return dictionary of new chess game default piece postitions.
+
        Dictionary is in following format:
        key = str representation of game coordinates xy
        value = chess GamePiece
@@ -72,18 +72,19 @@ def chess_piece_blocking(board, from_coords, to_coords):
         for next_x_coord in range(min_x_coord + 1, max_x_coord):
             if board[next_x_coord][next_y_coord] is not None:
                 return True
-            next_y_coord += 1 
-        
+            next_y_coord += 1
+
     return False  # No piece blocking
 
 
 def king_in_check(king_coords, board, opponent_color):
+    """Check all 8 directions for king being in check. Return bool."""
     if _pawn_check(king_coords, board, opponent_color):
         return True
     if _knight_check(king_coords, board, opponent_color):
         return True
     if _check_by_other_piece(king_coords, board, opponent_color):
-        return True   
+        return True
     return False  # King not in check
 
 
@@ -131,7 +132,7 @@ def _check_by_other_piece(king_coords, board, opponent_color):
         while True:
             next_x, next_y = NEXT_MOVE_COORD[direction](next_x, next_y)
             if not coords_on_board(board, next_x, next_y):
-                break 
+                break
             piece = board[next_x][next_y]
             if piece and piece.color != opponent_color:
                 break  # Own piece blocking possible check from this direction
@@ -143,15 +144,15 @@ def _check_by_other_piece(king_coords, board, opponent_color):
                 elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.type in {'Bishop', 'Queen'}:
                     return True
                 break  # Either Pawn or Knight so not in check for this direction:
-            if king_is_threat:  
+            if king_is_threat:
                 king_is_threat = False  # King can only attack one square over in each direction
     return False
-                    
+
 
 DIRECTIONS = 'N NE E SE S SW W NW'.split()
 
 
-NEXT_MOVE_COORD = { 
+NEXT_MOVE_COORD = {
     'N': lambda x, y: (x, y + 1),
     'NE': lambda x, y: (x + 1, y + 1),
     'E': lambda x, y: (x + 1, y),

@@ -11,7 +11,7 @@ class ChessGame():
     """Main game logic for chess game.
 
        Optional Argument:
-            restore_positions: 
+            restore_positions:
                 dict of pieces for game restore
                 expected in the following key/value format:
                 key = str representation of game coordinates xy
@@ -24,7 +24,7 @@ class ChessGame():
             pieces: dict of defaultdict(int), tracks pieces on board
 
        Methods:
-            move: move piece from coordinates, to coordinates 
+            move: move piece from coordinates, to coordinates
     """
     def __init__(self, restore_positions=None):
         self.pieces = {
@@ -61,8 +61,8 @@ class ChessGame():
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             add(piece, board, coords, self.pieces)
 
-        return board   
-        
+        return board
+
     def _move(self, piece, from_coords, to_coords):
         # Remove piece from current coordinates
         self.board[from_coords.x][from_coords.y] = None
@@ -85,7 +85,7 @@ class ChessGame():
 
         if chess_piece_blocking(board, from_coords, to_coords):
             raise InvalidMoveError(from_coords, to_coords, 'Piece blocking this move')
-        
+
         if not self._valid_piece_move(piece, to_coords):
             raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
 

@@ -1,7 +1,7 @@
 """Module for Bishop class."""
 from src.game_enums import Direction
 from src.game_pieces.game_piece import GamePiece
-from src.game_helper import Coords, move_direction
+from src.game_helper import move_direction
 
 
 class Bishop(GamePiece):

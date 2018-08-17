@@ -42,14 +42,13 @@ class GamePiece(ABC):
             # AttributeError thrown if invalid Color Enum
             raise ValueError('Not a valid game color')
         self._color = color
-    
 
     @abstractmethod
     def valid_move(self, to_coords):
         """Confirm if move at passed coordinates supported by this piece. Return bool."""
-        raise NotImplementedError() 
+        raise NotImplementedError()
 
     @abstractmethod
     def valid_capture(self, to_coords):
         """Confirm if capture at passed coordinates supported by this piece. Return bool."""
-        raise NotImplementedError() 
+        raise NotImplementedError()

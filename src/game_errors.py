@@ -1,5 +1,5 @@
 """User defined exceptions for chess game.
-   
+
    Exceptions:
         NotOnBoardError:    Passed coordinates not on game board
         PieceNotFoundError: No piece located at from coordinates
