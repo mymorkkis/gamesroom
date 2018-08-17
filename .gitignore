@@ -1,7 +1,4 @@
 *.py[cod]
 .coverage
 .pytest_cache/
-notes.txt
-scratchpad.py
-game.py
 .vscode/
