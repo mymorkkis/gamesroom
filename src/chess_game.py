@@ -123,16 +123,24 @@ class ChessGame():
         return piece.valid_capture(to_coords)   # Occupied square == capture
 
     def _own_king_in_check(self, board, piece, to_coords):
-        # Temporarily put piece in position to see if it will lead to check
-        to_piece = board[to_coords.x][to_coords.y]
-        board[to_coords.x][to_coords.y] = piece
-        # Find postion of king to check
+        # Keep track of current game state
+        original_piece = board[to_coords.x][to_coords.y]
+        original_king_coords = self.game_kings[piece.color]['coords']
         opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
+
+        # Temporarily change to future board position to see if it will lead to check
+        board[piece.coords.x][piece.coords.y] = None
+        board[to_coords.x][to_coords.y] = piece
+        if piece.type == 'King':
+            self.game_kings[piece.color]['coords'] = to_coords
+
+        # Perform check
         king_coords = self.game_kings[piece.color]['coords']
-        if king_in_check(king_coords, board, opponent_color):
-            # Put piece (or None) back
-            board[to_coords.x][to_coords.y] = to_piece
-            return True
-        # Put piece (or None) back
-        board[to_coords.x][to_coords.y] = to_piece
-        return False
+        in_check = True if king_in_check(king_coords, board, opponent_color) else False
+
+        # Return game to previous state
+        board[piece.coords.x][piece.coords.y] = piece
+        board[to_coords.x][to_coords.y] = original_piece
+        self.game_kings[piece.color]['coords'] = original_king_coords
+
+        return in_check
