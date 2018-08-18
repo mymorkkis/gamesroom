@@ -34,12 +34,12 @@ class ChessGame():
         }
         self.board = self._setup_board(restore_positions)
         self.game_kings = {
-            Color.WHITE: {
-                'coords': Coords(x=-1, y=-1),
+            Color.WHITE: {  # TODO Quick fix. None would be preferable for coords but fails tests
+                'coords': Coords(x=-99, y=-99),
                 'in_check': False
             },
             Color.BLACK: {
-                'coords': Coords(x=-1, y=-1),
+                'coords': Coords(x=-99, y=-99),
                 'in_check': False
             }
         }
@@ -97,6 +97,10 @@ class ChessGame():
         if king_in_check(king_coords, self.board, piece.color):
             self.game_kings[opponent_color]['in_check'] = True
 
+        # Un-flag own king from being in check (if applicable)
+        if self.game_kings[piece.color]['in_check']:
+            self.game_kings[piece.color]['in_check'] = False
+
     def _move_errors(self, board, from_coords, to_coords):
         """Helper function for move. Raise errors or return False."""
         check_coord_errors(board, from_coords, to_coords)
@@ -110,7 +114,8 @@ class ChessGame():
             raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
 
         if self._own_king_in_check(board, piece, to_coords):
-            raise InvalidMoveError(from_coords, to_coords, 'Cannot place yourself in check')
+            # Covers both: move putting own king in check, not moving king out of check from previous move
+            raise InvalidMoveError(from_coords, to_coords, 'Invalid move, king is in check')
 
         return False
 

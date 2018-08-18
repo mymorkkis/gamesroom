@@ -126,7 +126,7 @@ def _knight_check(king_coords, board, opponent_color):
 
 
 def _check_by_other_piece(king_coords, board, opponent_color):
-    for direction in DIRECTIONS:
+    for direction in 'N NE E SE S SW W NW'.split():
         next_x, next_y = king_coords
         king_is_threat = True
         while True:
@@ -147,9 +147,6 @@ def _check_by_other_piece(king_coords, board, opponent_color):
             if king_is_threat:
                 king_is_threat = False  # King can only attack one square over in each direction
     return False
-
-
-DIRECTIONS = 'N NE E SE S SW W NW'.split()
 
 
 NEXT_MOVE_COORD = {
