@@ -62,7 +62,7 @@ def test_new_chess_game_has_correct_no_of_pieces(new_game, piece_type, value):
     (Coords(x=6, y=7), Knight(Color.BLACK)),
     (Coords(x=7, y=7), Rook(Color.BLACK)),
     (Coords(x=4, y=2), None),   # Random selection of coords to show
-    (Coords(x=1, y=2), None),   # all other squares contain None
+    (Coords(x=1, y=2), None),   # that all other squares contain None
     (Coords(x=3, y=3), None),
     (Coords(x=7, y=3), None),
     (Coords(x=2, y=4), None),
@@ -75,8 +75,7 @@ def test_new_chess_game_board_setup_correctly(new_game, coords, piece):
 
 
 def test_piece_moved_on_board(game):
-    add(Pawn(Color.WHITE), game.board, Coords(x=0, y=1), game.pieces)
-    # piece = game.board[0][1]
+    add(Pawn(Color.WHITE), game, Coords(x=0, y=1))
     # Move to postion is empty
     assert game.board[0][2] is None
     game.move(Coords(x=0, y=1), Coords(x=0, y=2))
@@ -90,8 +89,8 @@ def test_piece_moved_on_board(game):
 
 
 def test_captured_piece_removed_from_board(game):
-    add(Pawn(Color.WHITE), game.board, Coords(x=1, y=1), game.pieces)
-    add(Pawn(Color.BLACK), game.board, Coords(x=2, y=2), game.pieces)
+    add(Pawn(Color.WHITE), game, Coords(x=1, y=1))
+    add(Pawn(Color.BLACK), game, Coords(x=2, y=2))
     opponent_piece = game.board[2][2]
     assert game.pieces[opponent_piece.color][opponent_piece.type] == 1
     # Attack opponent
@@ -106,14 +105,22 @@ def test_captured_piece_removed_from_board(game):
 
 
 def test_piece_blocking_move_raises_exception(game):
-    add(Pawn(Color.WHITE), game.board, Coords(x=0, y=1), game.pieces)
-    add(Pawn(Color.BLACK), game.board, Coords(x=0, y=2), game.pieces)
+    add(Pawn(Color.WHITE), game, Coords(x=0, y=1))
+    add(Pawn(Color.BLACK), game, Coords(x=0, y=2))
     with pytest.raises(InvalidMoveError):
         game.move(Coords(x=0, y=1), Coords(x=0, y=3))
 
 
 def test_invalid_piece_move_raises_exception(game):
-    add(Pawn(Color.WHITE), game.board, Coords(x=0, y=1), game.pieces)
+    add(Pawn(Color.WHITE), game, Coords(x=0, y=1))
     with pytest.raises(InvalidMoveError):
         # Pawn can't move horizontally
         game.move(Coords(x=0, y=1), Coords(x=1, y=1))
+
+
+def test_game_king_coords_updated_when_king_moved(game):
+    add(King(Color.WHITE), game, Coords(x=4, y=0))
+    assert game.game_kings[Color.WHITE]['coords'] == Coords(x=4, y=0)
+
+    game.move(Coords(x=4, y=0), Coords(x=4, y=1))
+    assert game.game_kings[Color.WHITE]['coords'] == Coords(x=4, y=1)

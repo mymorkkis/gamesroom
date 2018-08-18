@@ -32,7 +32,6 @@ class ChessGame():
             Color.WHITE: defaultdict(int),
             Color.BLACK: defaultdict(int)
         }
-        self.board = self._setup_board(restore_positions)
         self.game_kings = {
             Color.WHITE: {  # TODO Quick fix. None would be preferable for coords but fails tests
                 'coords': Coords(x=-99, y=-99),
@@ -43,6 +42,8 @@ class ChessGame():
                 'in_check': False
             }
         }
+        self.board = [[None] * 8 for _ in range(8)]
+        self._setup_board(restore_positions)
 
     def move(self, from_coords, to_coords):
         """Move piece from coordinates, to coordianates. Remove captured piece, if any.
@@ -62,16 +63,12 @@ class ChessGame():
 
     def _setup_board(self, game_positions):
         """Setup board for new or previously stored game."""
-        board = [[None] * 8 for _ in range(8)]
-
         if game_positions is None:
             game_positions = new_chess_setup()
 
         for coords, piece in game_positions.items():
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
-            add(piece, board, coords, self.pieces)
-
-        return board
+            add(piece, self, coords)
 
     def _move(self, piece, from_coords, to_coords):
         # Remove piece from current coordinates

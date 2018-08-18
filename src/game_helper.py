@@ -19,7 +19,7 @@ from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundErro
 Coords = namedtuple('Coords', 'x y')
 
 
-def add(piece, board, coords, pieces):
+def add(piece, game, coords):
     """Add piece on board at given coordinates and update piece coordinates. Increment pieces.
 
        Raises:
@@ -27,9 +27,11 @@ def add(piece, board, coords, pieces):
     """
     # TODO Error if wrong piece color / piece type
     try:
-        board[coords.x][coords.y] = piece
+        game.board[coords.x][coords.y] = piece
         piece.coords = coords
-        pieces[piece.color][piece.type] += 1
+        game.pieces[piece.color][piece.type] += 1
+        if piece.type == 'King':  # Chess-only rule TODO better place for it?
+            game.game_kings[piece.color]['coords'] = piece.coords
     except IndexError:
         raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
 

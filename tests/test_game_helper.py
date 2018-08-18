@@ -21,20 +21,21 @@ def test_move_direction_correct_for_coordinates(to_coords, direction):
     assert move_direction(from_coords, to_coords) == direction
 
 
-def test_invalid_from_coords_raises_exception(game, piece):
+def test_invalid_from_coords_raises_exception(game):
     from_coords = Coords(x=1, y=50)  # From coordinates not on board
     to_coords = Coords(x=1, y=6)
     with pytest.raises(NotOnBoardError):
         check_coord_errors(game.board, from_coords, to_coords)
 
 
-def test_invalid_to_coords_raises_exception(game, piece):
+def test_invalid_to_coords_raises_exception(game):
+    from_coords = Coords(x=1, y=0)
     to_coords = Coords(x=50, y=7)  # To coordinates not on board
     with pytest.raises(NotOnBoardError):
-        check_coord_errors(game.board, piece.coords, to_coords)
+        check_coord_errors(game.board, from_coords, to_coords)
 
 
-def test_same_from_and_to_coords_raise_exception(game, piece):
+def test_same_from_and_to_coords_raise_exception(game):
     from_coords = Coords(x=4, y=4)
     to_coords = Coords(x=4, y=4)
     with pytest.raises(InvalidMoveError):

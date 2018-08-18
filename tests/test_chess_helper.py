@@ -55,48 +55,52 @@ def test_new_chess_game_setup_correctly(key, piece):
     assert CHESS_SETUP[key] == piece
 
 
-def test_piece_blocking_diagonal_move_returns_true(game, piece):
-    # Piece at Coords(4, 4)
+@pytest.fixture(scope='function')
+def game_with_piece(game):
+    pawn = Pawn(Color.WHITE)
+    start_coords = Coords(x=4, y=4)
+    add(pawn, game, start_coords)
+    return game
+
+
+def test_piece_blocking_diagonal_move_returns_true(game_with_piece):
     from_coords = Coords(x=3, y=3)
     to_coords = Coords(x=6, y=6)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
+    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=6, y=6)
     to_coords = Coords(x=3, y=3)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
+    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
 
 
-def test_piece_blocking_horizontal_move_returns_true(game, piece):
-    # Piece at Coords(4, 4)
+def test_piece_blocking_horizontal_move_returns_true(game_with_piece):
     from_coords = Coords(x=2, y=4)
     to_coords = Coords(x=6, y=4)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
+    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=6, y=4)
     to_coords = Coords(x=2, y=4)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
+    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
 
 
-def test_piece_blocking_vertical_move_returns_true(game, piece):
-    # Piece at Coords(4, 4)
+def test_piece_blocking_vertical_move_returns_true(game_with_piece):
     from_coords = Coords(x=4, y=2)
     to_coords = Coords(x=4, y=6)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
+    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=4, y=6)
     to_coords = Coords(x=4, y=2)
-    assert chess_piece_blocking(game.board, from_coords, to_coords)
+    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
 
 
-def test_piece_blocking_non_linear_move_returns_false(game, piece):
-    # Piece at Coords(4, 4)
+def test_piece_blocking_non_linear_move_returns_false(game_with_piece):
     from_coords = Coords(x=3, y=3)
     to_coords = Coords(x=4, y=5)
-    assert not chess_piece_blocking(game.board, from_coords, to_coords)
+    assert not chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=4, y=5)
     to_coords = Coords(x=3, y=3)
-    assert not chess_piece_blocking(game.board, from_coords, to_coords)
+    assert not chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
 
 
 def test_no_piece_blocking_returns_false(game):
@@ -125,8 +129,8 @@ def test_no_piece_blocking_returns_false(game):
     (King(Color.BLACK), Coords(x=3, y=1), Pawn(Color.WHITE), True)
 ])
 def test_king_in_check_returns_correct_result(game, king, coords, opponent_piece, result):
-    add(king, game.board, Coords(x=2, y=2), game.pieces)
-    add(opponent_piece, game.board, coords, game.pieces)
+    add(king, game, Coords(x=2, y=2))
+    add(opponent_piece, game, coords)
     opponent_color = Color.WHITE if king.color == Color.BLACK else Color.BLACK
     assert king_in_check(king.coords, game.board, opponent_color) == result
 
@@ -135,8 +139,8 @@ def test_own_piece_blocks_king_being_in_check(game):
     king = King(Color.WHITE)
     blocking_piece = Pawn(Color.WHITE)
     opponent_piece = Queen(Color.BLACK)
-    add(king, game.board, Coords(x=2, y=2), game.pieces)
-    add(blocking_piece, game.board, Coords(x=3, y=3), game.pieces)
-    add(opponent_piece, game.board, Coords(x=6, y=6), game.pieces)
+    add(king, game, Coords(x=2, y=2))
+    add(blocking_piece, game, Coords(x=3, y=3))
+    add(opponent_piece, game, Coords(x=6, y=6))
     assert not king_in_check(king.coords, game.board, opponent_piece.color)
     
