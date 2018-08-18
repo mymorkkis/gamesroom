@@ -69,6 +69,15 @@ class ChessGame():
         for coords, piece in game_positions.items():
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             add(piece, self, coords)
+        
+        for row in self.board:  # TODO Quick and dirty fix, better way?
+            for piece in row:
+                if piece and piece.type == 'King':
+                    self.game_kings[piece.color]['coords'] = piece.coords
+
+                    opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
+                    if king_in_check(piece.coords, self.board, opponent_color):
+                        self.game_kings[piece.color]['in_check'] = True
 
     def _move(self, piece, from_coords, to_coords):
         # Remove piece from current coordinates

@@ -120,7 +120,6 @@ def test_invalid_piece_move_raises_exception(game):
 
 def test_game_king_coords_updated_when_king_moved(game):
     add(King(Color.WHITE), game, Coords(x=4, y=0))
-    assert game.game_kings[Color.WHITE]['coords'] == Coords(x=4, y=0)
     game.move(Coords(x=4, y=0), Coords(x=4, y=1))
     assert game.game_kings[Color.WHITE]['coords'] == Coords(x=4, y=1)
 
@@ -128,6 +127,7 @@ def test_game_king_coords_updated_when_king_moved(game):
 def test_opponent_king_put_in_check(game):
     add(King(Color.BLACK), game, Coords(x=4, y=7))
     add(Rook(Color.WHITE), game, Coords(x=3, y=0))
+    game.game_kings[Color.BLACK]['coords'] = Coords(x=4, y=7)
     assert not game.game_kings[Color.BLACK]['in_check']
     game.move(Coords(x=3, y=0), Coords(x=4, y=0))
     assert game.game_kings[Color.BLACK]['in_check']
@@ -142,16 +142,37 @@ def test_king_moving_into_check_raises_exception(game):
 
 def test_move_putting_own_king_in_check_raises_exception(game):
     add(King(Color.BLACK), game, Coords(x=4, y=7))
+    game.game_kings[Color.BLACK]['coords'] = Coords(x=4, y=7)
     add(Rook(Color.BLACK), game, Coords(x=4, y=6))
     add(Rook(Color.WHITE), game, Coords(x=4, y=0))
     with pytest.raises(InvalidMoveError):
+        # Moving black Rook leaves King exposed to white Rook
         game.move(Coords(x=4, y=6), Coords(x=3, y=6))
 
 
-# def test_not_moving_king_out_of_check_raises_exception(game):
-#     add(King(Color.BLACK), game, Coords(x=4, y=7))
-#     add(Rook(Color.WHITE), game, Coords(x=4, y=0))
-#     assert game.game_kings[Color.BLACK]['in_check']
-#     # add(Rook(Color.BLACK), game, Coords(x=4, y=6))
-#     # with pytest.raises(InvalidMoveError):
-#     #     game.move(Coords(x=4, y=6), Coords(x=3, y=6))
+def test_not_moving_king_out_of_check_raises_exception(game):
+    add(King(Color.BLACK), game, Coords(x=4, y=7))
+    add(Rook(Color.WHITE), game, Coords(x=4, y=0))
+    game.game_kings[Color.BLACK].update({'coords': Coords(x=4, y=7), 'in_check': True})
+    with pytest.raises(InvalidMoveError):
+        # King moves but remains in check
+        game.move(Coords(x=4, y=7), Coords(x=4, y=6))
+
+
+def test_move_blocks_king_being_in_check(game):
+    add(King(Color.BLACK), game, Coords(x=4, y=7))
+    add(Rook(Color.WHITE), game, Coords(x=4, y=0))
+    game.game_kings[Color.BLACK].update({'coords': Coords(x=4, y=7), 'in_check': True})
+    add(Rook(Color.BLACK), game, Coords(x=3, y=6))
+    # Move Rook to block king being in check
+    game.move(Coords(x=3, y=6), Coords(x=4, y=6))
+    assert game.game_kings[Color.BLACK]['in_check'] == False
+
+
+def test_king_can_move_out_of_check(game):
+    add(King(Color.BLACK), game, Coords(x=4, y=7))
+    add(Rook(Color.WHITE), game, Coords(x=4, y=0))
+    game.game_kings[Color.BLACK].update({'coords': Coords(x=4, y=7), 'in_check': True})
+    # King moves out of check
+    game.move(Coords(x=4, y=7), Coords(x=5, y=7))
+    assert game.game_kings[Color.BLACK]['in_check'] == False

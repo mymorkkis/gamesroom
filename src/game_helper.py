@@ -30,8 +30,6 @@ def add(piece, game, coords):
         game.board[coords.x][coords.y] = piece
         piece.coords = coords
         game.pieces[piece.color][piece.type] += 1
-        if piece.type == 'King':  # Chess-only rule TODO better place for it?
-            game.game_kings[piece.color]['coords'] = piece.coords
     except IndexError:
         raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
 
