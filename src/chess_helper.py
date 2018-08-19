@@ -11,6 +11,9 @@ from src.game_pieces.queen import Queen
 from src.game_pieces.rook import Rook
 
 
+VALID_PIECE_TYPES = {'King', 'Queen', 'Rook', 'Bishop', 'Knight', 'Pawn'}
+
+
 def new_chess_setup():
     """Return dictionary of new chess game default piece postitions.
 

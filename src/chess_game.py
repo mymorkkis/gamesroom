@@ -3,9 +3,9 @@ from collections import defaultdict
 
 from src.game_enums import Color
 from src.game_helper import add, check_coord_errors, Coords
-from src.chess_helper import chess_piece_blocking, new_chess_setup, own_king_in_check
 from src.game_errors import InvalidMoveError
-from src.chess_helper import king_in_check
+from src.chess_helper import (chess_piece_blocking, king_in_check, new_chess_setup,
+                              own_king_in_check, VALID_PIECE_TYPES)
 
 
 class ChessGame():
@@ -68,7 +68,7 @@ class ChessGame():
 
         for coords, piece in game_positions.items():
             assert isinstance(piece.color, Color)
-            assert piece.type in {'King', 'Queen', 'Rook', 'Bishop', 'Knight', 'Pawn'}
+            assert piece.type in VALID_PIECE_TYPES
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             add(piece, self, coords)
 
