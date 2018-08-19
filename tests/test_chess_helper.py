@@ -144,3 +144,43 @@ def test_own_piece_blocks_king_being_in_check(game):
     add(opponent_piece, game, Coords(x=6, y=6))
     assert not king_in_check(king.coords, game.board, opponent_piece.color)
     
+
+
+def test_white_king_can_castle_east():
+    pass
+
+
+def test_white_king_can_castle_west():
+    pass
+
+
+def test_black_king_can_castel_east():
+    pass
+
+
+def test_black_king_can_castel_west():
+    pass
+
+
+def test_cant_castle_if_king_already_moved():
+    pass
+
+
+def test_cant_castle_if_rook_already_moved():
+    pass
+
+
+def test_cant_castle_if_piece_blocking():
+    pass
+
+
+def test_cant_castle_if_king_in_check():
+    pass
+
+
+def test_cant_castle_if_king_moves_into_check():
+    pass
+
+
+def test_cant_castle_if_king_moves_through_check():
+    pass
