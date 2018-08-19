@@ -77,6 +77,31 @@ def chess_piece_blocking(board, from_coords, to_coords):
     return False  # No piece blocking
 
 
+def own_king_in_check(game, piece, to_coords):
+    """Check if move puts current player king in check. Return bool."""
+    # Keep track of current game state
+    original_piece = game.board[to_coords.x][to_coords.y]
+    original_king_coords = game.game_kings[piece.color]['coords']
+    opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
+
+    # Temporarily change to future board position to see if it will lead to check
+    game.board[piece.coords.x][piece.coords.y] = None
+    game.board[to_coords.x][to_coords.y] = piece
+    if piece.type == 'King':
+        game.game_kings[piece.color]['coords'] = to_coords
+
+    # Perform check evaluation
+    king_coords = game.game_kings[piece.color]['coords']
+    in_check = True if king_in_check(king_coords, game.board, opponent_color) else False
+
+    # Return game to previous state
+    game.board[piece.coords.x][piece.coords.y] = piece
+    game.board[to_coords.x][to_coords.y] = original_piece
+    game.game_kings[piece.color]['coords'] = original_king_coords
+
+    return in_check
+
+
 def king_in_check(king_coords, board, opponent_color):
     """Check all 8 directions for king being in check. Return bool."""
     if _pawn_check(king_coords, board, opponent_color):

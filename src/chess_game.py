@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from src.game_enums import Color
 from src.game_helper import add, check_coord_errors, Coords
-from src.chess_helper import chess_piece_blocking, new_chess_setup
+from src.chess_helper import chess_piece_blocking, new_chess_setup, own_king_in_check
 from src.game_errors import InvalidMoveError
 from src.chess_helper import king_in_check
 
@@ -75,7 +75,7 @@ class ChessGame():
             if piece.type == 'King':
                 self.game_kings[piece.color]['coords'] = piece.coords
 
-                # If game restore check if any king starts in check
+                # If game restore, check if any king starts in check
                 opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
                 if king_in_check(piece.coords, self.board, opponent_color):
                     self.game_kings[piece.color]['in_check'] = True
@@ -120,7 +120,7 @@ class ChessGame():
         if not self._valid_piece_move(piece, to_coords):
             raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
 
-        if self._own_king_in_check(board, piece, to_coords):
+        if own_king_in_check(self, piece, to_coords):
             # Covers both: move putting own king in check, not moving king out of check from previous move
             raise InvalidMoveError(from_coords, to_coords, 'Invalid move, king is in check')
 
@@ -131,26 +131,3 @@ class ChessGame():
         if self.board[to_coords.x][to_coords.y] is None:
             return piece.valid_move(to_coords)  # Empty square == move
         return piece.valid_capture(to_coords)   # Occupied square == capture
-
-    def _own_king_in_check(self, board, piece, to_coords):
-        # Keep track of current game state
-        original_piece = board[to_coords.x][to_coords.y]
-        original_king_coords = self.game_kings[piece.color]['coords']
-        opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
-
-        # Temporarily change to future board position to see if it will lead to check
-        board[piece.coords.x][piece.coords.y] = None
-        board[to_coords.x][to_coords.y] = piece
-        if piece.type == 'King':
-            self.game_kings[piece.color]['coords'] = to_coords
-
-        # Perform check
-        king_coords = self.game_kings[piece.color]['coords']
-        in_check = True if king_in_check(king_coords, board, opponent_color) else False
-
-        # Return game to previous state
-        board[piece.coords.x][piece.coords.y] = piece
-        board[to_coords.x][to_coords.y] = original_piece
-        self.game_kings[piece.color]['coords'] = original_king_coords
-
-        return in_check
