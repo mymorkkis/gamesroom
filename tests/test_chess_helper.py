@@ -5,6 +5,7 @@ from src.game_helper import add
 from src.game_enums import Color
 from src.game_helper import Coords
 from src.chess_helper import chess_piece_blocking, king_in_check, new_chess_setup
+from src.game_errors import InvalidMoveError
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -145,42 +146,87 @@ def test_own_piece_blocks_king_being_in_check(game):
     assert not king_in_check(king.coords, game.board, opponent_piece.color)
     
 
-
-def test_white_king_can_castle_east():
-    pass
-
-
-def test_white_king_can_castle_west():
-    pass
-
-
-def test_black_king_can_castel_east():
-    pass
-
-
-def test_black_king_can_castel_west():
-    pass
+@pytest.fixture(scope='function')
+def castle_setup(game):
+    add(King(Color.WHITE), game, Coords(x=4, y=0))
+    add(King(Color.BLACK), game, Coords(x=4, y=7))
+    game.game_kings[Color.WHITE].update({'coords': Coords(x=4, y=0), 'in_check': False})
+    game.game_kings[Color.BLACK].update({'coords': Coords(x=4, y=7), 'in_check': False})
+    add(Rook(Color.WHITE), game, Coords(x=0, y=0))
+    add(Rook(Color.WHITE), game, Coords(x=7, y=0))
+    add(Rook(Color.BLACK), game, Coords(x=7, y=7))
+    add(Rook(Color.BLACK), game, Coords(x=7, y=7))
+    return game
 
 
-def test_cant_castle_if_king_already_moved():
-    pass
+def test_white_king_can_castle_east(castle_setup):
+    game = castle_setup
+    game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+    assert game.board[6][0] == King(Color.WHITE)
+    assert game.board[5][0] == Rook(Color.WHITE)
 
 
-def test_cant_castle_if_rook_already_moved():
-    pass
+def test_white_king_can_castle_west(castle_setup):
+    game = castle_setup
+    game.move(Coords(x=4, y=0), Coords(x=2, y=0))
+    assert game.board[2][0] == King(Color.WHITE)
+    assert game.board[3][0] == Rook(Color.WHITE)
 
 
-def test_cant_castle_if_piece_blocking():
-    pass
+def test_black_king_can_castel_east(castle_setup):
+    game = castle_setup
+    game.move(Coords(x=4, y=7), Coords(x=6, y=7))
+    assert game.board[6][7] == King(Color.BLACK)
+    assert game.board[5][7] == Rook(Color.BLACK)
 
 
-def test_cant_castle_if_king_in_check():
-    pass
+def test_black_king_can_castel_west(castle_setup):
+    game = castle_setup
+    game.move(Coords(x=4, y=7), Coords(x=2, y=7))
+    assert game.board[2][7] == King(Color.BLACK)
+    assert game.board[3][7] == Rook(Color.BLACK)
 
 
-def test_cant_castle_if_king_moves_into_check():
-    pass
+def test_cant_castle_if_king_already_moved(castle_setup):
+    game = castle_setup
+    game.move(Coords(x=4, y=0), Coords(x=4, y=1))
+    game.move(Coords(x=4, y=1), Coords(x=4, y=0))
+    with pytest.raises(InvalidMoveError):
+        game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
-def test_cant_castle_if_king_moves_through_check():
-    pass
+def test_cant_castle_if_rook_already_moved(castle_setup):
+    game = castle_setup
+    game.move(Coords(x=7, y=0), Coords(x=7, y=1))
+    game.move(Coords(x=7, y=1), Coords(x=7, y=0))
+    with pytest.raises(InvalidMoveError):
+        game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+
+
+def test_cant_castle_if_piece_blocking(castle_setup):
+    game = castle_setup
+    add(Bishop(Color.WHITE), game, Coords(x=5, y=0))
+    with pytest.raises(InvalidMoveError):
+        game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+
+
+def test_cant_castle_if_king_in_check(castle_setup):
+    game = castle_setup
+    add(Queen(Color.BLACK), game, Coords(x=4, y=2))
+    game.game_kings[Color.WHITE]['in_check'] = True
+    with pytest.raises(InvalidMoveError):
+        game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+
+
+def test_cant_castle_if_king_moves_into_check(castle_setup):
+    game = castle_setup
+    add(Queen(Color.BLACK), game, Coords(x=6, y=2))
+    with pytest.raises(InvalidMoveError):
+        game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+
+
+def test_cant_castle_if_king_moves_through_check(castle_setup):
+    game = castle_setup
+    add(Queen(Color.BLACK), game, Coords(x=5, y=2))
+    with pytest.raises(InvalidMoveError):
+        game.move(Coords(x=4, y=0), Coords(x=6, y=0))
