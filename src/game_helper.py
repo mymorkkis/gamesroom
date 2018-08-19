@@ -25,7 +25,6 @@ def add(piece, game, coords):
        Raises:
             NotOnBoardError
     """
-    # TODO Error if wrong piece color / piece type
     try:
         game.board[coords.x][coords.y] = piece
         piece.coords = coords

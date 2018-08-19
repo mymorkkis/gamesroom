@@ -33,17 +33,17 @@ class ChessGame():
             Color.BLACK: defaultdict(int)
         }
         self.game_kings = {
-            Color.WHITE: {  # TODO Quick fix. None would be preferable for coords but fails tests
-                'coords': Coords(x=-99, y=-99),
+            Color.WHITE: {
+                'coords': None,
                 'in_check': False
             },
             Color.BLACK: {
-                'coords': Coords(x=-99, y=-99),
+                'coords': None,
                 'in_check': False
             }
         }
         self.board = [[None] * 8 for _ in range(8)]
-        self._setup_board(restore_positions)
+        self._setup_game(restore_positions)
 
     def move(self, from_coords, to_coords):
         """Move piece from coordinates, to coordianates. Remove captured piece, if any.
@@ -61,23 +61,24 @@ class ChessGame():
             piece = self.board[from_coords.x][from_coords.y]
             self._move(piece, from_coords, to_coords)
 
-    def _setup_board(self, game_positions):
+    def _setup_game(self, game_positions):
         """Setup board for new or previously stored game."""
         if game_positions is None:
             game_positions = new_chess_setup()
 
         for coords, piece in game_positions.items():
+            assert isinstance(piece.color, Color)
+            assert piece.type in {'King', 'Queen', 'Rook', 'Bishop', 'Knight', 'Pawn'}
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             add(piece, self, coords)
-        
-        for row in self.board:  # TODO Quick and dirty fix, better way?
-            for piece in row:
-                if piece and piece.type == 'King':
-                    self.game_kings[piece.color]['coords'] = piece.coords
 
-                    opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
-                    if king_in_check(piece.coords, self.board, opponent_color):
-                        self.game_kings[piece.color]['in_check'] = True
+            if piece.type == 'King':
+                self.game_kings[piece.color]['coords'] = piece.coords
+
+                # If game restore check if any king starts in check
+                opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
+                if king_in_check(piece.coords, self.board, opponent_color):
+                    self.game_kings[piece.color]['in_check'] = True
 
     def _move(self, piece, from_coords, to_coords):
         # Remove piece from current coordinates
