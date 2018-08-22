@@ -9,9 +9,11 @@ class King(GamePiece):
     def __init__(self, color):
         super().__init__()
         self.color = color
+        self.moved = False
+        self.in_check = False
 
     def valid_move(self, to_coords):
-        if self._white_start_pos() or self._black_start_pos():
+        if not self.moved:
             return self._valid(to_coords) or self._valid_castle(to_coords)
         return self._valid(to_coords)
 
@@ -25,11 +27,5 @@ class King(GamePiece):
         return True if x_abs + y_abs in (1, 2) else False
 
     def _valid_castle(self, to_coords):
-        return (self._white_start_pos and to_coords in (Coords(x=2, y=0), Coords(x=6, y=0))
-                or self._black_start_pos and to_coords in (Coords(x=2, y=7), Coords(x=6, y=7)))
-
-    def _white_start_pos(self):
-        return self.color == Color.WHITE and self.coords == Coords(x=4, y=0)
-
-    def _black_start_pos(self):
-        return self.color == Color.BLACK and self.coords == Coords(x=4, y=7)
+        return (self.color == Color.WHITE and to_coords in (Coords(x=2, y=0), Coords(x=6, y=0))
+                or self.color == Color.BLACK and to_coords in (Coords(x=2, y=7), Coords(x=6, y=7)))

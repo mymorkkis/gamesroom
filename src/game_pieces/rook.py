@@ -9,6 +9,7 @@ class Rook(GamePiece):
     def __init__(self, color):
         super().__init__()
         self.color = color
+        self.moved = False
 
     def valid_move(self, to_coords):
         return self._valid(to_coords)
