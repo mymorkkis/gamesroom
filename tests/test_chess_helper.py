@@ -148,10 +148,7 @@ def test_own_piece_blocks_king_being_in_check(game):
 
 @pytest.fixture(scope='function')
 def castle_setup(game):
-    add(King(Color.WHITE), game, Coords(x=4, y=0))
-    add(King(Color.BLACK), game, Coords(x=4, y=7))
-    game.game_kings[Color.WHITE].update({'coords': Coords(x=4, y=0), 'in_check': False})
-    game.game_kings[Color.BLACK].update({'coords': Coords(x=4, y=7), 'in_check': False})
+    # Kings already added to game
     add(Rook(Color.WHITE), game, Coords(x=0, y=0))
     add(Rook(Color.WHITE), game, Coords(x=7, y=0))
     add(Rook(Color.BLACK), game, Coords(x=7, y=7))
@@ -159,6 +156,7 @@ def castle_setup(game):
     return game
 
 
+@pytest.mark.castle_tests
 def test_white_king_can_castle_east(castle_setup):
     game = castle_setup
     game.move(Coords(x=4, y=0), Coords(x=6, y=0))
@@ -166,6 +164,7 @@ def test_white_king_can_castle_east(castle_setup):
     assert game.board[5][0] == Rook(Color.WHITE)
 
 
+@pytest.mark.castle_tests
 def test_white_king_can_castle_west(castle_setup):
     game = castle_setup
     game.move(Coords(x=4, y=0), Coords(x=2, y=0))
@@ -173,6 +172,7 @@ def test_white_king_can_castle_west(castle_setup):
     assert game.board[3][0] == Rook(Color.WHITE)
 
 
+@pytest.mark.castle_tests
 def test_black_king_can_castel_east(castle_setup):
     game = castle_setup
     game.move(Coords(x=4, y=7), Coords(x=6, y=7))
@@ -180,6 +180,7 @@ def test_black_king_can_castel_east(castle_setup):
     assert game.board[5][7] == Rook(Color.BLACK)
 
 
+@pytest.mark.castle_tests
 def test_black_king_can_castel_west(castle_setup):
     game = castle_setup
     game.move(Coords(x=4, y=7), Coords(x=2, y=7))
@@ -187,6 +188,7 @@ def test_black_king_can_castel_west(castle_setup):
     assert game.board[3][7] == Rook(Color.BLACK)
 
 
+@pytest.mark.castle_tests
 def test_cant_castle_if_king_already_moved(castle_setup):
     game = castle_setup
     game.move(Coords(x=4, y=0), Coords(x=4, y=1))
@@ -195,6 +197,7 @@ def test_cant_castle_if_king_already_moved(castle_setup):
         game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
+@pytest.mark.castle_tests
 def test_cant_castle_if_rook_already_moved(castle_setup):
     game = castle_setup
     game.move(Coords(x=7, y=0), Coords(x=7, y=1))
@@ -203,6 +206,7 @@ def test_cant_castle_if_rook_already_moved(castle_setup):
         game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
+@pytest.mark.castle_tests
 def test_cant_castle_if_piece_blocking(castle_setup):
     game = castle_setup
     add(Bishop(Color.WHITE), game, Coords(x=5, y=0))
@@ -210,14 +214,17 @@ def test_cant_castle_if_piece_blocking(castle_setup):
         game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
+@pytest.mark.castle_tests
 def test_cant_castle_if_king_in_check(castle_setup):
     game = castle_setup
     add(Queen(Color.BLACK), game, Coords(x=4, y=2))
-    game.game_kings[Color.WHITE]['in_check'] = True
+    game.board[4][0].in_check = True
+    # game.game_kings[Color.WHITE]['in_check'] = True
     with pytest.raises(InvalidMoveError):
         game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
+@pytest.mark.castle_tests
 def test_cant_castle_if_king_moves_into_check(castle_setup):
     game = castle_setup
     add(Queen(Color.BLACK), game, Coords(x=6, y=2))
@@ -225,6 +232,7 @@ def test_cant_castle_if_king_moves_into_check(castle_setup):
         game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
+@pytest.mark.castle_tests
 def test_cant_castle_if_king_moves_through_check(castle_setup):
     game = castle_setup
     add(Queen(Color.BLACK), game, Coords(x=5, y=2))
