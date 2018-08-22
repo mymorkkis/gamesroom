@@ -29,6 +29,8 @@ def add(piece, game, coords):
         game.board[coords.x][coords.y] = piece
         piece.coords = coords
         game.pieces[piece.color][piece.type] += 1
+        if piece.type == 'King':
+                game.king_coords[piece.color] = piece.coords
     except IndexError:
         raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
 

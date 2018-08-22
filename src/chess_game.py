@@ -32,15 +32,9 @@ class ChessGame():
             Color.WHITE: defaultdict(int),
             Color.BLACK: defaultdict(int)
         }
-        self.game_kings = {
-            Color.WHITE: {
-                'coords': None,
-                'in_check': False
-            },
-            Color.BLACK: {
-                'coords': None,
-                'in_check': False
-            }
+        self.king_coords = {
+            Color.WHITE: None,
+            Color.BLACK: None
         }
         self.board = [[None] * 8 for _ in range(8)]
         self._setup_game(restore_positions)
@@ -72,14 +66,6 @@ class ChessGame():
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             add(piece, self, coords)
 
-            if piece.type == 'King':
-                self.game_kings[piece.color]['coords'] = piece.coords
-
-                # If game restore, check if any king starts in check
-                opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
-                if king_in_check(piece.coords, self.board, opponent_color):
-                    self.game_kings[piece.color]['in_check'] = True
-
     def _move(self, piece, from_coords, to_coords):
         # Remove piece from current coordinates
         self.board[from_coords.x][from_coords.y] = None
@@ -96,17 +82,24 @@ class ChessGame():
         self.board[to_coords.x][to_coords.y] = piece
         piece.coords = to_coords
         if piece.type == 'King':
-            self.game_kings[piece.color]['coords'] = piece.coords
+            self.king_coords[piece.color] = piece.coords
+        
+        # Mark if King or Rook moved to disallow later castling
+        if piece.type in ('King', 'Rook') and not piece.moved:
+            piece.moved = True
 
         # Check if oppenent put in check
         opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
-        king_coords = self.game_kings[opponent_color]['coords']
+        king_coords = self.king_coords[opponent_color]
         if king_in_check(king_coords, self.board, piece.color):
-            self.game_kings[opponent_color]['in_check'] = True
+            opponent_king = self.board[king_coords.x][king_coords.y]
+            opponent_king.in_check = True
 
         # Un-flag own king from being in check (if applicable)
-        if self.game_kings[piece.color]['in_check']:
-            self.game_kings[piece.color]['in_check'] = False
+        king_coords = self.king_coords[piece.color]
+        king = self.board[king_coords.x][king_coords.y]
+        if king.in_check:
+            king.in_check = False
 
     def _move_errors(self, board, from_coords, to_coords):
         """Helper function for move. Raise errors or return False."""
