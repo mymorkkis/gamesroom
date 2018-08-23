@@ -23,6 +23,6 @@ def game():
     add(King(Color.BLACK), chess_game, Coords(x=4, y=7))
     add(Rook(Color.WHITE), chess_game, Coords(x=0, y=0))
     add(Rook(Color.WHITE), chess_game, Coords(x=7, y=0))
-    add(Rook(Color.BLACK), chess_game, Coords(x=7, y=7))
+    add(Rook(Color.BLACK), chess_game, Coords(x=0, y=7))
     add(Rook(Color.BLACK), chess_game, Coords(x=7, y=7))
     return chess_game

@@ -131,6 +131,29 @@ def _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_r
     return False  # No Rook to castle
 
 
+def move_rook(board, king_coords):
+    if king_coords == Coords(x=6, y=0):
+        rook = board[7][0]
+        board[7][0] = None
+        board[5][0] = rook
+        rook.coords = Coords(x=5, y=0)
+    if king_coords == Coords(x=2, y=0):
+        rook = board[0][0]
+        board[0][0] = None
+        board[3][0] = rook
+        rook.coords = Coords(x=3, y=0)
+    if king_coords == Coords(x=6, y=7):
+        rook = board[7][7]
+        board[7][7] = None
+        board[5][7] = rook
+        rook.coords = Coords(x=5, y=7)
+    if king_coords == Coords(x=2, y=7):
+        rook = board[0][7]
+        board[0][7] = None
+        board[3][7] = rook
+        rook.coords = Coords(x=3, y=7)
+
+
 def own_king_in_check(game, piece, to_coords):
     """Check if move puts current player king in check. Return bool."""
     # Keep track of current game state
