@@ -4,8 +4,8 @@ from collections import defaultdict
 from src.game_enums import Color
 from src.game_helper import add, check_coord_errors, Coords
 from src.game_errors import InvalidMoveError
-from src.chess_helper import (chess_piece_blocking, king_in_check, new_chess_setup,
-                              own_king_in_check, VALID_PIECE_TYPES)
+from src.chess_helper import (castle_attempt, chess_piece_blocking, valid_castle, king_in_check,
+                              new_chess_setup, own_king_in_check, VALID_PIECE_TYPES)
 
 
 class ChessGame():
@@ -83,7 +83,7 @@ class ChessGame():
         piece.coords = to_coords
         if piece.type == 'King':
             self.king_coords[piece.color] = piece.coords
-        
+
         # Mark if King or Rook moved to disallow later castling
         if piece.type in ('King', 'Rook') and not piece.moved:
             piece.moved = True
@@ -116,6 +116,9 @@ class ChessGame():
         if own_king_in_check(self, piece, to_coords):
             # Covers both: move putting own king in check, not moving king out of check from previous move
             raise InvalidMoveError(from_coords, to_coords, 'Invalid move, king is in check')
+
+        if castle_attempt(piece, to_coords) and not valid_castle(self.board, piece, to_coords):
+            raise InvalidMoveError(from_coords, to_coords, 'Invalid castle') # TODO Add reason
 
         return False
 

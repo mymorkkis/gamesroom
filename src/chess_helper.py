@@ -1,7 +1,7 @@
 """Helper functions for ChessGame."""
 from src.game_enums import Color
 from src.game_enums import Direction
-from src.game_helper import coords_on_board, move_direction
+from src.game_helper import Coords, coords_on_board, move_direction
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -78,6 +78,57 @@ def chess_piece_blocking(board, from_coords, to_coords):
             next_y_coord += 1
 
     return False  # No piece blocking
+
+
+def castle_attempt(piece, to_coords):
+    if piece.type == 'King' and piece.coords == Coords(x=4, y=0):
+        return to_coords in (Coords(x=2, y=0), Coords(x=6, y=0))
+    if piece.type == 'King' and piece.coords == Coords(x=4, y=7):
+        return to_coords in (Coords(x=2, y=7), Coords(x=6, y=7))
+    return False
+
+
+def valid_castle(board, king, to_coords):
+    if king.in_check:
+        return False
+
+    opponent_color = Color.WHITE if king.color == Color.BLACK else Color.BLACK
+
+    if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=2, y=0):
+        move_thru, move_to, potential_rook = board[3][0], board[2][0], board[0][0]
+        king_move_coords = (Coords(x=3, y=0), Coords(x=2, y=0))
+        return _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_rook, opponent_color)
+
+    if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=6, y=0):
+        move_thru, move_to, potential_rook = board[5][0], board[6][0], board[7][0]
+        king_move_coords = (Coords(x=5, y=0), Coords(x=6, y=0))
+        return _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_rook, opponent_color)
+
+    if king.coords == Coords(x=4, y=7) and to_coords == Coords(x=2, y=7):
+        move_thru, move_to, potential_rook = board[3][7], board[2][7], board[0][7]
+        king_move_coords = (Coords(x=3, y=7), Coords(x=2, y=7))
+        return _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_rook, opponent_color)
+
+    if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=6, y=7):
+        move_thru, move_to, potential_rook = board[5][7], board[6][7], board[7][7]
+        king_move_coords = (Coords(x=5, y=7), Coords(x=6, y=7))
+        return _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_rook, opponent_color)
+
+    return True
+
+
+def _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_rook, opponent_color):
+    if potential_rook and potential_rook.type == 'Rook':
+        rook = potential_rook
+        if king.moved or rook.moved:
+            return False
+        if move_thru or move_to:  # Piece blocking castle
+            return False
+        for coord in king_move_coords:
+            if king_in_check(coord, board, opponent_color):
+                return False
+        return True
+    return False  # No Rook to castle
 
 
 def own_king_in_check(game, piece, to_coords):
