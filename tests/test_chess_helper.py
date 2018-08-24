@@ -3,9 +3,9 @@ import pytest
 
 from src.game_helper import add
 from src.game_enums import Color
-from src.game_helper import Coords
 from src.chess_helper import chess_piece_blocking, king_in_check, new_chess_setup
 from src.game_errors import InvalidMoveError
+from src.game_helper import Coords, opponent_color
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -128,8 +128,7 @@ def test_no_piece_blocking_returns_false(game):
 def test_king_in_check_returns_correct_result(game, king, coords, opponent_piece, result):
     add(king, game, Coords(x=2, y=2))
     add(opponent_piece, game, coords)
-    opponent_color = Color.WHITE if king.color == Color.BLACK else Color.BLACK
-    assert king_in_check(king.coords, game.board, opponent_color) == result
+    assert king_in_check(king.coords, game.board, opponent_color(king)) == result
 
 
 def test_own_piece_blocks_king_being_in_check(game):

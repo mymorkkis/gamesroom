@@ -2,8 +2,8 @@
 from collections import defaultdict
 
 from src.game_enums import Color
-from src.game_helper import add, check_coord_errors, Coords
 from src.game_errors import InvalidMoveError
+from src.game_helper import add, check_coord_errors, Coords, opponent_color
 from src.chess_helper import (castle_attempt, chess_piece_blocking, valid_castle, king_in_check,
                               new_chess_setup, move_rook, own_king_in_check, VALID_PIECE_TYPES)
 
@@ -77,7 +77,7 @@ class ChessGame():
             captured_piece.coords = None
             board_postion = None
             self.pieces[captured_piece.color][captured_piece.type] -= 1
-        
+
         # Add piece at new coordinates
         castling = castle_attempt(piece, to_coords)
         self.board[to_coords.x][to_coords.y] = piece
@@ -92,8 +92,7 @@ class ChessGame():
             piece.moved = True
 
         # Check if oppenent put in check
-        opponent_color = Color.WHITE if piece.color == Color.BLACK else Color.BLACK
-        king_coords = self.king_coords[opponent_color]
+        king_coords = self.king_coords[opponent_color(piece)]
         if king_in_check(king_coords, self.board, piece.color):
             opponent_king = self.board[king_coords.x][king_coords.y]
             opponent_king.in_check = True

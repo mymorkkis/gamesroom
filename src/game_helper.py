@@ -12,11 +12,16 @@
 """
 from collections import namedtuple
 
+from src.game_enums import Color
 from src.game_enums import Direction
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
 
 
 Coords = namedtuple('Coords', 'x y')
+
+
+def opponent_color(piece):
+    return Color.WHITE if piece.color == Color.BLACK else Color.BLACK
 
 
 def add(piece, game, coords):
@@ -30,7 +35,7 @@ def add(piece, game, coords):
         piece.coords = coords
         game.pieces[piece.color][piece.type] += 1
         if piece.type == 'King':
-                game.king_coords[piece.color] = piece.coords
+            game.king_coords[piece.color] = piece.coords
     except IndexError:
         raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
 
