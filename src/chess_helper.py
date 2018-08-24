@@ -1,7 +1,20 @@
-"""Helper functions for ChessGame."""
+"""Helper functions for ChessGame.
+
+   Constants:
+        VALID_PIECE_TYPES:      Set of valid chess piece types as str.
+
+   Functions:
+        new_chess_setup:        Return dict of chess start positions. position: piece
+        chess_piece_blocking:   Check if piece blocking move. Return bool.
+        castling:               Check if castle attempt being made. Return bool.
+        valid_castle:           Validate attempted castle move. Return bool.
+        move_rook:              Move Rook to other side of King during castle.
+        own_king_in_check:      Check if move puts current player king in check. Return bool.
+        king_in_check:          Check for King being put into check. Return bool.
+"""
 from src.game_enums import Color
 from src.game_enums import Direction
-from src.game_helper import Coords, coords_on_board, move_direction, opponent_color
+from src.game_helper import Coords, coords_on_board, move_direction, opponent_color_
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -81,6 +94,7 @@ def chess_piece_blocking(board, from_coords, to_coords):
 
 
 def castling(piece, to_coords):
+    """Check if castle attempt being made. Return bool."""
     if piece.type == 'King' and piece.coords == Coords(x=4, y=0):
         return to_coords in (Coords(x=2, y=0), Coords(x=6, y=0))
     if piece.type == 'King' and piece.coords == Coords(x=4, y=7):
@@ -89,33 +103,35 @@ def castling(piece, to_coords):
 
 
 def valid_castle(board, king, to_coords):
+    """Validate attempted castle move. Return bool."""
     if king.in_check:
         return False
 
     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=2, y=0):
         potential_rook = board[0][0]
         king_move_coords = (Coords(x=3, y=0), Coords(x=2, y=0))
-        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color_(king))
 
     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=6, y=0):
         potential_rook = board[7][0]
         king_move_coords = (Coords(x=5, y=0), Coords(x=6, y=0))
-        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color_(king))
 
     if king.coords == Coords(x=4, y=7) and to_coords == Coords(x=2, y=7):
         potential_rook = board[0][7]
         king_move_coords = (Coords(x=3, y=7), Coords(x=2, y=7))
-        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color_(king))
 
     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=6, y=7):
         potential_rook = board[7][7]
         king_move_coords = (Coords(x=5, y=7), Coords(x=6, y=7))
-        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color_(king))
 
     return True
 
 
 def _valid_castle(board, king, king_move_coords, potential_rook, opponent_color):
+    """Helper function. Main logic for valid castle. Return bool."""
     if potential_rook and potential_rook.type == 'Rook':
         rook = potential_rook
         thru, to = king_move_coords
@@ -133,6 +149,7 @@ def _valid_castle(board, king, king_move_coords, potential_rook, opponent_color)
 
 
 def move_rook(board, king_coords):
+    """Part of castle move. Move Rook to other side of King."""
     if king_coords == Coords(x=6, y=0):
         rook = board[7][0]
         board[7][0] = None
@@ -169,7 +186,7 @@ def own_king_in_check(game, piece, to_coords):
 
     # Perform check evaluation
     king_coords = game.king_coords[piece.color]
-    in_check = True if king_in_check(king_coords, game.board, opponent_color(piece)) else False
+    in_check = True if king_in_check(king_coords, game.board, opponent_color_(piece)) else False
 
     # Return game to previous state
     game.board[piece.coords.x][piece.coords.y] = piece
@@ -180,7 +197,7 @@ def own_king_in_check(game, piece, to_coords):
 
 
 def king_in_check(king_coords, board, opponent_color):
-    """Check all 8 directions for king being in check. Return bool."""
+    """Check all 8 board directions to see if king is in check. Return bool."""
     if _pawn_check(king_coords, board, opponent_color):
         return True
     if _knight_check(king_coords, board, opponent_color):
@@ -191,6 +208,7 @@ def king_in_check(king_coords, board, opponent_color):
 
 
 def _pawn_check(king_coords, board, opponent_color):
+    """Helper function for king_in_check function."""
     pawn = Pawn(opponent_color)
     if opponent_color == Color.WHITE:
         x, y = king_coords.x + 1, king_coords.y - 1
@@ -210,6 +228,7 @@ def _pawn_check(king_coords, board, opponent_color):
 
 
 def _knight_check(king_coords, board, opponent_color):
+    """Helper function for king_in_check function."""
     test_coords = [
         (king_coords.x + 1, king_coords.y + 2),
         (king_coords.x + 1, king_coords.y - 2),
@@ -228,11 +247,12 @@ def _knight_check(king_coords, board, opponent_color):
 
 
 def _check_by_other_piece(king_coords, board, opponent_color):
+    """Helper function for king_in_check function."""
     for direction in 'N NE E SE S SW W NW'.split():
         next_x, next_y = king_coords
         king_is_threat = True
         while True:
-            next_x, next_y = NEXT_MOVE_COORD[direction](next_x, next_y)
+            next_x, next_y = _next_move_coord[direction](next_x, next_y)
             if not coords_on_board(board, next_x, next_y):
                 break
             piece = board[next_x][next_y]
@@ -251,7 +271,7 @@ def _check_by_other_piece(king_coords, board, opponent_color):
     return False
 
 
-NEXT_MOVE_COORD = {
+_next_move_coord = {
     'N': lambda x, y: (x, y + 1),
     'NE': lambda x, y: (x + 1, y + 1),
     'E': lambda x, y: (x + 1, y),

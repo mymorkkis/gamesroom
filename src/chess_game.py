@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from src.game_enums import Color
 from src.game_errors import InvalidMoveError
-from src.game_helper import add, check_coord_errors, Coords, opponent_color
+from src.game_helper import add, check_coord_errors, Coords, opponent_color_
 from src.chess_helper import (castling, chess_piece_blocking, valid_castle, king_in_check,
                               new_chess_setup, move_rook, own_king_in_check, VALID_PIECE_TYPES)
 
@@ -21,8 +21,9 @@ class ChessGame():
                 White Queen will be placed at Coords(x=3, y=2)
 
        Attributes:
-            board:  8 * 8 grid (list of lists)
-            pieces: dict of defaultdict(int), tracks pieces on board
+            board:       8 * 8 grid (list of lists)
+            king_coords: dict of current king coordinates Color: Coords
+            pieces:      dict of defaultdict(int), tracks pieces on board
 
        Methods:
             move: move piece from coordinates, to coordinates
@@ -67,6 +68,7 @@ class ChessGame():
             add(piece, self, coords)
 
     def _move(self, piece, from_coords, to_coords):
+        """Helper method. Main logic for move method."""
         # Remove piece from current coordinates
         self.board[from_coords.x][from_coords.y] = None
 
@@ -92,7 +94,7 @@ class ChessGame():
             piece.moved = True
 
         # Check if oppenent put in check
-        king_coords = self.king_coords[opponent_color(piece)]
+        king_coords = self.king_coords[opponent_color_(piece)]
         if king_in_check(king_coords, self.board, piece.color):
             opponent_king = self.board[king_coords.x][king_coords.y]
             opponent_king.in_check = True
@@ -104,7 +106,7 @@ class ChessGame():
             king.in_check = False
 
     def _move_errors(self, board, from_coords, to_coords):
-        """Helper function for move. Raise errors or return False."""
+        """Helper method for move. Raise errors or return False."""
         check_coord_errors(board, from_coords, to_coords)
 
         if chess_piece_blocking(board, from_coords, to_coords):
@@ -120,7 +122,7 @@ class ChessGame():
             raise InvalidMoveError(from_coords, to_coords, 'Invalid move, king is in check')
 
         if castling(piece, to_coords) and not valid_castle(self.board, piece, to_coords):
-            raise InvalidMoveError(from_coords, to_coords, 'Invalid castle') # TODO Add reason
+            raise InvalidMoveError(from_coords, to_coords, 'Invalid castle') # TODO Add specific reason?
 
         return False
 

@@ -4,11 +4,11 @@
         Coords: namedtuple('Coords', 'x y').
 
    Functions:
-        move_direction: Return move direction as Direction enum type.
-        legal_start_position: Check passed start coordinates are valid.
-        coord_errors: Check for errors in passed board coordinates.
-        coords_on_board: Check coordinates are on board.
-        chess_piece_blocking: Check if piece blocking chess game move.
+        opponent_color:     Return color of passed piece opponenet.
+        add:                Add piece to game at given coordinates.
+        move_direction:     Return move direction as Direction enum type.
+        coord_coord_errors: Check for errors in passed board coordinates.
+        coords_on_board:    Check coordinates are on board.
 """
 from collections import namedtuple
 
@@ -20,12 +20,20 @@ from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundErro
 Coords = namedtuple('Coords', 'x y')
 
 
-def opponent_color(piece):
+def opponent_color_(piece):
+    """Return color of passed piece opponent."""
     return Color.WHITE if piece.color == Color.BLACK else Color.BLACK
 
 
 def add(piece, game, coords):
     """Add piece on board at given coordinates and update piece coordinates. Increment pieces.
+
+       (Chess only): Add King coordinates to king_coords dictionary.
+
+       Args:
+            piece:  Any piece that inherits from GamePiece
+            game:   Game object
+            coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
 
        Raises:
             NotOnBoardError
@@ -64,7 +72,6 @@ def check_coord_errors(board, from_coords, to_coords):
     """Check for errors in passed board coordinates.
 
        Args:
-            piece:       Game piece found at from_coords.
             board:       Game board.
             from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
             to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
