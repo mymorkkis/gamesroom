@@ -39,7 +39,7 @@ class GamePiece(ABC):
     @color.setter
     def color(self, color):
         if color not in Color:
-            # AttributeError thrown if invalid Color Enum
+            # AttributeError thrown if invalid Color Enum, TODO Why can't I catch it?
             raise ValueError('Not a valid game color')
         self._color = color
 
