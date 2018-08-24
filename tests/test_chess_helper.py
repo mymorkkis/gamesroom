@@ -56,52 +56,48 @@ def test_new_chess_game_setup_correctly(key, piece):
     assert CHESS_SETUP[key] == piece
 
 
-@pytest.fixture(scope='function')
-def game_with_piece(game):
-    pawn = Pawn(Color.WHITE)
-    start_coords = Coords(x=4, y=4)
-    add(pawn, game, start_coords)
-    return game
-
-
-def test_piece_blocking_diagonal_move_returns_true(game_with_piece):
+def test_piece_blocking_diagonal_move_returns_true(game):
+    add(Pawn(Color.WHITE), game, Coords(x=4, y=4))
     from_coords = Coords(x=3, y=3)
     to_coords = Coords(x=6, y=6)
-    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
+    assert chess_piece_blocking(game.board, from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=6, y=6)
     to_coords = Coords(x=3, y=3)
-    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
+    assert chess_piece_blocking(game.board, from_coords, to_coords)
 
 
-def test_piece_blocking_horizontal_move_returns_true(game_with_piece):
+def test_piece_blocking_horizontal_move_returns_true(game):
+    add(Pawn(Color.WHITE), game, Coords(x=4, y=4))
     from_coords = Coords(x=2, y=4)
     to_coords = Coords(x=6, y=4)
-    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
+    assert chess_piece_blocking(game.board, from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=6, y=4)
     to_coords = Coords(x=2, y=4)
-    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
+    assert chess_piece_blocking(game.board, from_coords, to_coords)
 
 
-def test_piece_blocking_vertical_move_returns_true(game_with_piece):
+def test_piece_blocking_vertical_move_returns_true(game):
+    add(Pawn(Color.WHITE), game, Coords(x=4, y=4))
     from_coords = Coords(x=4, y=2)
     to_coords = Coords(x=4, y=6)
-    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
+    assert chess_piece_blocking(game.board, from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=4, y=6)
     to_coords = Coords(x=4, y=2)
-    assert chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
+    assert chess_piece_blocking(game.board, from_coords, to_coords)
 
 
-def test_piece_blocking_non_linear_move_returns_false(game_with_piece):
+def test_piece_blocking_non_linear_move_returns_false(game):
+    add(Pawn(Color.WHITE), game, Coords(x=4, y=4))
     from_coords = Coords(x=3, y=3)
     to_coords = Coords(x=4, y=5)
-    assert not chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
+    assert not chess_piece_blocking(game.board, from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=4, y=5)
     to_coords = Coords(x=3, y=3)
-    assert not chess_piece_blocking(game_with_piece.board, from_coords, to_coords)
+    assert not chess_piece_blocking(game.board, from_coords, to_coords)
 
 
 def test_no_piece_blocking_returns_false(game):

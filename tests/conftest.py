@@ -10,14 +10,14 @@ from src.game_pieces.rook import Rook
 
 @pytest.fixture(scope='function')
 def new_game():
-    # Start with full chess starting postions
+    """Return game with pieces set at new game starting postions."""
     new_chess_game = ChessGame()
     return new_chess_game
 
 
 @pytest.fixture(scope='function')
 def game():
-    # Start with new board and pre set postions to test castling
+    """Return game with new board and pre set King/Rook postions to test castling."""
     chess_game = ChessGame(restore_positions={})
     add(King(Color.WHITE), chess_game, Coords(x=4, y=0))
     add(King(Color.BLACK), chess_game, Coords(x=4, y=7))
