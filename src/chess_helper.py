@@ -80,7 +80,7 @@ def chess_piece_blocking(board, from_coords, to_coords):
     return False  # No piece blocking
 
 
-def castle_attempt(piece, to_coords):
+def castling(piece, to_coords):
     if piece.type == 'King' and piece.coords == Coords(x=4, y=0):
         return to_coords in (Coords(x=2, y=0), Coords(x=6, y=0))
     if piece.type == 'King' and piece.coords == Coords(x=4, y=7):
