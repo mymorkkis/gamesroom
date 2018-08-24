@@ -93,31 +93,34 @@ def valid_castle(board, king, to_coords):
         return False
 
     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=2, y=0):
-        move_thru, move_to, potential_rook = board[3][0], board[2][0], board[0][0]
+        potential_rook = board[0][0]
         king_move_coords = (Coords(x=3, y=0), Coords(x=2, y=0))
-        return _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_rook, opponent_color(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color(king))
 
     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=6, y=0):
-        move_thru, move_to, potential_rook = board[5][0], board[6][0], board[7][0]
+        potential_rook = board[7][0]
         king_move_coords = (Coords(x=5, y=0), Coords(x=6, y=0))
-        return _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_rook, opponent_color(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color(king))
 
     if king.coords == Coords(x=4, y=7) and to_coords == Coords(x=2, y=7):
-        move_thru, move_to, potential_rook = board[3][7], board[2][7], board[0][7]
+        potential_rook = board[0][7]
         king_move_coords = (Coords(x=3, y=7), Coords(x=2, y=7))
-        return _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_rook, opponent_color(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color(king))
 
     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=6, y=7):
-        move_thru, move_to, potential_rook = board[5][7], board[6][7], board[7][7]
+        potential_rook = board[7][7]
         king_move_coords = (Coords(x=5, y=7), Coords(x=6, y=7))
-        return _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_rook, opponent_color(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color(king))
 
     return True
 
 
-def _valid_castle(board, king, king_move_coords, move_thru, move_to, potential_rook, opponent_color):
+def _valid_castle(board, king, king_move_coords, potential_rook, opponent_color):
     if potential_rook and potential_rook.type == 'Rook':
         rook = potential_rook
+        thru, to = king_move_coords
+        move_thru, move_to = board[thru.x][thru.y], board[to.x][to.y]
+
         if king.moved or rook.moved:
             return False
         if move_thru or move_to:  # Piece blocking castle
