@@ -14,7 +14,7 @@ def test_game_piece_cant_be_instantiated():
 def test_child_class_inherits_properties():
     pawn = Pawn(Color.BLACK)
 
-    assert pawn.type == 'Pawn'
+    assert pawn.name == 'Pawn'
     assert pawn.color == Color.BLACK
     assert pawn.coords is None
     assert repr(pawn) == 'Pawn(<Color.BLACK: 2>)'

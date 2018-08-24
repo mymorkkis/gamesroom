@@ -24,8 +24,7 @@ from src.game_pieces.queen import Queen
 from src.game_pieces.rook import Rook
 
 
-VALID_PIECE_TYPES = {'King', 'Queen', 'Rook', 'Bishop', 'Knight', 'Pawn'}
-
+VALID_PIECE_NAMES = {'Bishop', 'King', 'Knight', 'Pawn', 'Queen', 'Rook'}
 
 def new_chess_setup():
     """Return dictionary of new chess game default piece postitions.
@@ -95,9 +94,9 @@ def chess_piece_blocking(board, from_coords, to_coords):
 
 def castling(piece, to_coords):
     """Check if castle attempt being made. Return bool."""
-    if piece.type == 'King' and piece.coords == Coords(x=4, y=0):
+    if piece.name == 'King' and piece.coords == Coords(x=4, y=0):
         return to_coords in (Coords(x=2, y=0), Coords(x=6, y=0))
-    if piece.type == 'King' and piece.coords == Coords(x=4, y=7):
+    if piece.name == 'King' and piece.coords == Coords(x=4, y=7):
         return to_coords in (Coords(x=2, y=7), Coords(x=6, y=7))
     return False
 
@@ -132,7 +131,7 @@ def valid_castle(board, king, to_coords):
 
 def _valid_castle(board, king, king_move_coords, potential_rook, opponent_color):
     """Helper function. Main logic for valid castle. Return bool."""
-    if potential_rook and potential_rook.type == 'Rook':
+    if potential_rook and potential_rook.name == 'Rook':
         rook = potential_rook
         thru, to = king_move_coords
         move_thru, move_to = board[thru.x][thru.y], board[to.x][to.y]
@@ -181,7 +180,7 @@ def own_king_in_check(game, piece, to_coords):
     # Temporarily change to future board position to see if it will lead to check
     game.board[piece.coords.x][piece.coords.y] = None
     game.board[to_coords.x][to_coords.y] = piece
-    if piece.type == 'King':
+    if piece.name == 'King':
         game.king_coords[piece.color] = to_coords
 
     # Perform check evaluation
@@ -259,11 +258,11 @@ def _check_by_other_piece(king_coords, board, opponent_color):
             if piece and piece.color != opponent_color:
                 break  # Own piece blocking possible check from this direction
             if piece and piece.color == opponent_color:
-                if piece.type == 'King' and king_is_threat:
+                if piece.name == 'King' and king_is_threat:
                     return True
-                elif direction in {'N', 'E', 'S', 'W'} and piece.type in {'Rook', 'Queen'}:
+                elif direction in {'N', 'E', 'S', 'W'} and piece.name in {'Rook', 'Queen'}:
                     return True
-                elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.type in {'Bishop', 'Queen'}:
+                elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.name in {'Bishop', 'Queen'}:
                     return True
                 break  # Either Pawn or Knight so not in check for this direction:
             if king_is_threat:

@@ -13,7 +13,7 @@ from src.game_pieces.queen import Queen
 from src.game_pieces.rook import Rook
 
 
-@pytest.mark.parametrize('piece_type, value', [
+@pytest.mark.parametrize('piece_name, value', [
     ('Rook', 2),
     ('Knight', 2),
     ('Bishop', 2),
@@ -23,9 +23,9 @@ from src.game_pieces.rook import Rook
     ('Rook', 2),
     ('Rook', 2)
 ])
-def test_new_chess_game_has_correct_no_of_pieces(new_game, piece_type, value):
+def test_new_chess_game_has_correct_no_of_pieces(new_game, piece_name, value):
     for piece_color in (Color.WHITE, Color.BLACK):
-        assert new_game.pieces[piece_color][piece_type] == value
+        assert new_game.pieces[piece_color][piece_name] == value
 
 
 @pytest.mark.parametrize('coords, piece', [
@@ -92,7 +92,7 @@ def test_captured_piece_removed_from_board(game):
     add(Pawn(Color.WHITE), game, Coords(x=1, y=1))
     add(Pawn(Color.BLACK), game, Coords(x=2, y=2))
     opponent_piece = game.board[2][2]
-    assert game.pieces[opponent_piece.color][opponent_piece.type] == 1
+    assert game.pieces[opponent_piece.color][opponent_piece.name] == 1
     # Attack opponent
     game.move(Coords(x=1, y=1), Coords(x=2, y=2))
     # Previous position empty
@@ -101,7 +101,7 @@ def test_captured_piece_removed_from_board(game):
     assert game.board[2][2] == Pawn(Color.WHITE)
     # Captured piece no longer on board and removed from game pieces
     assert opponent_piece.coords is None
-    assert game.pieces[opponent_piece.color][opponent_piece.type] == 0
+    assert game.pieces[opponent_piece.color][opponent_piece.name] == 0
 
 
 def test_piece_blocking_move_raises_exception(game):

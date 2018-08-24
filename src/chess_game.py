@@ -5,7 +5,7 @@ from src.game_enums import Color
 from src.game_errors import InvalidMoveError
 from src.game_helper import add, check_coord_errors, Coords, opponent_color_
 from src.chess_helper import (castling, chess_piece_blocking, valid_castle, king_in_check,
-                              new_chess_setup, move_rook, own_king_in_check, VALID_PIECE_TYPES)
+                              new_chess_setup, move_rook, own_king_in_check, VALID_PIECE_NAMES)
 
 
 class ChessGame():
@@ -63,7 +63,7 @@ class ChessGame():
 
         for coords, piece in game_positions.items():
             assert isinstance(piece.color, Color)
-            assert piece.type in VALID_PIECE_TYPES
+            assert piece.name in VALID_PIECE_NAMES
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             add(piece, self, coords)
 
@@ -78,19 +78,19 @@ class ChessGame():
             captured_piece = board_postion
             captured_piece.coords = None
             board_postion = None
-            self.pieces[captured_piece.color][captured_piece.type] -= 1
+            self.pieces[captured_piece.color][captured_piece.name] -= 1
 
         # Add piece at new coordinates
-        castle_move = castling(piece, to_coords)
+        castling_ = castling(piece, to_coords)
         self.board[to_coords.x][to_coords.y] = piece
         piece.coords = to_coords
-        if piece.type == 'King':
+        if piece.name == 'King':
             self.king_coords[piece.color] = piece.coords
-            if castle_move:
+            if castling_:
                 move_rook(self.board, piece.coords)
 
         # Mark if King or Rook moved to disallow later castling
-        if piece.type in ('King', 'Rook') and not piece.moved:
+        if piece.name in ('King', 'Rook') and not piece.moved:
             piece.moved = True
 
         # Check if oppenent put in check
