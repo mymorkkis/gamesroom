@@ -167,3 +167,17 @@ def test_king_can_move_out_of_check(game):
     king.in_check = True
     game.move(Coords(x=4, y=7), Coords(x=5, y=7))
     assert not king.in_check
+
+
+def test_checkmate_results_in_game_ending(new_game):
+    game = new_game
+    # Setup classic "fool's mate"
+    game.move(Coords(x=5, y=1), Coords(x=5, y=2))
+    game.move(Coords(x=4, y=6), Coords(x=4, y=4))
+    game.move(Coords(x=6, y=1), Coords(x=6, y=3))
+    assert not game.check_mate
+    assert not game.winner
+    # Queen to put king in check mate
+    game.move(Coords(x=3, y=7), Coords(x=7, y=3))
+    assert game.check_mate
+    assert game.winner == Color.BLACK

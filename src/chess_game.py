@@ -4,7 +4,7 @@ from collections import defaultdict
 from src.game_enums import Color
 from src.game_errors import InvalidMoveError
 from src.game_helper import add, check_coord_errors, Coords, opponent_color_
-from src.chess_helper import (castling, chess_piece_blocking, valid_castle, king_in_check,
+from src.chess_helper import (castling, chess_piece_blocking, valid_castle, king_cant_move, king_in_check,
                               new_chess_setup, move_rook, own_king_in_check, VALID_PIECE_NAMES)
 
 
@@ -24,6 +24,8 @@ class ChessGame():
             board:       8 * 8 grid (list of lists)
             king_coords: dict of current king coordinates Color: Coords
             pieces:      dict of defaultdict(int), tracks pieces on board
+            check_mate:  bool value
+            winner:      Color of game winner
 
        Methods:
             move: move piece from coordinates, to coordinates
@@ -39,6 +41,8 @@ class ChessGame():
         }
         self.board = [[None] * 8 for _ in range(8)]
         self._setup_game(restore_positions)
+        self.check_mate = False
+        self.winner = False
 
     def move(self, from_coords, to_coords):
         """Move piece from coordinates, to coordianates. Remove captured piece, if any.
@@ -93,11 +97,16 @@ class ChessGame():
         if piece.name in ('King', 'Rook') and not piece.moved:
             piece.moved = True
 
-        # Check if oppenent put in check
+        # Check if oppenent put in check and if this results in 'check mate'
         king_coords = self.king_coords[opponent_color_(piece)]
         if king_in_check(king_coords, self.board, piece.color):
             opponent_king = self.board[king_coords.x][king_coords.y]
             opponent_king.in_check = True
+            if king_cant_move(opponent_king, self.board, piece.color):
+                # TODO add a 'No piece can block' function to complete check_mate
+                self.check_mate = True
+                self.winner = piece.color
+                # TODO end game
 
         # Un-flag own king from being in check (if applicable)
         king_coords = self.king_coords[piece.color]

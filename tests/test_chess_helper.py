@@ -57,13 +57,24 @@ def test_new_chess_game_setup_correctly(key, piece):
 
 
 def test_piece_blocking_diagonal_move_returns_true(game):
-    add(Pawn(Color.WHITE), game, Coords(x=4, y=4))
-    from_coords = Coords(x=3, y=3)
-    to_coords = Coords(x=6, y=6)
+    # Test south/east and north/west
+    add(Pawn(Color.WHITE), game, Coords(x=4, y=6))
+    from_coords = Coords(x=7, y=3)
+    to_coords = Coords(x=3, y=7)
     assert chess_piece_blocking(game.board, from_coords, to_coords)
     # Assert test works in both directions
-    from_coords = Coords(x=6, y=6)
-    to_coords = Coords(x=3, y=3)
+    from_coords = Coords(x=3, y=7)
+    to_coords = Coords(x=7, y=3)
+    assert chess_piece_blocking(game.board, from_coords, to_coords)
+
+    # Test north/east and south/west
+    add(Pawn(Color.WHITE), game, Coords(x=3, y=2))
+    from_coords = Coords(x=1, y=0)
+    to_coords = Coords(x=5, y=4)
+    assert chess_piece_blocking(game.board, from_coords, to_coords)
+    # Assert test works in both directions
+    from_coords = Coords(x=5, y=4)
+    to_coords = Coords(x=1, y=0)
     assert chess_piece_blocking(game.board, from_coords, to_coords)
 
 

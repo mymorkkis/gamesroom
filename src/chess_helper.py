@@ -83,14 +83,27 @@ def chess_piece_blocking(board, from_coords, to_coords):
             if board[next_x_coord][from_coords.y] is not None:
                 return True
     elif direction == Direction.DIAGONAL:
-        next_y_coord = min_y_coord + 1
-        for next_x_coord in range(min_x_coord + 1, max_x_coord):
-            if board[next_x_coord][next_y_coord] is not None:
+        x_coords, y_coords = _diagonal_coord_logic(from_coords, to_coords)
+        for x_coord, y_coord in zip(x_coords, y_coords):
+            if board[x_coord][y_coord] is not None:
                 return True
-            next_y_coord += 1
+    else:  # Should never reach here
+        raise ValueError('Invalid direction in chess_piece_blocking func')
 
     return False  # No piece blocking
 
+def _diagonal_coord_logic(from_coords, to_coords):
+    if from_coords.x > to_coords.x:
+        x_coords = reversed(list(range(to_coords.x + 1, from_coords.x)))
+    else:
+        x_coords = list(range(from_coords.x + 1, to_coords.x))
+
+    if from_coords.y > to_coords.y:
+        y_coords = reversed(list(range(to_coords.y + 1, from_coords.y)))
+    else:
+        y_coords = list(range(from_coords.y + 1, to_coords.y))
+
+    return x_coords, y_coords
 
 def castling(piece, to_coords):
     """Check if castle attempt being made. Return bool."""
@@ -268,6 +281,19 @@ def _check_by_other_piece(king_coords, board, opponent_color):
             if king_is_threat:
                 king_is_threat = False  # King can only attack one square over in each direction
     return False
+
+def king_cant_move(king, board, opponent_color):
+    """Check if king can move to any square without being in check. Return bool."""
+    for direction in 'N NE E SE S SW W NW'.split():
+        next_x, next_y = _next_move_coord[direction](king.coords.x, king.coords.y)
+        if not coords_on_board(board, next_x, next_y):
+            continue
+        king_border_square = board[next_x][next_y]
+        test_king_coords = Coords(x=next_x, y=next_y)
+        if (king_border_square is None
+                and not king_in_check(test_king_coords, board, opponent_color)):
+            return False
+    return True
 
 
 _next_move_coord = {
