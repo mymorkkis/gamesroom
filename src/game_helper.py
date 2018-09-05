@@ -99,3 +99,10 @@ def check_coord_errors(board, from_coords, to_coords):
 def coords_on_board(board, x_coord, y_coord):
     """Check if coordinates within board range (negative indexing not allowed). Return bool."""
     return 0 <= x_coord < len(board) and 0 <= y_coord < len(board)
+
+
+def adjacent_square(from_coords, to_coords):
+    """Check if to_coordinates are adjacent to from_coordinates. Return bool."""
+    x_abs = abs(from_coords.x - to_coords.x)
+    y_abs = abs(from_coords.y - to_coords.y)
+    return x_abs + y_abs in (1, 2)

@@ -282,6 +282,11 @@ def _check_by_other_piece(king_coords, board, opponent_color):
                 king_is_threat = False  # King can only attack one square over in each direction
     return False
 
+# def check_mate(king, attacking_piece, board):
+#     if not _king_cant_move(king, board, piece.color):
+#         return False
+
+
 def king_cant_move(king, board, opponent_color):
     """Check if king can move to any square without being in check. Return bool."""
     for direction in 'N NE E SE S SW W NW'.split():
