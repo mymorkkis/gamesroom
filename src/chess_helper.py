@@ -83,8 +83,7 @@ def chess_piece_blocking(board, from_coords, to_coords):
             if board[next_x_coord][from_coords.y] is not None:
                 return True
     elif direction == Direction.DIAGONAL:
-        x_coords, y_coords = _diagonal_coord_logic(from_coords, to_coords)
-        for x_coord, y_coord in zip(x_coords, y_coords):
+        for x_coord, y_coord in _diagonal_coords(from_coords, to_coords):
             if board[x_coord][y_coord] is not None:
                 return True
     else:  # Should never reach here
@@ -92,7 +91,8 @@ def chess_piece_blocking(board, from_coords, to_coords):
 
     return False  # No piece blocking
 
-def _diagonal_coord_logic(from_coords, to_coords):
+def _diagonal_coords(from_coords, to_coords):
+    """Helper function for chess_piece_blocking. Return zip of all diagonal coords."""
     if from_coords.x > to_coords.x:
         x_coords = reversed(list(range(to_coords.x + 1, from_coords.x)))
     else:
@@ -103,7 +103,7 @@ def _diagonal_coord_logic(from_coords, to_coords):
     else:
         y_coords = list(range(from_coords.y + 1, to_coords.y))
 
-    return x_coords, y_coords
+    return zip(x_coords, y_coords)
 
 def castling(piece, to_coords):
     """Check if castle attempt being made. Return bool."""
