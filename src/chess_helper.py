@@ -14,7 +14,7 @@
 """
 from src.game_enums import Color
 from src.game_enums import Direction
-from src.game_helper import Coords, coords_on_board, move_direction, opponent_color_
+from src.game_helper import adjacent_square, Coords, coords_on_board, move_direction, opponent_color_
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -65,41 +65,29 @@ def _new_chess_pieces(color, *, y_idxs=None):
 
 def chess_piece_blocking(board, from_coords, to_coords):
     """Check if any piece blocking move from_coords to_coords. Return bool."""
-    direction = move_direction(from_coords, to_coords)
-    # Sort coords so logical direction of move not important
-    # (x=5, y=6) -> (x=1, y=2) same as (x=1, y=2) -> (x=5, y=6)
-    min_x_coord, max_x_coord = sorted([from_coords.x, to_coords.x])
-    min_y_coord, max_y_coord = sorted([from_coords.y, to_coords.y])
-
-    if direction == Direction.NON_LINEAR:
+    if move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
         # Only Knights move non_linear and they can jump over pieces
-        return False
-    elif direction == Direction.VERTICAL:
-        for next_y_coord in range(min_y_coord + 1, max_y_coord):
-            if board[from_coords.x][next_y_coord] is not None:
-                return True
-    elif direction == Direction.HORIZONTAL:
-        for next_x_coord in range(min_x_coord + 1, max_x_coord):
-            if board[next_x_coord][from_coords.y] is not None:
-                return True
-    elif direction == Direction.DIAGONAL:
-        for x_coord, y_coord in _diagonal_coords(from_coords, to_coords):
+        for x_coord, y_coord in board_coords(from_coords, to_coords):
             if board[x_coord][y_coord] is not None:
                 return True
-    else:  # Should never reach here
-        raise ValueError('Invalid direction in chess_piece_blocking func')
+    return False
 
-    return False  # No piece blocking
 
-def _diagonal_coords(from_coords, to_coords):
-    """Helper function for chess_piece_blocking. Return zip of all diagonal coords."""
+def board_coords(from_coords, to_coords):
+    """Helper function. Return zip of all x/y coords between from_coords and (including) to_coords."""
     if from_coords.x > to_coords.x:
         x_coords = reversed(list(range(to_coords.x + 1, from_coords.x)))
+    elif from_coords.x == to_coords.x:
+        list_length = abs(from_coords.y - to_coords.y)
+        x_coords = list_length * [from_coords.x]
     else:
         x_coords = list(range(from_coords.x + 1, to_coords.x))
 
     if from_coords.y > to_coords.y:
         y_coords = reversed(list(range(to_coords.y + 1, from_coords.y)))
+    elif from_coords.y == to_coords.y:
+        list_length = abs(from_coords.x - to_coords.x)
+        y_coords = list_length * [from_coords.y]
     else:
         y_coords = list(range(from_coords.y + 1, to_coords.y))
 
@@ -282,9 +270,15 @@ def _check_by_other_piece(king_coords, board, opponent_color):
                 king_is_threat = False  # King can only attack one square over in each direction
     return False
 
+
 # def check_mate(king, attacking_piece, board):
-#     if not _king_cant_move(king, board, piece.color):
+#     if not king_cant_move(king, board, attacking_piece.color):
 #         return False
+
+#     if not adjacent_square(king.coords, attacking_piece.coords):
+#         for x_coord, y_coord in board_coords(king.coords, attacking_piece.coords):
+#             if Coords(x_coord, y_coord) != attacking_piece.coords:
+#                 pass
 
 
 def king_cant_move(king, board, opponent_color):
