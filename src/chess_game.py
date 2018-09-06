@@ -4,7 +4,7 @@ from collections import defaultdict
 from src.game_enums import Color
 from src.game_errors import InvalidMoveError
 from src.game_helper import add, check_coord_errors, Coords, opponent_color_
-from src.chess_helper import (castling, chess_piece_blocking, valid_castle, king_cant_move, king_in_check,
+from src.chess_helper import (castling, chess_piece_blocking, valid_castle, _king_can_move, king_in_check,
                               new_chess_setup, move_rook, own_king_in_check, VALID_PIECE_NAMES)
 
 
@@ -102,7 +102,7 @@ class ChessGame():
         if king_in_check(king_coords, self.board, piece.color):
             opponent_king = self.board[king_coords.x][king_coords.y]
             opponent_king.in_check = True
-            if king_cant_move(opponent_king, self.board, piece.color):
+            if not _king_can_move(opponent_king, self.board, piece.color):
                 # TODO add a 'No piece can block' function to complete check_mate
                 self.check_mate = True
                 self.winner = piece.color

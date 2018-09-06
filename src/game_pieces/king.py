@@ -1,6 +1,6 @@
 """Module for King class."""
 from src.game_enums import Color
-from src.game_helper import adjacent_square, Coords
+from src.game_helper import adjacent_squares, Coords
 from src.game_pieces.game_piece import GamePiece
 
 
@@ -22,7 +22,7 @@ class King(GamePiece):
 
     def _valid(self, to_coords):
         # King can only move/capture to an adjacent square (unless it's castling)
-        return adjacent_square(self.coords, to_coords)
+        return adjacent_squares(self.coords, to_coords)
 
     def _valid_castle(self, to_coords):
         return (self.color == Color.WHITE and to_coords in (Coords(x=2, y=0), Coords(x=6, y=0))
