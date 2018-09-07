@@ -67,14 +67,14 @@ def chess_piece_blocking(board, from_coords, to_coords):
     """Check if any piece blocking move from_coords to_coords. Return bool."""
     if move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
         # Only Knights move non_linear and they can jump over pieces
-        for x_coord, y_coord in coords_between(from_coords, to_coords):
-            if board[x_coord][y_coord] is not None:
+        for coords in coords_between(from_coords, to_coords):
+            if board[coords.x][coords.y] is not None:
                 return True
     return False
 
 
 def coords_between(from_coords, to_coords):
-    """Helper function. Return zip of all x/y coords between from_coords and to_coords."""
+    """Helper function. Return generator of all coords between from_coords and to_coords."""
     if from_coords.x > to_coords.x:
         x_coords = reversed(list(range(to_coords.x + 1, from_coords.x)))
     elif from_coords.x == to_coords.x:
@@ -91,7 +91,8 @@ def coords_between(from_coords, to_coords):
     else:
         y_coords = list(range(from_coords.y + 1, to_coords.y))
 
-    return zip(x_coords, y_coords)
+    return (Coords(x, y) for x, y in zip(x_coords, y_coords))
+
 
 def castling(piece, to_coords):
     """Check if castle attempt being made. Return bool."""
@@ -198,17 +199,83 @@ def own_king_in_check(game, piece, to_coords):
 
 def king_in_check(king_coords, board, opponent_color):
     """Check all 8 board directions to see if king is in check. Return bool."""
-    if _pawn_check(king_coords, board, opponent_color):
+    if _piece_can_move_to(king_coords, board, opponent_color, move_type='attack'):
         return True
-    if _knight_check(king_coords, board, opponent_color):
-        return True
-    if _check_by_other_piece(king_coords, board, opponent_color):
-        return True
-    return False  # King not in check
+    return False
 
 
-def _pawn_check(king_coords, board, opponent_color):
-    """Helper function for king_in_check function."""
+def check_mate(king, attacking_piece, board):
+    """Check if possible for King to move out of check. Return bool."""
+    if _king_can_move(king, board, attacking_piece.color):
+        return False
+
+    for coords in coords_between(king.coords, attacking_piece.coords):
+        if _piece_can_move_to(coords, board, king.color, move_type='defend'):
+            return False
+
+    # TODO Check if king own piece can take attacking_piece
+    if king_in_check(attacking_piece.coords, board, king.color):  # TODO Same logic so re-using. Refactor into better named func
+        return False
+
+    # if adjacent_squares(king.coords, attacking_piece.coords):
+        # Check if king would be in check taking this piece
+    return True
+
+
+def _king_can_move(king, board, opponent_color):
+    """Check if king can move to any square without being in check. Return bool."""
+    for direction in 'N NE E SE S SW W NW'.split():
+        next_x, next_y = _next_move_coord[direction](king.coords.x, king.coords.y)
+        if not coords_on_board(board, next_x, next_y):
+            continue
+        king_border_square = board[next_x][next_y]
+        test_king_coords = Coords(x=next_x, y=next_y)
+        if (king_border_square is None
+                and not king_in_check(test_king_coords, board, opponent_color)):
+            return True
+    return False
+
+
+def _piece_can_move_to(coords, board, query_piece_color, *, move_type):
+    """Check to see if a defend or attack move to passed coordinates is possible. Return bool."""
+    if move_type == 'attack':
+        king_is_threat = True
+        if _pawn_in_possible_attack_position(coords, board, query_piece_color):
+            return True
+    elif move_type == 'defend':
+        king_is_threat = False
+        if _pawn_in_possible_defend_position(coords, board, query_piece_color):
+            return True
+
+    if _knight_in_possible_position(coords, board, query_piece_color):
+        return True
+
+    for direction in 'N NE E SE S SW W NW'.split():
+        next_x, next_y = coords
+        while True:
+            next_x, next_y = _next_move_coord[direction](next_x, next_y)
+            if not coords_on_board(board, next_x, next_y):
+                break
+            piece = board[next_x][next_y]
+            if piece and piece.color != query_piece_color:
+                break
+            if piece and piece.color == query_piece_color:
+                if (piece.name == 'King' and king_is_threat
+                        and not king_in_check(coords, board, query_piece_color)):
+                    return True
+                elif direction in {'N', 'E', 'S', 'W'} and piece.name in {'Rook', 'Queen'}:
+                    return True
+                elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.name in {'Bishop', 'Queen'}:
+                    return True
+                break  # Either Pawn or Knight blocking other pieces in this direction
+            if king_is_threat:
+                king_is_threat = False  # King can only attack one square over in each direction
+
+    return False  # There's no possible piece to defend/attack this position
+
+
+def _pawn_in_possible_attack_position(king_coords, board, opponent_color):
+    """Helper function for piece_can_move_to function. Return bool."""
     pawn = Pawn(opponent_color)
     if opponent_color == Color.WHITE:
         x, y = king_coords.x + 1, king_coords.y - 1
@@ -227,110 +294,7 @@ def _pawn_check(king_coords, board, opponent_color):
     return False
 
 
-def _knight_check(king_coords, board, opponent_color):
-    """Helper function for king_in_check function."""
-    if _knight_in_possible_position(king_coords, board, opponent_color):
-        return True
-    return False
-
-
-def _knight_in_possible_position(query_coords, board, query_color):
-    """Helper function. Check if knight with query_color can move to query_coords. Return bool."""
-    test_coords = [
-        (query_coords.x + 1, query_coords.y + 2),
-        (query_coords.x + 1, query_coords.y - 2),
-        (query_coords.x + 2, query_coords.y + 1),
-        (query_coords.x + 2, query_coords.y - 1),
-        (query_coords.x - 1, query_coords.y + 2),
-        (query_coords.x - 1, query_coords.y - 2),
-        (query_coords.x - 2, query_coords.y + 1),
-        (query_coords.x - 2, query_coords.y - 1),
-    ]
-    for x_coord, y_coord in test_coords:
-        if (coords_on_board(board, x_coord, y_coord)
-                and board[x_coord][y_coord] == Knight(query_color)):
-            return True
-    return False
-
-
-def _check_by_other_piece(king_coords, board, opponent_color):
-    """Helper function for king_in_check function."""
-    for direction in 'N NE E SE S SW W NW'.split():
-        next_x, next_y = king_coords
-        king_is_threat = True
-        while True:
-            next_x, next_y = _next_move_coord[direction](next_x, next_y)
-            if not coords_on_board(board, next_x, next_y):
-                break
-            piece = board[next_x][next_y]
-            if piece and piece.color != opponent_color:
-                break  # Own piece blocking possible check from this direction
-            if piece and piece.color == opponent_color:
-                if piece.name == 'King' and king_is_threat:
-                    return True
-                elif direction in {'N', 'E', 'S', 'W'} and piece.name in {'Rook', 'Queen'}:
-                    return True
-                elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.name in {'Bishop', 'Queen'}:
-                    return True
-                break  # Either Pawn or Knight so not in check for this direction:
-            if king_is_threat:  # TODO Would king still be threat if this move would put it in check???
-                king_is_threat = False  # King can only attack one square over in each direction
-    return False
-
-
-def check_mate(king, attacking_piece, board):
-    """Check if possible for King to move out of check. Return bool."""
-    if _king_can_move(king, board, attacking_piece.color):
-        return False
-
-    for x_coord, y_coord in coords_between(king.coords, attacking_piece.coords):
-        if _own_piece_can_block_check(Coords(x_coord, y_coord), board, king.color):
-            return False
-
-    # TODO Check if king own piece can take attacking_piece
-    if king_in_check(attacking_piece.coords, board, king.color):  # TODO Same logic so re-using. Refactor into better named func
-        return False
-
-    # if adjacent_squares(king.coords, attacking_piece.coords):
-        # Check if king would be in check taking this piece
-    return True
-
-def _own_piece_can_block_check(coords, board, king_color):
-    if _knight_in_possible_position(coords, board, king_color):
-        return True  # Knight can block check
-    if _pawn_in_possible_position(coords, board, king_color):
-        return True  # Pawn can block check
-    for direction in 'N NE E SE S SW W NW'.split():
-        next_x, next_y = coords
-        while True:
-            next_x, next_y = _next_move_coord[direction](next_x, next_y)
-            if not coords_on_board(board, next_x, next_y):
-                break
-            piece = board[next_x][next_y]
-            if piece and piece.color != king_color:
-                break
-            if piece and piece.color == king_color:
-                if direction in {'N', 'E', 'S', 'W'} and piece.name in {'Rook', 'Queen'}:
-                    return True  # Rook or Queen can block check
-                elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.name in {'Bishop', 'Queen'}:
-                    return True  # Bishop or Queen can block check
-    return False
-
-def _king_can_move(king, board, opponent_color):
-    """Check if king can move to any square without being in check. Return bool."""
-    for direction in 'N NE E SE S SW W NW'.split():
-        next_x, next_y = _next_move_coord[direction](king.coords.x, king.coords.y)
-        if not coords_on_board(board, next_x, next_y):
-            continue
-        king_border_square = board[next_x][next_y]
-        test_king_coords = Coords(x=next_x, y=next_y)
-        if (king_border_square is None
-                and not king_in_check(test_king_coords, board, opponent_color)):
-            return True
-    return False
-
-
-def _pawn_in_possible_position(coords, board, piece_color):
+def _pawn_in_possible_defend_position(coords, board, piece_color):
     """Helper function for king_in_check function."""
     pawn = Pawn(piece_color)
     if piece_color == Color.WHITE:
@@ -350,6 +314,25 @@ def _pawn_in_possible_position(coords, board, piece_color):
                 return True
         x, y = coords.x, coords.y + 1
         if coords_on_board(board, x, y) and board[x][y] == pawn:
+            return True
+    return False
+
+
+def _knight_in_possible_position(query_coords, board, query_color):
+    """Helper function for piece_can_move_to function. Return bool."""
+    test_coords = [
+        (query_coords.x + 1, query_coords.y + 2),
+        (query_coords.x + 1, query_coords.y - 2),
+        (query_coords.x + 2, query_coords.y + 1),
+        (query_coords.x + 2, query_coords.y - 1),
+        (query_coords.x - 1, query_coords.y + 2),
+        (query_coords.x - 1, query_coords.y - 2),
+        (query_coords.x - 2, query_coords.y + 1),
+        (query_coords.x - 2, query_coords.y - 1),
+    ]
+    for x_coord, y_coord in test_coords:
+        if (coords_on_board(board, x_coord, y_coord)
+                and board[x_coord][y_coord] == Knight(query_color)):
             return True
     return False
 

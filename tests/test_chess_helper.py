@@ -122,7 +122,6 @@ def test_no_piece_blocking_returns_false(game):
     (King(Color.WHITE), Coords(x=5, y=5), Queen(Color.BLACK), True),
     (King(Color.WHITE), Coords(x=1, y=3), Pawn(Color.BLACK), True),
     (King(Color.WHITE), Coords(x=3, y=3), Pawn(Color.BLACK), True),
-    (King(Color.WHITE), Coords(x=2, y=1), King(Color.BLACK), True),
     (King(Color.WHITE), Coords(x=1, y=4), Knight(Color.BLACK), True),
     (King(Color.WHITE), Coords(x=4, y=3), Knight(Color.BLACK), True),
     (King(Color.WHITE), Coords(x=2, y=4), Rook(Color.BLACK), True),
