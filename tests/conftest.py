@@ -17,7 +17,19 @@ def new_game():
 
 @pytest.fixture(scope='function')
 def game():
-    """Return game with new board and pre set King/Rook postions to test castling."""
+    """Return game with empty board and Kings placed in corners.
+       Kings are required so as not to throw errors.
+       A game would always have Kings.
+    """
+    chess_game = ChessGame(restore_positions={})
+    add(King(Color.WHITE), chess_game, Coords(x=0, y=0))
+    add(King(Color.BLACK), chess_game, Coords(x=7, y=7))
+    return chess_game
+
+
+@pytest.fixture(scope='function')
+def castle_game():
+    """Return game with only King/Rook postions pre-set"""
     chess_game = ChessGame(restore_positions={})
     add(King(Color.WHITE), chess_game, Coords(x=4, y=0))
     add(King(Color.BLACK), chess_game, Coords(x=4, y=7))

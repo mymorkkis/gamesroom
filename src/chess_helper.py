@@ -287,7 +287,7 @@ def check_mate(king, attacking_piece, board):
         for x_coord, y_coord in board_coords(king.coords, attacking_piece.coords):
             coords = Coords(x_coord, y_coord)
             if coords != attacking_piece.coords:
-                if _own_piece_can_block_check(coords, board, king.color, attacking_piece.color):
+                if _own_piece_can_block_check(coords, board, king.color):
                     return False
             # TODO Else check if own piece can take here???
     else:
@@ -296,8 +296,9 @@ def check_mate(king, attacking_piece, board):
         pass
 
     # Check if king own piece can take attacking_piece
+    return True
 
-def _own_piece_can_block_check(coords, board, king_color, attacking_piece_color):
+def _own_piece_can_block_check(coords, board, king_color):
     if _knight_in_possible_position(coords, board, king_color):
         return False  # Knight can block check
     if _pawn_in_possible_position(coords, board, king_color):
@@ -309,9 +310,9 @@ def _own_piece_can_block_check(coords, board, king_color, attacking_piece_color)
             if not coords_on_board(board, next_x, next_y):
                 break
             piece = board[next_x][next_y]
-            if piece and piece.color == attacking_piece_color:
+            if piece and piece.color != king_color:
                 break
-            if piece and piece.color != attacking_piece_color:
+            if piece and piece.color == king_color:
                 if direction in {'N', 'E', 'S', 'W'} and piece.name in {'Rook', 'Queen'}:
                     return False  # Rook or Queen can block check
                 elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.name in {'Bishop', 'Queen'}:
