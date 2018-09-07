@@ -224,7 +224,7 @@ def test_cant_castle_if_king_moves_through_check(castle_game):
         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
-# @pytest.mark.no_check_mate
+@pytest.mark.no_check_mate
 @pytest.mark.parametrize('blocking_piece, coords', [
     (Pawn(Color.WHITE), Coords(x=2, y=1)),
     (Pawn(Color.WHITE), Coords(x=3, y=1)),
@@ -276,4 +276,25 @@ def test_own_piece_in_attack_position_stops_check_mate(game, attacking_piece, co
     king = game.board[0][0]
     assert king.in_check
     # But not check mate as own piece can block
+    assert not game.check_mate
+
+
+@pytest.mark.no_check_mate
+def test_king_can_attack_out_of_check_mate(game):
+    add(Queen(Color.BLACK), game, Coords(x=1, y=4))
+    game.move(Coords(x=1, y=4), Coords(x=1, y=1))
+    king = game.board[0][0]
+    assert king.in_check
+    # But not check mate as King can attack Queen
+    assert not game.check_mate
+
+
+@pytest.mark.no_check_mate
+def test_king_can_escape_out_of_check_mate(game):
+    add(Rook(Color.BLACK), game, Coords(x=1, y=4))
+    add(Bishop(Color.BLACK), game, Coords(x=2, y=1))
+    game.move(Coords(x=1, y=4), Coords(x=1, y=0))
+    king = game.board[0][0]
+    assert king.in_check
+    # But not check mate as King escape (can't attack Rook as Bishop is protecting)
     assert not game.check_mate

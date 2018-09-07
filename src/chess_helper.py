@@ -14,7 +14,7 @@
 """
 from src.game_enums import Color
 from src.game_enums import Direction
-from src.game_helper import adjacent_squares, Coords, coords_on_board, move_direction, opponent_color_
+from src.game_helper import Coords, coords_on_board, move_direction, opponent_color_
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -208,17 +208,11 @@ def check_mate(king, attacking_piece, board):
     """Check if possible for King to move out of check. Return bool."""
     if _king_can_move(king, board, attacking_piece.color):
         return False
-
+    if _piece_can_move_to(attacking_piece.coords, board, king.color, move_type='attack'):
+        return False
     for coords in coords_between(king.coords, attacking_piece.coords):
         if _piece_can_move_to(coords, board, king.color, move_type='defend'):
             return False
-
-    # TODO Check if king own piece can take attacking_piece
-    if king_in_check(attacking_piece.coords, board, king.color):  # TODO Same logic so re-using. Refactor into better named func
-        return False
-
-    # if adjacent_squares(king.coords, attacking_piece.coords):
-        # Check if king would be in check taking this piece
     return True
 
 
@@ -239,11 +233,9 @@ def _king_can_move(king, board, opponent_color):
 def _piece_can_move_to(coords, board, query_piece_color, *, move_type):
     """Check to see if a defend or attack move to passed coordinates is possible. Return bool."""
     if move_type == 'attack':
-        king_is_threat = True
         if _pawn_in_possible_attack_position(coords, board, query_piece_color):
             return True
     elif move_type == 'defend':
-        king_is_threat = False
         if _pawn_in_possible_defend_position(coords, board, query_piece_color):
             return True
 
@@ -251,6 +243,7 @@ def _piece_can_move_to(coords, board, query_piece_color, *, move_type):
         return True
 
     for direction in 'N NE E SE S SW W NW'.split():
+        king_is_threat = True if move_type == 'attack' else False
         next_x, next_y = coords
         while True:
             next_x, next_y = _next_move_coord[direction](next_x, next_y)
@@ -261,7 +254,7 @@ def _piece_can_move_to(coords, board, query_piece_color, *, move_type):
                 break
             if piece and piece.color == query_piece_color:
                 if (piece.name == 'King' and king_is_threat
-                        and not king_in_check(coords, board, query_piece_color)):
+                        and not king_in_check(coords, board, opponent_color_(piece))):
                     return True
                 elif direction in {'N', 'E', 'S', 'W'} and piece.name in {'Rook', 'Queen'}:
                     return True
