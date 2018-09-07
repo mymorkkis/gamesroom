@@ -67,14 +67,14 @@ def chess_piece_blocking(board, from_coords, to_coords):
     """Check if any piece blocking move from_coords to_coords. Return bool."""
     if move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
         # Only Knights move non_linear and they can jump over pieces
-        for x_coord, y_coord in board_coords(from_coords, to_coords):
+        for x_coord, y_coord in coords_between(from_coords, to_coords):
             if board[x_coord][y_coord] is not None:
                 return True
     return False
 
 
-def board_coords(from_coords, to_coords):
-    """Helper function. Return zip of all x/y coords between from_coords and (including) to_coords."""
+def coords_between(from_coords, to_coords):
+    """Helper function. Return zip of all x/y coords between from_coords and to_coords."""
     if from_coords.x > to_coords.x:
         x_coords = reversed(list(range(to_coords.x + 1, from_coords.x)))
     elif from_coords.x == to_coords.x:
@@ -273,7 +273,7 @@ def _check_by_other_piece(king_coords, board, opponent_color):
                 elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.name in {'Bishop', 'Queen'}:
                     return True
                 break  # Either Pawn or Knight so not in check for this direction:
-            if king_is_threat:
+            if king_is_threat:  # TODO Would king still be threat if this move would put it in check???
                 king_is_threat = False  # King can only attack one square over in each direction
     return False
 
@@ -283,26 +283,23 @@ def check_mate(king, attacking_piece, board):
     if _king_can_move(king, board, attacking_piece.color):
         return False
 
-    if not adjacent_squares(king.coords, attacking_piece.coords):
-        for x_coord, y_coord in board_coords(king.coords, attacking_piece.coords):
-            coords = Coords(x_coord, y_coord)
-            if coords != attacking_piece.coords:
-                if _own_piece_can_block_check(coords, board, king.color):
-                    return False
-            # TODO Else check if own piece can take here???
-    else:
-        # Check if king would be in check taking this piece
-        # TODO Move this logic to just be if adjacent_squares???
-        pass
+    for x_coord, y_coord in coords_between(king.coords, attacking_piece.coords):
+        if _own_piece_can_block_check(Coords(x_coord, y_coord), board, king.color):
+            return False
 
-    # Check if king own piece can take attacking_piece
+    # TODO Check if king own piece can take attacking_piece
+    if king_in_check(attacking_piece.coords, board, king.color):  # TODO Same logic so re-using. Refactor into better named func
+        return False
+
+    # if adjacent_squares(king.coords, attacking_piece.coords):
+        # Check if king would be in check taking this piece
     return True
 
 def _own_piece_can_block_check(coords, board, king_color):
     if _knight_in_possible_position(coords, board, king_color):
-        return False  # Knight can block check
+        return True  # Knight can block check
     if _pawn_in_possible_position(coords, board, king_color):
-        return False  # Pawn can block check
+        return True  # Pawn can block check
     for direction in 'N NE E SE S SW W NW'.split():
         next_x, next_y = coords
         while True:
@@ -314,9 +311,10 @@ def _own_piece_can_block_check(coords, board, king_color):
                 break
             if piece and piece.color == king_color:
                 if direction in {'N', 'E', 'S', 'W'} and piece.name in {'Rook', 'Queen'}:
-                    return False  # Rook or Queen can block check
+                    return True  # Rook or Queen can block check
                 elif direction in {'NE', 'SE', 'SW', 'NW'} and piece.name in {'Bishop', 'Queen'}:
-                    return False  # Bishop or Queen can block check
+                    return True  # Bishop or Queen can block check
+    return False
 
 def _king_can_move(king, board, opponent_color):
     """Check if king can move to any square without being in check. Return bool."""

@@ -225,7 +225,56 @@ def test_cant_castle_if_king_moves_through_check(castle_game):
         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
+# @pytest.mark.no_check_mate
+@pytest.mark.parametrize('blocking_piece, coords', [
+    (Pawn(Color.WHITE), Coords(x=2, y=1)),
+    (Pawn(Color.WHITE), Coords(x=3, y=1)),
+    (Rook(Color.WHITE), Coords(x=0, y=2)),
+    (Rook(Color.WHITE), Coords(x=2, y=0)),
+    (Bishop(Color.WHITE), Coords(x=0, y=2)),
+    (Bishop(Color.WHITE), Coords(x=2, y=0)),
+    (Knight(Color.WHITE), Coords(x=3, y=0)),
+    (Knight(Color.WHITE), Coords(x=0, y=3)),
+    (Queen(Color.WHITE), Coords(x=2, y=6)),
+    (Queen(Color.WHITE), Coords(x=1, y=3))
+])
+def test_own_piece_can_block_check_mate(game, blocking_piece, coords):
+    add(Queen(Color.BLACK), game, Coords(x=3, y=4))
+    # White King is blocked in by own Pawn and Bishop
+    add(Pawn(Color.WHITE), game, Coords(x=0, y=1))
+    add(Bishop(Color.WHITE), game, Coords(x=1, y=0))
+    # Blocking piece is in postion to block potential check mate
+    add(blocking_piece, game, coords)
+    # Queen moves to put king in check
+    game.move(Coords(x=3, y=4), Coords(x=4, y=4))
+    king = game.board[0][0]
+    assert king.in_check
+    # But not check mate as own piece can block
+    assert not game.check_mate
+
+
 @pytest.mark.no_check_mate
-# @pytest.mark.parametrize()
-def test_own_piece_can_block_check_mate(game):
-    pass
+@pytest.mark.parametrize('attacking_piece, coords', [
+    # (Pawn(Color.WHITE), Coords(x=3, y=3)),
+    (Pawn(Color.WHITE), Coords(x=5, y=3)),
+    (Rook(Color.WHITE), Coords(x=0, y=4)),
+    (Rook(Color.WHITE), Coords(x=4, y=0)),
+    (Bishop(Color.WHITE), Coords(x=5, y=3)),
+    (Knight(Color.WHITE), Coords(x=3, y=2)),
+    (Knight(Color.WHITE), Coords(x=0, y=3)),
+    (Queen(Color.WHITE), Coords(x=4, y=0)),
+    (Queen(Color.WHITE), Coords(x=3, y=5))
+])
+def test_own_piece_in_attack_position_stops_check_mate(game, attacking_piece, coords):
+    add(Queen(Color.BLACK), game, Coords(x=3, y=4))
+    # White King is blocked in by own Pawn and Bishop
+    add(Pawn(Color.WHITE), game, Coords(x=0, y=1))
+    add(Bishop(Color.WHITE), game, Coords(x=1, y=0))
+    # Attacking piece is in postiton to take Queen when she moves
+    add(attacking_piece, game, coords)
+    # Queen moves to put king in check
+    game.move(Coords(x=3, y=4), Coords(x=4, y=4))
+    king = game.board[0][0]
+    assert king.in_check
+    # But not check mate as own piece can block
+    assert not game.check_mate
