@@ -26,6 +26,7 @@ from src.game_pieces.rook import Rook
 
 VALID_PIECE_NAMES = {'Bishop', 'King', 'Knight', 'Pawn', 'Queen', 'Rook'}
 
+
 def new_chess_setup():
     """Return dictionary of new chess game default piece postitions.
 
@@ -107,26 +108,28 @@ def valid_castle(board, king, to_coords):
     """Validate attempted castle move. Return bool."""
     if king.in_check:
         return False
+    
+    opponent_color = opponent_color_(king)
 
     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=2, y=0):
         potential_rook = board[0][0]
         king_move_coords = (Coords(x=3, y=0), Coords(x=2, y=0))
-        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color_(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color)
 
     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=6, y=0):
         potential_rook = board[7][0]
         king_move_coords = (Coords(x=5, y=0), Coords(x=6, y=0))
-        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color_(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color)
 
     if king.coords == Coords(x=4, y=7) and to_coords == Coords(x=2, y=7):
         potential_rook = board[0][7]
         king_move_coords = (Coords(x=3, y=7), Coords(x=2, y=7))
-        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color_(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color)
 
     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=6, y=7):
         potential_rook = board[7][7]
         king_move_coords = (Coords(x=5, y=7), Coords(x=6, y=7))
-        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color_(king))
+        return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color)
 
     return True
 
