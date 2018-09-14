@@ -173,6 +173,13 @@ def move_rook(board, king_coords):
         rook.coords = Coords(x=3, y=7)
 
 
+def pawn_being_promoted(pawn):
+    if (pawn.color == Color.WHITE and pawn.coords.y == 7
+            or pawn.color == Color.BLACK and pawn.coords.y == 0):
+        return True
+    return False
+
+
 def own_king_in_check(game, piece, to_coords):
     """Check if move puts current player king in check. Return bool."""
     # Keep track of current game state

@@ -160,7 +160,7 @@ def test_move_blocks_king_being_in_check(game):
     game.move(Coords(x=6, y=6), Coords(x=7, y=6))
     assert not king.in_check
 
-#
+
 def test_king_can_move_out_of_check(game):
     king = game.board[7][7]
     add(Rook(Color.WHITE), game, Coords(x=7, y=1))
@@ -181,3 +181,24 @@ def test_checkmate_results_in_game_ending(new_game):
     game.move(Coords(x=3, y=7), Coords(x=7, y=3))
     assert game.check_mate
     assert game.winner == Color.BLACK
+
+
+def test_white_pawn_can_be_promoted_to_queen(game):
+    add(Pawn(Color.WHITE), game, Coords(x=2, y=6))
+    assert game.pieces[Color.WHITE]['Queen'] == 0
+    assert game.pieces[Color.WHITE]['Pawn'] == 1
+    game.move(Coords(x=2, y=6), Coords(x=2, y=7))
+    # White Pawn promoted to white Queen
+    assert game.pieces[Color.WHITE]['Queen'] == 1
+    assert game.pieces[Color.WHITE]['Pawn'] == 0
+    assert game.board[2][7] == Queen(Color.WHITE)
+
+def test_black_pawn_can_be_promoted_to_queen(game):
+    add(Pawn(Color.BLACK), game, Coords(x=2, y=1))
+    assert game.pieces[Color.BLACK]['Queen'] == 0
+    assert game.pieces[Color.BLACK]['Pawn'] == 1
+    game.move(Coords(x=2, y=1), Coords(x=2, y=0))
+    # Black Pawn promoted to Black Queen
+    assert game.pieces[Color.BLACK]['Queen'] == 1
+    assert game.pieces[Color.BLACK]['Pawn'] == 0
+    assert game.board[2][0] == Queen(Color.BLACK)

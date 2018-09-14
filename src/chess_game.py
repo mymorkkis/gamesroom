@@ -4,8 +4,11 @@ from collections import defaultdict
 from src.game_enums import Color
 from src.game_errors import InvalidMoveError
 from src.game_helper import add, check_coord_errors, Coords, opponent_color_
-from src.chess_helper import (castling, check_mate, chess_piece_blocking, valid_castle, king_in_check,
-                              new_chess_setup, move_rook, own_king_in_check, VALID_PIECE_NAMES)
+from src.chess_helper import (
+    castling, check_mate, chess_piece_blocking, valid_castle, king_in_check,
+    new_chess_setup, move_rook, own_king_in_check, pawn_being_promoted, VALID_PIECE_NAMES
+)
+from src.game_pieces.queen import Queen
 
 
 class ChessGame():
@@ -92,6 +95,13 @@ class ChessGame():
             self.king_coords[piece.color] = piece.coords
             if castling_:
                 move_rook(self.board, piece.coords)
+
+        if piece.name == 'Pawn' and pawn_being_promoted(piece):
+            # TODO Need to allow promotion to other pieces, not just Queen
+            # Sensible standard default as highly likely to want Queen
+            self.board[to_coords.x][to_coords.y] = Queen(piece.color)
+            self.pieces[piece.color]['Pawn'] -= 1
+            self.pieces[piece.color]['Queen'] += 1
 
         # Mark if King or Rook moved to disallow later castling
         if piece.name in ('King', 'Rook') and not piece.moved:
