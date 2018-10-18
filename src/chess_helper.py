@@ -108,7 +108,7 @@ def valid_castle(board, king, to_coords):
     """Validate attempted castle move. Return bool."""
     if king.in_check:
         return False
-    
+
     opponent_color = opponent_color_(king)
 
     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=2, y=0):
