@@ -12,8 +12,8 @@ class Game(ABC):
         self.board_width = len(self.board[0])
         self.board_height = len(self.board)
         self.pieces = {}
-        self.valid_piece_names = None
-        self.valid_piece_colors = None
+        # self.valid_piece_names = {'Bishop', 'King', 'Knight', 'Pawn', 'Queen', 'Rook'}
+        # self.valid_piece_colors = {Color.WHITE, Color.BLACK}
         self._setup_game(restore_positions)
         self.playing_piece = None
         self.winner = None
@@ -58,7 +58,7 @@ class Game(ABC):
         try:
             self.board[coords.x][coords.y] = piece
             piece.coords = coords
-            self.pieces[piece.color][piece.name] += 1
+            # self.pieces[piece.color][piece.name] += 1
             # if piece.name == 'King':
             #     game.king_coords[piece.color] = piece.coords
         except IndexError:
