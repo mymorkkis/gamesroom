@@ -12,8 +12,7 @@
         own_king_in_check:      Check if move puts current player king in check. Return bool.
         king_in_check:          Check for King being put into check. Return bool.
 """
-from src.game_enums import Color
-from src.game_enums import Direction
+from src.game_enums import Color, Direction
 from src.game_helper import Coords, coords_on_board, move_direction, opponent_color_
 
 from src.game_pieces.bishop import Bishop
