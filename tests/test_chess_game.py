@@ -74,18 +74,18 @@ def test_new_chess_game_board_setup_correctly(new_game, coords, piece):
     assert new_game.board[coords.x][coords.y] == piece
 
 
-# def test_piece_moved_on_board(game):
-#     add(Pawn(Color.WHITE), game, Coords(x=0, y=1))
-#     # Move to postion is empty
-#     assert game.board[0][2] is None
-#     game.move(Coords(x=0, y=1), Coords(x=0, y=2))
-#     # Start position now empty
-#     assert game.board[0][1] is None
-#     # Move_to postion now_ occupied and piece coordinates updated
-#     piece = game.board[0][2]
-#     assert piece == Pawn(Color.WHITE)
-#     assert piece.coords.x == 0
-#     assert piece.coords.y == 2
+def test_piece_moved_on_board(game):
+    add(Pawn(Color.WHITE), game, Coords(x=0, y=1))
+    # Move to postion is empty
+    assert game.board[0][2] is None
+    game.move(Coords(x=0, y=1), Coords(x=0, y=2))
+    # Start position now empty
+    assert game.board[0][1] is None
+    # Move_to postion now_ occupied and piece coordinates updated
+    piece = game.board[0][2]
+    assert piece == Pawn(Color.WHITE)
+    assert piece.coords.x == 0
+    assert piece.coords.y == 2
 
 
 # def test_captured_piece_removed_from_board(game):

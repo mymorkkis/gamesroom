@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from src.game_enums import Color, Direction
+from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
 from src.game import Coords, Game
 
 from src.game_pieces.bishop import Bishop
@@ -13,25 +14,29 @@ from src.game_pieces.rook import Rook
 
 class ChessGame(Game):
     """temp"""
-    def __init__(self):
+    def __init__(self, restore_positions=None):
         super().__init__()
+        self.board = [[None] * 8 for _ in range(8)]
+        self.board_width = len(self.board[0])
+        self.board_height = len(self.board)
         self.playing_color = Color.WHITE
         self.opponent_color = Color.BLACK
-        # self.pieces = {
-        #     Color.WHITE: defaultdict(int),
-        #     Color.BLACK: defaultdict(int)
-        # }
+        self.pieces = {
+            Color.WHITE: defaultdict(int),
+            Color.BLACK: defaultdict(int)
+        }
         self.valid_piece_names = {'Bishop', 'King', 'Knight', 'Pawn', 'Queen', 'Rook'}
         self.valid_piece_colors = {Color.WHITE, Color.BLACK}
         self.king_coords = {
             Color.WHITE: None,
             Color.BLACK: None
         }
+        self._setup_game(restore_positions)
         self.from_coords = None
         self.to_coords = None
         self.playing_piece = None
-        self.from_board_positon = None
-        self.to_board_positon = None
+        self.from_board_position = None
+        self.to_board_position = None
 
         # self.check_mate = False
 
@@ -66,6 +71,41 @@ class ChessGame(Game):
                     # TODO End game
                 self._switch_players()
 
+    def _setup_game(self, game_positions):
+        """Setup board for new or previously stored game."""
+        if game_positions is None:
+            game_positions = self.new_setup()
+
+        for coords, piece in game_positions.items():
+            assert piece.color in self.valid_piece_colors
+            assert piece.name in self.valid_piece_names
+            coords = Coords(x=int(coords[0]), y=int(coords[1]))
+            self.add(piece, coords)
+            if piece.name == 'King':
+                self.king_coords[piece.color] = piece.coords
+
+    def add(self, piece, coords):
+        """Add piece on board at given coordinates and update piece coordinates. Increment pieces.
+        (Chess only): Add King coordinates to king_coords dictionary.
+        Args:
+                piece:  Any piece that inherits from GamePiece
+                game:   Game object
+                coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
+        Raises:
+                NotOnBoardError
+        """
+        try:
+            self.board[coords.x][coords.y] = piece
+            piece.coords = coords
+            self.pieces[piece.color][piece.name] += 1
+
+        except IndexError:
+            raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
+
+    def coords_on_board(self, x_coord, y_coord):
+        """Check if coordinates within board range (negative indexing not allowed). Return bool."""
+        return 0 <= x_coord < self.board_width and 0 <= y_coord < self.board_height
+
     def _switch_players(self):
         playing_color = self.playing_color
         self.playing_color = self.opponent_color
@@ -75,8 +115,8 @@ class ChessGame(Game):
     def _set_move_attibutes(self, from_coords, to_coords):
         self.from_coords, self.to_coords = from_coords, to_coords
         self.playing_piece = self.board[from_coords.x][from_coords.y]
-        self.from_board_positon = self.board[from_coords.x][from_coords.y]
-        self.to_board_positon = self.board[to_coords.x][to_coords.y]
+        self.from_board_position = self.board[from_coords.x][from_coords.y]
+        self.to_board_position = self.board[to_coords.x][to_coords.y]
 
     def _move_type(self):
         if self._castle_move():
@@ -97,28 +137,28 @@ class ChessGame(Game):
         return False
 
     def _promote_pawn(self):
-        self.from_board_positon = None
+        self.from_board_position = None
         # Defaults to Queen as most players want this
         # TODO Add functionality to choose promotion piece
-        self.to_board_positon = Queen(self.playing_color)
+        self.to_board_position = Queen(self.playing_color)
 
     def _move(self):
-        self.from_board_positon = None
+        self.from_board_position = None
         self.to_board_position = self.playing_piece
 
     def _attack(self):
-        self.from_board_positon = None
+        self.from_board_position = None
         captured_piece = self.to_board_position
         captured_piece.coords = None
         # self.pieces[captured_piece.color][captured_piece.name] -= 1
         self.to_board_position = self.playing_piece
 
     def _castle_move(self):
-        if self.playing_piece.type == 'King' and self.playing_piece.color == Color.WHITE:
+        if self.playing_piece.name == 'King' and self.playing_piece.color == Color.WHITE:
             if (self.from_coords == Coords(4, 0)
                     and self.to_coords in (Coords(2, 0), Coords(6, 0))):
                 return True
-        if self.playing_piece.type == 'King' and self.playing_piece.color == Color.BLACK:
+        if self.playing_piece.name == 'King' and self.playing_piece.color == Color.BLACK:
             if (self.from_coords == Coords(4, 7)
                     and self.to_coords in (Coords(2, 7), Coords(6, 7))):
                 return True
@@ -136,7 +176,7 @@ class ChessGame(Game):
             return self._black_castle_king_side
 
     def _prawn_promotion(self):
-        return self.playing_piece.type == 'Pawn' and self.to_coords.y in (0, 7)
+        return self.playing_piece.name == 'Pawn' and self.to_coords.y in (0, 7)
 
     def _legal_castle(self, color, side):
         if self._king_moved(color) or self._rook_moved(color, side):
@@ -217,8 +257,8 @@ class ChessGame(Game):
         return self.to_board_position is not None or self._en_passant()
 
     def _en_passant(self):
-        if (self.playing_piece.type == 'Pawn' and self.playing_piece.valid_capture()
-                and self.to_board_positon is None):
+        if (self.playing_piece.name == 'Pawn' and self.playing_piece.valid_capture(self.to_coords)
+                and self.to_board_position is None):
             if self.playing_piece.color == Color.WHITE and self.to_coords.y == 5:
                 return self.board[self.to_coords.x][self.to_coords.y - 1] == Pawn(Color.BLACK)
             if self.playing_piece.color == Color.BLACK and self.to_coords.y == 2:
@@ -233,7 +273,7 @@ class ChessGame(Game):
         original_king_coords = self.king_coords[self.playing_color]
 
         # Temporarily change to future board position to see if it will lead to check
-        self.from_board_positon = None
+        self.from_board_position = None
         self.to_board_position = self.playing_piece
         if self.playing_piece.name == 'King':
             self.king_coords[self.playing_color] = self.to_coords
@@ -259,7 +299,7 @@ class ChessGame(Game):
 
     # def _get_king(self, color):
     #     return [piece for piece in self.board if piece
-    #             and piece.color == color and piece.type == 'King'][0]
+    #             and piece.color == color and piece.name == 'King'][0]
 
     def _check_mate(self):
         king_coords = self.king_coords[self.opponent_color]
@@ -296,7 +336,7 @@ class ChessGame(Game):
         if king:
             return [piece for piece in self.board if piece and piece.color == color]
         return [piece for piece in self.board if piece
-                and piece.color == color and piece.type != 'King']
+                and piece.color == color and piece.name != 'King']
 
 
 
