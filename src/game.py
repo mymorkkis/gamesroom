@@ -7,15 +7,15 @@ from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundErro
 Coords = namedtuple('Coords', 'x y')
 
 class Game(ABC):
-    def __init__(self):
-        # self.board = [[None] * 8 for _ in range(8)]
-        # self.board_width = len(self.board[0])
-        # self.board_height = len(self.board)
-        # self.pieces = {}
-        # self.valid_piece_names = {'Bishop', 'King', 'Knight', 'Pawn', 'Queen', 'Rook'}
-        # self.valid_piece_colors = {Color.WHITE, Color.BLACK}
-        # self._setup_game(restore_positions)
-        self.playing_piece = None
+    def __init__(self, board, valid_piece_colors, valid_piece_names,
+                 pieces, restore_positions):
+        self.board = board
+        self.board_width = len(self.board[0])
+        self.board_height = len(self.board)
+        self.pieces = pieces
+        self.valid_piece_names = valid_piece_names
+        self.valid_piece_colors = valid_piece_colors
+        self._setup_game(restore_positions)
         self.winner = None
         # Add move stuff here
 
@@ -27,46 +27,44 @@ class Game(ABC):
     def new_setup(self):
         raise NotImplementedError
 
-    # def _setup_game(self, game_positions):
-    #     """Setup board for new or previously stored game."""
-    #     if game_positions is None:
-    #         game_positions = self.new_setup()
+    def _setup_game(self, game_positions):
+        """Setup board for new or previously stored game."""
+        if game_positions is None:
+            game_positions = self.new_setup()
 
-    #     for coords, piece in game_positions.items():
-    #         assert piece.color in self.valid_piece_colors
-    #         assert piece.name in self.valid_piece_names
-    #         coords = Coords(x=int(coords[0]), y=int(coords[1]))
-    #         self.add(piece, coords)
+        for coords, piece in game_positions.items():
+            assert piece.color in self.valid_piece_colors
+            assert piece.name in self.valid_piece_names
+            coords = Coords(x=int(coords[0]), y=int(coords[1]))
+            self.add(piece, coords)
 
     def save_game(self):
         pass
 
-    def opponent_color(self):
-        """Return color of passed piece opponent."""
-        return Color.WHITE if self.playing_piece == Color.BLACK else Color.BLACK
+    # def opponent_color(self):
+    #     """Return color of passed piece opponent."""
+    #     return Color.WHITE if self.playing_piece == Color.BLACK else Color.BLACK
 
-    # def add(self, piece, coords):
-    #     """Add piece on board at given coordinates and update piece coordinates. Increment pieces.
-    #     (Chess only): Add King coordinates to king_coords dictionary.
-    #     Args:
-    #             piece:  Any piece that inherits from GamePiece
-    #             game:   Game object
-    #             coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
-    #     Raises:
-    #             NotOnBoardError
-    #     """
-    #     try:
-    #         self.board[coords.x][coords.y] = piece
-    #         piece.coords = coords
-    #         # self.pieces[piece.color][piece.name] += 1
-    #         # if piece.name == 'King':
-    #         #     game.king_coords[piece.color] = piece.coords
-    #     except IndexError:
-    #         raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
+    def add(self, piece, coords):
+        """Add piece on board at given coordinates and update piece coordinates. Increment pieces.
+        (Chess only): Add King coordinates to king_coords dictionary.
+        Args:
+                piece:  Any piece that inherits from GamePiece
+                game:   Game object
+                coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
+        Raises:
+                NotOnBoardError
+        """
+        try:
+            self.board[coords.x][coords.y] = piece
+            piece.coords = coords
+            self.pieces[piece.color][piece.name] += 1
+        except IndexError:
+            raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
 
-    # def coords_on_board(self, x_coord, y_coord):
-    #     """Check if coordinates within board range (negative indexing not allowed). Return bool."""
-    #     return 0 <= x_coord < self.board_width and 0 <= y_coord < self.board_height
+    def coords_on_board(self, x_coord, y_coord):
+        """Check if coordinates within board range (negative indexing not allowed). Return bool."""
+        return 0 <= x_coord < self.board_width and 0 <= y_coord < self.board_height
 
     def validate_coords(self, from_coords, to_coords):
         """Check for errors in passed board coordinates.
