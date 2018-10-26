@@ -22,8 +22,8 @@ def game():
        A game would always have Kings.
     """
     chess_game = ChessGame(restore_positions={})
-    add(King(Color.WHITE), chess_game, Coords(x=0, y=0))
-    add(King(Color.BLACK), chess_game, Coords(x=7, y=7))
+    chess_game.add(King(Color.WHITE), Coords(x=0, y=0))
+    chess_game.add(King(Color.BLACK), Coords(x=7, y=7))
     return chess_game
 
 
@@ -31,10 +31,10 @@ def game():
 def castle_game():
     """Return game with only King/Rook postions pre-set"""
     chess_game = ChessGame(restore_positions={})
-    add(King(Color.WHITE), chess_game, Coords(x=4, y=0))
-    add(King(Color.BLACK), chess_game, Coords(x=4, y=7))
-    add(Rook(Color.WHITE), chess_game, Coords(x=0, y=0))
-    add(Rook(Color.WHITE), chess_game, Coords(x=7, y=0))
-    add(Rook(Color.BLACK), chess_game, Coords(x=0, y=7))
-    add(Rook(Color.BLACK), chess_game, Coords(x=7, y=7))
+    chess_game.add(King(Color.WHITE), Coords(x=4, y=0))
+    chess_game.add(King(Color.BLACK), Coords(x=4, y=7))
+    chess_game.add(Rook(Color.WHITE), Coords(x=0, y=0))
+    chess_game.add(Rook(Color.WHITE), Coords(x=7, y=0))
+    chess_game.add(Rook(Color.BLACK), Coords(x=0, y=7))
+    chess_game.add(Rook(Color.BLACK), Coords(x=7, y=7))
     return chess_game

@@ -104,18 +104,18 @@ def test_captured_piece_removed_from_board(game):
     assert game.pieces[opponent_piece.color][opponent_piece.name] == 0
 
 
-# def test_piece_blocking_move_raises_exception(game):
-#     add(Pawn(Color.WHITE), game, Coords(x=0, y=1))
-#     add(Pawn(Color.BLACK), game, Coords(x=0, y=2))
-#     with pytest.raises(InvalidMoveError):
-#         game.move(Coords(x=0, y=1), Coords(x=0, y=3))
+def test_piece_blocking_move_raises_exception(game):
+    game.add(Pawn(Color.WHITE), Coords(x=0, y=1))
+    game.add(Pawn(Color.BLACK), Coords(x=0, y=2))
+    with pytest.raises(InvalidMoveError):
+        game.move(Coords(x=0, y=1), Coords(x=0, y=3))
 
 
-# def test_invalid_piece_move_raises_exception(game):
-#     add(Pawn(Color.WHITE), game, Coords(x=0, y=1))
-#     with pytest.raises(InvalidMoveError):
-#         # Pawn can't move horizontally
-#         game.move(Coords(x=0, y=1), Coords(x=1, y=1))
+def test_invalid_piece_move_raises_exception(game):
+    game.add(Pawn(Color.WHITE), Coords(x=0, y=1))
+    with pytest.raises(InvalidMoveError):
+        # Pawn can't move horizontally
+        game.move(Coords(x=0, y=1), Coords(x=1, y=1))
 
 
 # def test_game_king_coords_updated_when_king_moved(game):
@@ -125,37 +125,38 @@ def test_captured_piece_removed_from_board(game):
 
 # def test_opponent_king_put_in_check(game):
 #     king = game.board[7][7]
-#     add(Rook(Color.WHITE), game, Coords(x=6, y=1))
+#     game.add(Rook(Color.WHITE), Coords(x=6, y=1))
 #     assert not king.in_check
 #     game.move(Coords(x=6, y=1), Coords(x=7, y=1))
 #     assert king.in_check
 
 
-# def test_king_moving_into_check_raises_exception(game):
-#     add(Rook(Color.WHITE), game, Coords(x=6, y=1))
-#     with pytest.raises(InvalidMoveError):
-#         game.move(Coords(x=7, y=7), Coords(x=6, y=7))
+def test_king_moving_into_check_raises_exception(game):
+    game.add(Rook(Color.WHITE), Coords(x=6, y=1))
+    with pytest.raises(InvalidMoveError):
+        game.move(Coords(x=7, y=7), Coords(x=6, y=7))
 
 
-# def test_move_putting_own_king_in_check_raises_exception(game):
-#     add(Rook(Color.BLACK), game, Coords(x=7, y=6))
-#     add(Rook(Color.WHITE), game, Coords(x=7, y=1))
-#     with pytest.raises(InvalidMoveError):
-#         # Moving black Rook leaves King exposed to white Rook
-#         game.move(Coords(x=7, y=6), Coords(x=6, y=6))
+def test_move_putting_own_king_in_check_raises_exception(game):
+    game.add(Rook(Color.BLACK), Coords(x=7, y=6))
+    game.add(Rook(Color.WHITE), Coords(x=7, y=1))
+    game.playing_color = Color.BLACK
+    with pytest.raises(InvalidMoveError):
+        # Moving black Rook leaves King exposed to white Rook
+        game.move(Coords(x=7, y=6), Coords(x=6, y=6))
 
 
-# def test_not_moving_king_out_of_check_raises_exception(game):
-#     add(Rook(Color.WHITE), game, Coords(x=7, y=1))
-#     with pytest.raises(InvalidMoveError):
-#         # King moves but remains in check
-#         game.move(Coords(x=7, y=7), Coords(x=7, y=6))
+def test_not_moving_king_out_of_check_raises_exception(game):
+    game.add(Rook(Color.WHITE), Coords(x=7, y=1))
+    with pytest.raises(InvalidMoveError):
+        # King moves but remains in check
+        game.move(Coords(x=7, y=7), Coords(x=7, y=6))
 
 
 # def test_move_blocks_king_being_in_check(game):
-#     add(Rook(Color.BLACK), game, Coords(x=6, y=6))
+#     game.add(Rook(Color.BLACK), Coords(x=6, y=6))
 #     king = game.board[7][7]
-#     add(Rook(Color.WHITE), game, Coords(x=7, y=1))
+#     game.add(Rook(Color.WHITE), Coords(x=7, y=1))
 #     king.in_check = True
 #     game.move(Coords(x=6, y=6), Coords(x=7, y=6))
 #     assert not king.in_check
@@ -169,18 +170,18 @@ def test_captured_piece_removed_from_board(game):
 #     assert not king.in_check
 
 
-# def test_checkmate_results_in_game_ending(new_game):
-#     game = new_game
-#     # Setup classic "fool's mate"
-#     game.move(Coords(x=5, y=1), Coords(x=5, y=2))
-#     game.move(Coords(x=4, y=6), Coords(x=4, y=4))
-#     game.move(Coords(x=6, y=1), Coords(x=6, y=3))
-#     assert not game.check_mate
-#     assert not game.winner
-#     # Queen to put king in check mate
-#     game.move(Coords(x=3, y=7), Coords(x=7, y=3))
-#     assert game.check_mate
-#     assert game.winner == Color.BLACK
+def test_checkmate_results_in_game_ending(new_game):
+    game = new_game
+    # Setup classic "fool's mate"
+    game.move(Coords(x=5, y=1), Coords(x=5, y=2))
+    game.move(Coords(x=4, y=6), Coords(x=4, y=4))
+    game.move(Coords(x=6, y=1), Coords(x=6, y=3))
+    # assert not game.check_mate
+    assert not game.winner
+    # Queen to put king in check mate
+    game.move(Coords(x=3, y=7), Coords(x=7, y=3))
+    # assert game.check_mate
+    assert game.winner == Color.BLACK
 
 
 # def test_white_pawn_can_be_promoted_to_queen(game):
