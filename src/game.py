@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
 
-from src.game_enums import Color, Direction
+from src.game_enums import Direction
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
 
 Coords = namedtuple('Coords', 'x y')
@@ -17,7 +17,10 @@ class Game(ABC):
         self.valid_piece_colors = valid_piece_colors
         self._setup_game(restore_positions)
         self.winner = None
-        # Add move stuff here
+        # Move attributes
+        self.from_coords = None
+        self.to_coords = None
+        self.playing_piece = None
 
     @abstractmethod
     def move(self, from_coords, to_coords):
@@ -41,10 +44,6 @@ class Game(ABC):
     def save_game(self):
         pass
 
-    # def opponent_color(self):
-    #     """Return color of passed piece opponent."""
-    #     return Color.WHITE if self.playing_piece == Color.BLACK else Color.BLACK
-
     def add(self, piece, coords):
         """Add piece on board at given coordinates and update piece coordinates. Increment pieces.
         (Chess only): Add King coordinates to king_coords dictionary.
@@ -61,6 +60,11 @@ class Game(ABC):
             self.pieces[piece.color][piece.name] += 1
         except IndexError:
             raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
+
+    def set_move_attributes(self, from_coords, to_coords):
+        self.from_coords = from_coords
+        self.to_coords = to_coords
+        self.playing_piece = self.board[from_coords.x][from_coords.y]
 
     def coords_on_board(self, x_coord, y_coord):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
@@ -92,14 +96,11 @@ class Game(ABC):
 
     def coords_between(self, from_coords, to_coords):
         """Helper function. Return generator of all coords between from_coords and to_coords."""
-        if from_coords.x > to_coords.x:
-            x_coords = reversed(list(range(to_coords.x + 1, from_coords.x)))
-        elif from_coords.x == to_coords.x:
-            list_length = abs(from_coords.y - to_coords.y)
-            x_coords = list_length * [from_coords.x]
-        else:
-            x_coords = list(range(from_coords.x + 1, to_coords.x))
+        x_coords = self._x_coords(from_coords, to_coords)
+        y_coords = self._y_coords(from_coords, to_coords)
+        return (Coords(x, y) for x, y in zip(x_coords, y_coords))
 
+    def _y_coords(self, from_coords, to_coords):
         if from_coords.y > to_coords.y:
             y_coords = reversed(list(range(to_coords.y + 1, from_coords.y)))
         elif from_coords.y == to_coords.y:
@@ -107,8 +108,17 @@ class Game(ABC):
             y_coords = list_length * [from_coords.y]
         else:
             y_coords = list(range(from_coords.y + 1, to_coords.y))
+        return y_coords
 
-        return (Coords(x, y) for x, y in zip(x_coords, y_coords))
+    def _x_coords(self, from_coords, to_coords):
+        if from_coords.x > to_coords.x:
+            x_coords = reversed(list(range(to_coords.x + 1, from_coords.x)))
+        elif from_coords.x == to_coords.x:
+            list_length = abs(from_coords.y - to_coords.y)
+            x_coords = list_length * [from_coords.x]
+        else:
+            x_coords = list(range(from_coords.x + 1, to_coords.x))
+        return x_coords
 
 
 def move_direction(from_coords, to_coords):
@@ -133,4 +143,6 @@ def adjacent_squares(from_coords, to_coords):
     """Check if to_coordinates are adjacent to from_coordinates. Return bool."""
     x_abs = abs(from_coords.x - to_coords.x)
     y_abs = abs(from_coords.y - to_coords.y)
-    return x_abs + y_abs in (1, 2)
+    if x_abs == 0 or y_abs == 0:
+        return x_abs + y_abs == 1
+    return x_abs + y_abs == 2

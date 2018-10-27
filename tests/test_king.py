@@ -2,7 +2,7 @@
 import pytest
 
 from src.game_enums import Color
-from src.game_helper import Coords
+from src.game import Coords
 from src.game_pieces.king import King
 
 
@@ -20,12 +20,12 @@ test_data = [
     (Coords(x=2, y=0), True),
     (Coords(x=0, y=1), True),
     (Coords(x=1, y=1), False),  # Same position
-    (Coords(x=2, y=1), True),  
+    (Coords(x=2, y=1), True),
     (Coords(x=0, y=2), True),
     (Coords(x=1, y=2), True),
-    (Coords(x=2, y=2), True), 
+    (Coords(x=2, y=2), True),
     (Coords(x=0, y=3), False),  # All more than one space
-    (Coords(x=3, y=3), False),  
+    (Coords(x=3, y=3), False),
     (Coords(x=3, y=0), False),
 ]
 

@@ -1,5 +1,5 @@
 """Test module for game_errors."""
-from src.game_helper import Coords
+from src.game import Coords
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
 
 
@@ -11,7 +11,7 @@ def test_invalid_move_error():
         assert err.from_coords == Coords(x=1, y=2)
         assert err.to_coords == Coords(x=1, y=5)
         assert err.message == err_msg
-    
+
 
 def test_not_on_board_error():
     err_msg = 'To_coordinates not valid board coordidnates'

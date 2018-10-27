@@ -13,7 +13,7 @@
 #         king_in_check:          Check for King being put into check. Return bool.
 # """
 # from src.game_enums import Color, Direction
-# from src.game_helper import Coords, coords_on_board, move_direction, opponent_color_
+# from src.game import Coords, coords_on_board, move_direction, opponent_color_
 
 # from src.game_pieces.bishop import Bishop
 # from src.game_pieces.king import King
@@ -34,12 +34,12 @@
 #        value = chess GamePiece
 #        e.g '00': Rook(Color.WHITE)
 #     """
-#     white_pieces = _new_chess_pieces(Color.WHITE, y_idxs=[0, 1])
-#     black_pieces = _new_chess_pieces(Color.BLACK, y_idxs=[7, 6])
+#     white_pieces = _new__chess_pieces(Color.WHITE, y_idxs=[0, 1])
+#     black_pieces = _new__chess_pieces(Color.BLACK, y_idxs=[7, 6])
 #     return dict(white_pieces + black_pieces)
 
 
-# def _new_chess_pieces(color, *, y_idxs=None):
+# def _new__chess_pieces(color, *, y_idxs=None):
 #     """Helper method for new_chess_setup."""
 #     coords = [f'{x_idx}{y_idx}' for y_idx in y_idxs for x_idx in range(8)]
 #     pieces = [
@@ -63,7 +63,7 @@
 #     return list(zip(coords, pieces))
 
 
-# def chess_piece_blocking(board, from_coords, to_coords):
+# def chess__piece_blocking(board, from_coords, to_coords):
 #     """Check if any piece blocking move from_coords to_coords. Return bool."""
 #     if move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
 #         # Only Knights move non_linear and they can jump over pieces

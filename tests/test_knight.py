@@ -2,7 +2,7 @@
 import pytest
 
 from src.game_enums import Color
-from src.game_helper import Coords
+from src.game import Coords
 from src.game_pieces.knight import Knight
 
 
@@ -20,7 +20,7 @@ test_data = [
     (Coords(x=6, y=5), True),
     (Coords(x=6, y=3), True),
     (Coords(x=3, y=6), True),
-    (Coords(x=3, y=2), True),  
+    (Coords(x=3, y=2), True),
     (Coords(x=2, y=5), True),
     (Coords(x=2, y=3), True),
     (Coords(x=4, y=6), False),  # Can't move/capture vertically

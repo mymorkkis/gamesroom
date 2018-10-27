@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from src.game_enums import Color, Direction
-from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
+from src.game_errors import InvalidMoveError
 from src.game import Coords, Game, move_direction
 
 from src.game_pieces.bishop import Bishop
@@ -27,16 +27,6 @@ class ChessGame(Game):
         )
         self.playing_color = Color.WHITE
         self.opponent_color = Color.BLACK
-        # self.king_coords = {
-        #     Color.WHITE: None,
-        #     Color.BLACK: None
-        # }
-        # Move attributes
-        self.from_coords = None
-        self.to_coords = None
-        self.playing_piece = None
-
-        # self.check_mate = False
 
     @staticmethod
     def new_setup():
@@ -53,35 +43,19 @@ class ChessGame(Game):
 
     def move(self, from_coords, to_coords):
         """temp"""
-
         self.validate_coords(from_coords, to_coords)
-        self._set_move_attributes(from_coords, to_coords)
-        legal_move, move_ = self._move_type()
-        # is_legal, err_msg = is_legal_move()
-        # if err_msg:
-        #     raise InvalidMoveError(err_msg)
-        # move_()
-        if legal_move(to_coords) and not self.piece_blocking(from_coords, to_coords):
-            if not self.own_king_in_check():
-                move_()
+        self.set_move_attributes(from_coords, to_coords)
+        legal_move, make_move = self._move_type()
+
+        if (legal_move(to_coords) and not self.own_king_in_check()
+                and not self._piece_blocking(from_coords, to_coords)):
+                make_move()
                 if self._check_mate():
                     self.winner = self.playing_color
                     # TODO End game
-                self._switch_players()
-            else:
-                raise InvalidMoveError(from_coords, to_coords, 'Invalid move, King in check')
+                self.switch_players()
         else:
-            raise InvalidMoveError(from_coords, to_coords, 'Invalid move for this piece')
-
-    def _switch_players(self):
-        playing_color = self.playing_color
-        self.playing_color = self.opponent_color
-        self.opponent_color = playing_color
-
-    def _set_move_attributes(self, from_coords, to_coords):
-        self.from_coords = from_coords
-        self.to_coords = to_coords
-        self.playing_piece = self.board[from_coords.x][from_coords.y]
+            raise InvalidMoveError(from_coords, to_coords, 'Illegal chess move attempted')
 
     def _move_type(self):
         if self._castle_move():
@@ -92,7 +66,12 @@ class ChessGame(Game):
             return self.playing_piece.valid_capture, self._capture
         return self.playing_piece.valid_move, self._move
 
-    def piece_blocking(self, from_coords, to_coords):
+    def switch_players(self):
+        playing_color = self.playing_color
+        self.playing_color = self.opponent_color
+        self.opponent_color = playing_color
+
+    def _piece_blocking(self, from_coords, to_coords):
         """Check if any piece blocking move from_coords to_coords. Return bool."""
         if move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
             # Only Knights move non_linear and they can jump over pieces
@@ -115,13 +94,14 @@ class ChessGame(Game):
         self.board[self.from_coords.x][self.from_coords.y] = None
         self.playing_piece.coords = self.to_coords
         self.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
+        if self.playing_piece.name in ('King', 'Rook'):
+            self.playing_piece.moved = True
 
     def _capture(self):
         captured_piece = self.board[self.to_coords.x][self.to_coords.y]
         captured_piece.coords = None
         self.pieces[captured_piece.color][captured_piece.name] -= 1
-        self.board[self.from_coords.x][self.from_coords.y] = None
-        self.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
+        self._move()
 
     def _castle_move(self):
         if self.playing_piece.name == 'King' and self.playing_piece.color == Color.WHITE:
@@ -137,49 +117,48 @@ class ChessGame(Game):
     def _castle_move_type(self):
         if self.to_coords.y == 0:
             if self.to_coords.x == 2:
-                return self._legal_castle, self._white_castle_queen_side
-            return self._legal_castle, self._white_castle_king_side
+                return self._white_castle_queen_side
+            return self._white_castle_king_side
         if self.to_coords.y == 7:
             if self.to_coords.x == 2:
-                return self._legal_castle, self._black_castle_queen_side
-            return self._legal_castle, self._black_castle_king_side
+                return self._black_castle_queen_side
+            return self._black_castle_king_side
 
     def _prawn_promotion(self):
         return self.playing_piece.name == 'Pawn' and self.to_coords.y in (0, 7)
 
     def _legal_castle(self, to_coords):
-        color, side, castle_coords = self._castle_info(to_coords)
+        color, side, move_thru, move_to = self._castle_info(to_coords)
 
-        if self._king_moved(color) or self._rook_moved(color, side):
+        if (self._king_moved(color) or self._rook_moved(color, side)
+                or self._king_in_check(color, self.from_coords)):
             return False
 
-        for coords in castle_coords:
+        for coords in (move_thru, move_to):
             if (self.board[coords.x][coords.y] is not None
-                    or self._king_in_check(coords)):
+                    or self._king_in_check(color, coords)):
                 return False
         return True
 
     def _castle_info(self, to_coords):
-        castle_coords = [self.from_coords]
-
         if to_coords.y == 0:
             color = Color.WHITE
             if to_coords.x == 2:
                 side = 'Queen'
-                castle_coords.extend([Coords(x=3, y=0), Coords(x=2, y=0)])
+                move_thru, move_to = Coords(x=3, y=0), Coords(x=2, y=0)
             if to_coords.x == 6:
                 side = 'King'
-                castle_coords.extend([Coords(x=5, y=0), Coords(x=6, y=0)])
+                move_thru, move_to = Coords(x=5, y=0), Coords(x=6, y=0)
         if to_coords.y == 7:
             color = Color.BLACK
             if to_coords.x == 2:
                 side = 'Queen'
-                castle_coords.extend([Coords(x=3, y=7), Coords(x=2, y=7)])
+                move_thru, move_to = Coords(x=3, y=7), Coords(x=2, y=7)
             if to_coords.x == 6:
                 side = 'King'
-                castle_coords.extend([Coords(x=5, y=7), Coords(x=6, y=7)])
+                move_thru, move_to = Coords(x=5, y=7), Coords(x=6, y=7)
 
-        return color, side, castle_coords
+        return color, side, move_thru, move_to
 
     def _king(self, color):
         for row in self.board:
@@ -197,40 +176,44 @@ class ChessGame(Game):
                 piece = self.board[7][0]
             if side == 'Queen':
                 piece = self.board[0][0]
+
         if color == Color.BLACK:
             if side == 'King':
                 piece = self.board[7][7]
             if side == 'Queen':
                 piece = self.board[0][7]
 
-        return not piece or piece.name != 'Rook' or piece.color != color or piece.moved
+        if piece:
+            return piece.name != 'Rook' or piece.color != color or piece.moved
+        return True
 
     def _legal_en_passant(self):
         # check last move was opponent pawn moving 2 spaces
         pass
 
     def _white_castle_king_side(self):
+        king, rook = self.board[4][0], self.board[7][0]
         self.board[4][0], self.board[7][0] = None, None
-        self.board[6][0], self.board[5][0] = self._king_rook_castled_pieces(Color.WHITE)
+        self.board[6][0], self.board[5][0] = king, rook
+        king.moved, rook.moved = True, True
 
     def _white_castle_queen_side(self):
+        king, rook = self.board[4][0], self.board[0][0]
         self.board[4][0], self.board[0][0] = None, None
-        self.board[2][0], self.board[3][0] = self._king_rook_castled_pieces(Color.WHITE)
+        self.board[2][0], self.board[3][0] = king, rook
+        king.moved, rook.moved = True, True
 
     def _black_castle_king_side(self):
+        king, rook = self.board[4][7], self.board[7][7]
         self.board[4][7], self.board[7][7] = None, None
-        self.board[6][7], self.board[5][7] = self._king_rook_castled_pieces(Color.BLACK)
+        self.board[6][7], self.board[5][7] = king, rook
+        king.moved, rook.moved = True, True
 
     def _black_castle_queen_side(self):
+        king, rook = self.board[4][7], self.board[0][7]
         self.board[4][7], self.board[0][7] = None, None
-        self.board[2][7], self.board[3][7] = self._king_rook_castled_pieces(Color.BLACK)
-
-    @staticmethod
-    def _king_rook_castled_pieces(playing_color):
-        king, rook = King(playing_color), Rook(playing_color)
-        king.moved = True
-        rook.moved = True
-        return king, rook
+        self.board[2][7], self.board[3][7] = king, rook
+        king.moved, rook.moved = True, True
 
     def _capture_move(self):
         return self.board[self.to_coords.x][self.to_coords.y] is not None or self._en_passant()
@@ -258,7 +241,7 @@ class ChessGame(Game):
             king.coords = self.to_coords
 
         # Perform check evaluation
-        in_check = True if self._king_in_check(king.coords) else False
+        in_check = True if self._king_in_check(king.color, king.coords) else False
 
         # Return game to previous state
         self.board[self.from_coords.x][self.from_coords.y] = self.playing_piece
@@ -268,9 +251,8 @@ class ChessGame(Game):
         return in_check
 
     def _check_mate(self):
-        # king_coords = self.king_coords[self.opponent_color]
         king = self._king(self.opponent_color)
-        # if king_can_move
+        # if king_can_move TODO include check mate
         if self._can_attack_attacking_piece():
             return False
         if self._piece_can_block_capture(king.coords):
@@ -280,16 +262,17 @@ class ChessGame(Game):
     def _can_attack_attacking_piece(self):
         for piece in self._board_pieces(self.playing_color):
             if (piece.valid_capture(self.to_coords)
-                    and not self.piece_blocking(piece.coords, self.to_coords)):
+                    and not self._piece_blocking(piece.coords, self.to_coords)):
                 return True
         return False
 
-    def _king_in_check(self, coords):
-        # king_coords = self.king_coords[self.opponent_color]
-        king = self._king(self.opponent_color)
+    def _king_in_check(self, color, coords):
+        king = self._king(color)
+        piece_color = color.WHITE if color == color.BLACK else color.BLACK
 
-        for piece in self._board_pieces(self.opponent_color):
-            if piece.valid_capture(coords) and not self.piece_blocking(piece.coords, king.coords):
+        for piece in self._board_pieces(piece_color):
+            if (piece.valid_capture(coords)
+                    and not self._piece_blocking(piece.coords, king.coords)):
                 return True
         return False
 
@@ -297,7 +280,8 @@ class ChessGame(Game):
         pieces = self._board_pieces(self.playing_color, king_wanted=False)
         for coords in self.coords_between(self.to_coords, king_coords):
             for piece in pieces:
-                if piece.valid_move(self.to_coords) and not self.piece_blocking(piece.coords, coords):
+                if (piece.valid_move(self.to_coords)
+                        and not self._piece_blocking(piece.coords, coords)):
                     return True
         return False
 
@@ -306,6 +290,7 @@ class ChessGame(Game):
 
         return [piece for row in self.board for piece in row
                 if piece and piece.color == color and piece.name != king]
+
 
 def chess_pieces(color, *, y_idxs=None):
     """Helper method for new_chess_setup."""

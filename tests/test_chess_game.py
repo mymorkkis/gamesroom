@@ -118,19 +118,6 @@ def test_invalid_piece_move_raises_exception(game):
         game.move(Coords(x=0, y=1), Coords(x=1, y=1))
 
 
-# def test_game_king_coords_updated_when_king_moved(game):
-#     game.move(Coords(x=0, y=0), Coords(x=0, y=1))
-#     assert game.king_coords[Color.WHITE] == Coords(x=0, y=1)
-
-
-# def test_opponent_king_put_in_check(game):
-#     king = game.board[7][7]
-#     game.add(Rook(Color.WHITE), Coords(x=6, y=1))
-#     assert not king.in_check
-#     game.move(Coords(x=6, y=1), Coords(x=7, y=1))
-#     assert king.in_check
-
-
 def test_king_moving_into_check_raises_exception(game):
     game.add(Rook(Color.WHITE), Coords(x=6, y=1))
     with pytest.raises(InvalidMoveError):
@@ -153,37 +140,6 @@ def test_not_moving_king_out_of_check_raises_exception(game):
         game.move(Coords(x=7, y=7), Coords(x=7, y=6))
 
 
-# def test_move_blocks_king_being_in_check(game):
-#     game.add(Rook(Color.BLACK), Coords(x=6, y=6))
-#     king = game.board[7][7]
-#     game.add(Rook(Color.WHITE), Coords(x=7, y=1))
-#     king.in_check = True
-#     game.move(Coords(x=6, y=6), Coords(x=7, y=6))
-#     assert not king.in_check
-
-
-# def test_king_can_move_out_of_check(game):
-#     king = game.board[7][7]
-#     add(Rook(Color.WHITE), game, Coords(x=7, y=1))
-#     king.in_check = True
-#     game.move(Coords(x=7, y=7), Coords(x=6, y=7))
-#     assert not king.in_check
-
-
-# def test_checkmate_results_in_game_ending(new_game):
-#     game = new_game
-#     # Setup classic "fool's mate"
-#     game.move(Coords(x=5, y=1), Coords(x=5, y=2))
-#     game.move(Coords(x=4, y=6), Coords(x=4, y=4))
-#     game.move(Coords(x=6, y=1), Coords(x=6, y=3))
-#     # assert not game.check_mate
-#     assert not game.winner
-#     # Queen to put king in check mate
-#     game.move(Coords(x=3, y=7), Coords(x=7, y=3))
-#     # assert game.check_mate
-#     assert game.winner == Color.BLACK
-
-
 def test_white_pawn_can_be_promoted_to_queen(game):
     game.add(Pawn(Color.WHITE), Coords(x=2, y=6))
     assert game.pieces[Color.WHITE]['Queen'] == 0
@@ -193,6 +149,7 @@ def test_white_pawn_can_be_promoted_to_queen(game):
     assert game.pieces[Color.WHITE]['Queen'] == 1
     assert game.pieces[Color.WHITE]['Pawn'] == 0
     assert game.board[2][7] == Queen(Color.WHITE)
+
 
 def test_black_pawn_can_be_promoted_to_queen(game):
     game.add(Pawn(Color.BLACK), Coords(x=2, y=1))
@@ -206,67 +163,65 @@ def test_black_pawn_can_be_promoted_to_queen(game):
     assert game.board[2][0] == Queen(Color.BLACK)
 
 
-# ------------------------------------------------------------
-
 def test_piece_blocking_diagonal_move_returns_true(game):
     # Test south/east and north/west
     game.add(Pawn(Color.WHITE), Coords(x=4, y=6))
     from_coords = Coords(x=7, y=3)
     to_coords = Coords(x=3, y=7)
-    assert game.piece_blocking(from_coords, to_coords)
+    assert game._piece_blocking(from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=3, y=7)
     to_coords = Coords(x=7, y=3)
-    assert game.piece_blocking(from_coords, to_coords)
+    assert game._piece_blocking(from_coords, to_coords)
 
     # Test north/east and south/west
     game.add(Pawn(Color.WHITE), Coords(x=3, y=2))
     from_coords = Coords(x=1, y=0)
     to_coords = Coords(x=5, y=4)
-    assert game.piece_blocking(from_coords, to_coords)
+    assert game._piece_blocking(from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=5, y=4)
     to_coords = Coords(x=1, y=0)
-    assert game.piece_blocking(from_coords, to_coords)
+    assert game._piece_blocking(from_coords, to_coords)
 
 
 def test_piece_blocking_horizontal_move_returns_true(game):
     game.add(Pawn(Color.WHITE), Coords(x=4, y=4))
     from_coords = Coords(x=2, y=4)
     to_coords = Coords(x=6, y=4)
-    assert game.piece_blocking(from_coords, to_coords)
+    assert game._piece_blocking(from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=6, y=4)
     to_coords = Coords(x=2, y=4)
-    assert game.piece_blocking(from_coords, to_coords)
+    assert game._piece_blocking(from_coords, to_coords)
 
 
 def test_piece_blocking_vertical_move_returns_true(game):
     game.add(Pawn(Color.WHITE), Coords(x=4, y=4))
     from_coords = Coords(x=4, y=2)
     to_coords = Coords(x=4, y=6)
-    assert game.piece_blocking(from_coords, to_coords)
+    assert game._piece_blocking(from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=4, y=6)
     to_coords = Coords(x=4, y=2)
-    assert game.piece_blocking(from_coords, to_coords)
+    assert game._piece_blocking(from_coords, to_coords)
 
 
 def test_piece_blocking_non_linear_move_returns_false(game):
     game.add(Pawn(Color.WHITE), Coords(x=4, y=4))
     from_coords = Coords(x=3, y=3)
     to_coords = Coords(x=4, y=5)
-    assert not game.piece_blocking(from_coords, to_coords)
+    assert not game._piece_blocking(from_coords, to_coords)
     # Assert test works in both directions
     from_coords = Coords(x=4, y=5)
     to_coords = Coords(x=3, y=3)
-    assert not game.piece_blocking(from_coords, to_coords)
+    assert not game._piece_blocking(from_coords, to_coords)
 
 
 def test_no_piece_blocking_returns_false(game):
     from_coords = Coords(x=4, y=4)
     to_coords = Coords(x=4, y=6)
-    assert not game.piece_blocking(from_coords, to_coords)
+    assert not game._piece_blocking(from_coords, to_coords)
 
 
 @pytest.mark.parametrize('king, coords, opponent_piece, result', [
@@ -288,92 +243,111 @@ def test_no_piece_blocking_returns_false(game):
     (King(Color.BLACK), Coords(x=3, y=1), Pawn(Color.WHITE), True)
 ])
 def test_king_in_check_returns_correct_result(game, king, coords, opponent_piece, result):
+    # TODO rewrite this test, feels messy
+    game.board[0][0] = None
     game.add(king, Coords(x=2, y=2))
     game.add(opponent_piece, coords)
-    assert game._king_in_check(king.coords) == result
+    game.playing_color = opponent_piece.color
+    game.opponent_color = king.color
+    assert game._king_in_check(king.color, king.coords) == result
 
 
-# def test_own_piece_blocks_king_being_in_check(game):
-#     king = King(Color.WHITE)
-#     blocking_piece = Pawn(Color.WHITE)
-#     opponent_piece = Queen(Color.BLACK)
-#     game.add(king, Coords(x=2, y=2))
-#     game.add(blocking_piece, Coords(x=3, y=3))
-#     game.add(opponent_piece, Coords(x=6, y=6))
-#     assert not king_in_check(king.coords, game.board, opponent_piece.color)
+def test_own_piece_blocks_king_being_in_check(game):
+    king = King(Color.WHITE)
+    blocking_piece = Pawn(Color.WHITE)
+    opponent_piece = Queen(Color.BLACK)
+    game.add(king, Coords(x=2, y=2))
+    game.add(blocking_piece, Coords(x=3, y=3))
+    game.add(opponent_piece, Coords(x=6, y=6))
+    assert not game._king_in_check(king.color, king.coords)
 
 
-# @pytest.mark.castle_tests
-# def test_white_king_can_castle_east(castle_game):
-#     castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
-#     assert castle_game.board[6][0] == King(Color.WHITE)
-#     assert castle_game.board[5][0] == Rook(Color.WHITE)
+def test_king_moved_is_recorded(castle_game):
+    king = castle_game.board[4][0]
+    assert not king.moved
+    castle_game.move(king.coords, Coords(x=4, y=1))
+    assert king.moved
 
 
-# @pytest.mark.castle_tests
-# def test_white_king_can_castle_west(castle_game):
-#     castle_game.move(Coords(x=4, y=0), Coords(x=2, y=0))
-#     assert castle_game.board[2][0] == King(Color.WHITE)
-#     assert castle_game.board[3][0] == Rook(Color.WHITE)
+def test_rook_moved_is_recorded(castle_game):
+    rook = castle_game.board[0][0]
+    assert not rook.moved
+    castle_game.move(rook.coords, Coords(x=0, y=1))
+    assert rook.moved
 
 
-# @pytest.mark.castle_tests
-# def test_black_king_can_castle_east(castle_game):
-#     castle_game.move(Coords(x=4, y=7), Coords(x=6, y=7))
-#     assert castle_game.board[6][7] == King(Color.BLACK)
-#     assert castle_game.board[5][7] == Rook(Color.BLACK)
+@pytest.mark.castle_tests
+def test_white_king_can_castle_king_side(castle_game):
+    castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+    assert castle_game.board[6][0] == King(Color.WHITE)
+    assert castle_game.board[5][0] == Rook(Color.WHITE)
 
 
-# @pytest.mark.castle_tests
-# def test_black_king_can_castle_west(castle_game):
-#     castle_game.move(Coords(x=4, y=7), Coords(x=2, y=7))
-#     assert castle_game.board[2][7] == King(Color.BLACK)
-#     assert castle_game.board[3][7] == Rook(Color.BLACK)
+@pytest.mark.castle_tests
+def test_white_king_can_castle_queen_side(castle_game):
+    castle_game.move(Coords(x=4, y=0), Coords(x=2, y=0))
+    assert castle_game.board[2][0] == King(Color.WHITE)
+    assert castle_game.board[3][0] == Rook(Color.WHITE)
 
 
-# @pytest.mark.castle_tests
-# def test_cant_castle_if_king_already_moved(castle_game):
-#     castle_game.move(Coords(x=4, y=0), Coords(x=4, y=1))
-#     castle_game.move(Coords(x=4, y=1), Coords(x=4, y=0))
-#     with pytest.raises(InvalidMoveError):
-#         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+@pytest.mark.castle_tests
+def test_black_king_can_castle_king_side(castle_game):
+    castle_game.playing_color = Color.BLACK
+    castle_game.move(Coords(x=4, y=7), Coords(x=6, y=7))
+    assert castle_game.board[6][7] == King(Color.BLACK)
+    assert castle_game.board[5][7] == Rook(Color.BLACK)
 
 
-# @pytest.mark.castle_tests
-# def test_cant_castle_if_rook_already_moved(castle_game):
-#     castle_game.move(Coords(x=7, y=0), Coords(x=7, y=1))
-#     castle_game.move(Coords(x=7, y=1), Coords(x=7, y=0))
-#     with pytest.raises(InvalidMoveError):
-#         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+@pytest.mark.castle_tests
+def test_black_king_can_castle_queen_side(castle_game):
+    castle_game.playing_color = Color.BLACK
+    castle_game.move(Coords(x=4, y=7), Coords(x=2, y=7))
+    assert castle_game.board[2][7] == King(Color.BLACK)
+    assert castle_game.board[3][7] == Rook(Color.BLACK)
 
 
-# @pytest.mark.castle_tests
-# def test_cant_castle_if_piece_blocking(castle_game):
-#     game.add(Bishop(Color.WHITE), castle_Coords(x=5, y=0))
-#     with pytest.raises(InvalidMoveError):
-#         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+@pytest.mark.castle_tests
+def test_cant_castle_if_king_already_moved(castle_game):
+    king = castle_game.board[4][0]
+    king.moved = True
+    with pytest.raises(InvalidMoveError):
+        castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
-# @pytest.mark.castle_tests
-# def test_cant_castle_if_king_in_check(castle_game):
-#     game.add(Queen(Color.BLACK), castle_Coords(x=4, y=2))
-#     castle_game.board[4][0].in_check = True
-#     with pytest.raises(InvalidMoveError):
-#         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+@pytest.mark.castle_tests
+def test_cant_castle_if_rook_already_moved(castle_game):
+    rook = castle_game.board[7][0]
+    rook.moved = True
+    with pytest.raises(InvalidMoveError):
+        castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
-# @pytest.mark.castle_tests
-# def test_cant_castle_if_king_moves_into_check(castle_game):
-#     game.add(Queen(Color.BLACK), castle_Coords(x=6, y=2))
-#     with pytest.raises(InvalidMoveError):
-#         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+@pytest.mark.castle_tests
+def test_cant_castle_if__piece_blocking(castle_game):
+    castle_game.add(Bishop(Color.WHITE), Coords(x=5, y=0))
+    with pytest.raises(InvalidMoveError):
+        castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
-# @pytest.mark.castle_tests
-# def test_cant_castle_if_king_moves_through_check(castle_game):
-#     game.add(Queen(Color.BLACK), castle_Coords(x=5, y=2))
-#     with pytest.raises(InvalidMoveError):
-#         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+@pytest.mark.castle_tests
+def test_cant_castle_if_king_in_check(castle_game):
+    castle_game.add(Queen(Color.BLACK), Coords(x=4, y=2))
+    with pytest.raises(InvalidMoveError):
+        castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+
+
+@pytest.mark.castle_tests
+def test_cant_castle_if_king_moves_into_check(castle_game):
+    castle_game.add(Queen(Color.BLACK), Coords(x=6, y=2))
+    with pytest.raises(InvalidMoveError):
+        castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
+
+
+@pytest.mark.castle_tests
+def test_cant_castle_if_king_moves_through_check(castle_game):
+    castle_game.add(Queen(Color.BLACK), Coords(x=5, y=2))
+    with pytest.raises(InvalidMoveError):
+        castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
 # @pytest.mark.no_check_mate
@@ -450,3 +424,17 @@ def test_king_in_check_returns_correct_result(game, king, coords, opponent_piece
 #     assert king.in_check
 #     # But not check mate as King escape (can't attack Rook as Bishop is protecting)
 #     assert not game.check_mate
+
+
+# def test_checkmate_results_in_game_ending(new_game):
+#     game = new_game
+#     # Setup classic "fool's mate"
+#     game.move(Coords(x=5, y=1), Coords(x=5, y=2))
+#     game.move(Coords(x=4, y=6), Coords(x=4, y=4))
+#     game.move(Coords(x=6, y=1), Coords(x=6, y=3))
+#     # assert not game.check_mate
+#     assert not game.winner
+#     # Queen to put king in check mate
+#     game.move(Coords(x=3, y=7), Coords(x=7, y=3))
+#     # assert game.check_mate
+#     assert game.winner == Color.BLACK
