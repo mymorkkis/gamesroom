@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from src.game_enums import Color, Direction
 from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
-from src.game import Coords, Game
+from src.game import Coords, Game, move_direction
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -94,7 +94,7 @@ class ChessGame(Game):
 
     def piece_blocking(self, from_coords, to_coords):
         """Check if any piece blocking move from_coords to_coords. Return bool."""
-        if self.move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
+        if move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
             # Only Knights move non_linear and they can jump over pieces
             for coords in self.coords_between(from_coords, to_coords):
                 if self.board[coords.x][coords.y] is not None:
@@ -105,7 +105,11 @@ class ChessGame(Game):
         self.board[self.from_coords.x][self.from_coords.y] = None
         # Defaults to Queen as most players want this
         # TODO Add functionality to choose promotion piece
-        self.board[self.to_coords.x][self.to_coords.y] = Queen(self.playing_color)
+        promoted_piece = Queen(self.playing_color)
+        promoted_piece.coords = Coords(self.to_coords.x, self.to_coords.y)
+        self.board[self.to_coords.x][self.to_coords.y] = promoted_piece
+        self.pieces[self.playing_color]['Pawn'] -= 1
+        self.pieces[self.playing_color]['Queen'] += 1
 
     def _move(self):
         self.board[self.from_coords.x][self.from_coords.y] = None

@@ -3,7 +3,7 @@ import pytest
 
 from src.chess_game import ChessGame
 from src.game_enums import Color
-from src.game_helper import add, Coords
+from src.game import Coords
 from src.game_pieces.king import King
 from src.game_pieces.rook import Rook
 
