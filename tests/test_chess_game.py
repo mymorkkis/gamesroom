@@ -74,6 +74,23 @@ def test_new_chess_game_board_setup_correctly(new_game, coords, piece):
     assert new_game.board[coords.x][coords.y] == piece
 
 
+def test_player_and_opponent_color_updated(game):
+    assert game.playing_color == Color.WHITE
+    assert game.opponent_color == Color.BLACK
+    game.move(Coords(x=0, y=0), Coords(x=1, y=0))
+    assert game.playing_color == Color.BLACK
+    assert game.opponent_color == Color.WHITE
+    game.move(Coords(x=7, y=7), Coords(x=6, y=7))
+    assert game.playing_color == Color.WHITE
+    assert game.opponent_color == Color.BLACK
+
+
+def test_player_cant_move_opponent_color(game):
+    with pytest.raises(InvalidMoveError):
+        # White trying to move black piece
+        game.move(Coords(x=7, y=7), Coords(x=6, y=7))
+
+
 def test_piece_moved_on_board(game):
     game.add(Pawn(Color.WHITE), Coords(x=0, y=1))
     # Move to postion is empty

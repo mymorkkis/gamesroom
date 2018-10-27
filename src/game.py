@@ -61,10 +61,12 @@ class Game(ABC):
         except IndexError:
             raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
 
-    def set_move_attributes(self, from_coords, to_coords):
+    def set_move_attributes(self, from_coords, to_coords, playing_color):
         self.from_coords = from_coords
         self.to_coords = to_coords
         self.playing_piece = self.board[from_coords.x][from_coords.y]
+        if self.playing_piece.color != playing_color:
+            raise InvalidMoveError(from_coords, to_coords, 'Incorrect piece color for current player')
 
     def coords_on_board(self, x_coord, y_coord):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""

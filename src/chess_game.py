@@ -44,16 +44,16 @@ class ChessGame(Game):
     def move(self, from_coords, to_coords):
         """temp"""
         self.validate_coords(from_coords, to_coords)
-        self.set_move_attributes(from_coords, to_coords)
+        self.set_move_attributes(from_coords, to_coords, self.playing_color)
         legal_move, make_move = self._move_type()
 
         if (legal_move(to_coords) and not self.own_king_in_check()
                 and not self._piece_blocking(from_coords, to_coords)):
-                make_move()
-                if self._check_mate():
-                    self.winner = self.playing_color
-                    # TODO End game
-                self.switch_players()
+            make_move()
+            if self._check_mate():
+                self.winner = self.playing_color
+                # TODO End game
+            self.switch_players()
         else:
             raise InvalidMoveError(from_coords, to_coords, 'Illegal chess move attempted')
 
@@ -252,19 +252,16 @@ class ChessGame(Game):
 
     def _check_mate(self):
         king = self._king(self.opponent_color)
-        # if king_can_move TODO include check mate
+
+        if not self._king_in_check(king.color, king.coords):
+            return False
+        if self._king_can_move_out_of_attack(king.coords):
+            return False
         if self._can_attack_attacking_piece():
             return False
-        if self._piece_can_block_capture(king.coords):
+        if self._piece_can_block_attack(king.coords):
             return False
         return True
-
-    def _can_attack_attacking_piece(self):
-        for piece in self._board_pieces(self.playing_color):
-            if (piece.valid_capture(self.to_coords)
-                    and not self._piece_blocking(piece.coords, self.to_coords)):
-                return True
-        return False
 
     def _king_in_check(self, color, coords):
         king = self._king(color)
@@ -276,7 +273,20 @@ class ChessGame(Game):
                 return True
         return False
 
-    def _piece_can_block_capture(self, king_coords):
+    def _king_can_move_out_of_attack(self, king_coords):
+        for square_coords in self._adjacent_empty_square_coords(king_coords):
+            if not self._king_in_check(self.playing_color, square_coords):
+                return True
+        return False
+
+    def _can_attack_attacking_piece(self):
+        for piece in self._board_pieces(self.playing_color):
+            if (piece.valid_capture(self.to_coords)
+                    and not self._piece_blocking(piece.coords, self.to_coords)):
+                return True
+        return False
+
+    def _piece_can_block_attack(self, king_coords):
         pieces = self._board_pieces(self.playing_color, king_wanted=False)
         for coords in self.coords_between(self.to_coords, king_coords):
             for piece in pieces:
@@ -290,6 +300,23 @@ class ChessGame(Game):
 
         return [piece for row in self.board for piece in row
                 if piece and piece.color == color and piece.name != king]
+
+    def _adjacent_empty_square_coords(self, king_coords):
+        _adjacent_coords = {
+            'N': lambda c: (c.x, c.y + 1),
+            'NE': lambda c: (c.x + 1, c.y + 1),
+            'E': lambda c: (c.x + 1, c.y),
+            'SE': lambda c: (c.x + 1, c.y - 1),
+            'S': lambda c: (c.x, c.y - 1),
+            'SW': lambda c: (c.x - 1, c.y - 1),
+            'W': lambda c: (c.x - 1, c.y),
+            'NW': lambda c: (c.x - 1, c.y + 1)
+        }
+        potential_coords = [adjacent_coords(king_coords)
+                            for adjacent_coords in _adjacent_coords.values()]
+
+        return [Coords(x, y) for x, y in potential_coords
+                if self.coords_on_board(x, y) and self.board[x][y] is None]
 
 
 def chess_pieces(color, *, y_idxs=None):
