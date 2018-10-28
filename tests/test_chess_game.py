@@ -241,6 +241,28 @@ def test_no_piece_blocking_returns_false(game):
     assert not game._piece_blocking(from_coords, to_coords)
 
 
+def test_correct_adjacent_coords_returned(game):
+    adjacent_coords = game._adjacent_empty_square_coords(Coords(x=4, y=4))
+
+    wanted_coords = [Coords(x=4, y=5), Coords(x=5, y=5), Coords(x=5, y=4), Coords(x=5, y=3),
+                     Coords(x=4, y=3), Coords(x=3, y=3), Coords(x=3, y=4), Coords(x=3, y=5)]
+
+    assert adjacent_coords == wanted_coords
+
+
+def test_adjacent_coords_does_not_return_coords_not_on_board(game):
+    king = game.board[0][0]
+    adjacent_coords = game._adjacent_empty_square_coords(king.coords)
+    assert adjacent_coords == [Coords(x=0, y=1), Coords(x=1, y=1), Coords(x=1, y=0)]
+
+
+def test_adjacent_coords_does_not_return_non_empty_coords(game):
+    king = game.board[0][0]
+    game.add(Pawn(Color.WHITE), Coords(x=0, y=1))
+    adjacent_coords = game._adjacent_empty_square_coords(king.coords)
+    assert adjacent_coords == [Coords(x=1, y=1), Coords(x=1, y=0)]
+
+
 @pytest.mark.parametrize('king, coords, opponent_piece, result', [
     (King(Color.WHITE), Coords(x=4, y=4), Bishop(Color.BLACK), True),
     (King(Color.WHITE), Coords(x=5, y=5), Queen(Color.BLACK), True),
@@ -367,6 +389,20 @@ def test_cant_castle_if_king_moves_through_check(castle_game):
         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
+def test_checkmate_results_in_game_ending(new_game):
+    game = new_game
+    # Setup classic "fool's mate"
+    game.move(Coords(x=5, y=1), Coords(x=5, y=2))
+    game.move(Coords(x=4, y=6), Coords(x=4, y=4))
+    game.move(Coords(x=6, y=1), Coords(x=6, y=3))
+    # assert not game.check_mate
+    assert not game.winner
+    # Queen to put king in check mate
+    game.move(Coords(x=3, y=7), Coords(x=7, y=3))
+    # assert game.check_mate
+    assert game.winner == Color.BLACK
+
+
 # @pytest.mark.no_check_mate
 # @pytest.mark.parametrize('blocking_piece, coords', [
 #     (Pawn(Color.WHITE), Coords(x=2, y=1)),
@@ -443,15 +479,4 @@ def test_cant_castle_if_king_moves_through_check(castle_game):
 #     assert not game.check_mate
 
 
-# def test_checkmate_results_in_game_ending(new_game):
-#     game = new_game
-#     # Setup classic "fool's mate"
-#     game.move(Coords(x=5, y=1), Coords(x=5, y=2))
-#     game.move(Coords(x=4, y=6), Coords(x=4, y=4))
-#     game.move(Coords(x=6, y=1), Coords(x=6, y=3))
-#     # assert not game.check_mate
-#     assert not game.winner
-#     # Queen to put king in check mate
-#     game.move(Coords(x=3, y=7), Coords(x=7, y=3))
-#     # assert game.check_mate
-#     assert game.winner == Color.BLACK
+

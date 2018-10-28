@@ -263,13 +263,13 @@ class ChessGame(Game):
             return False
         return True
 
-    def _king_in_check(self, color, coords):
-        king = self._king(color)
-        piece_color = color.WHITE if color == color.BLACK else color.BLACK
+    def _king_in_check(self, king_color, king_coords):
+        # king = self._king(color)
+        opponent_color = Color.WHITE if king_color == Color.BLACK else Color.BLACK
 
-        for piece in self._board_pieces(piece_color):
-            if (piece.valid_capture(coords)
-                    and not self._piece_blocking(piece.coords, king.coords)):
+        for piece in self._board_pieces(opponent_color):
+            if (piece.valid_capture(king_coords)
+                    and not self._piece_blocking(piece.coords, king_coords)):
                 return True
         return False
 
@@ -280,17 +280,17 @@ class ChessGame(Game):
         return False
 
     def _can_attack_attacking_piece(self):
-        for piece in self._board_pieces(self.playing_color):
+        for piece in self._board_pieces(self.opponent_color):
             if (piece.valid_capture(self.to_coords)
                     and not self._piece_blocking(piece.coords, self.to_coords)):
                 return True
         return False
 
     def _piece_can_block_attack(self, king_coords):
-        pieces = self._board_pieces(self.playing_color, king_wanted=False)
+        pieces = self._board_pieces(self.opponent_color, king_wanted=False)
         for coords in self.coords_between(self.to_coords, king_coords):
             for piece in pieces:
-                if (piece.valid_move(self.to_coords)
+                if (piece.valid_move(coords)
                         and not self._piece_blocking(piece.coords, coords)):
                     return True
         return False
@@ -302,7 +302,7 @@ class ChessGame(Game):
                 if piece and piece.color == color and piece.name != king]
 
     def _adjacent_empty_square_coords(self, king_coords):
-        _adjacent_coords = {
+        adjacent_coords = {
             'N': lambda c: (c.x, c.y + 1),
             'NE': lambda c: (c.x + 1, c.y + 1),
             'E': lambda c: (c.x + 1, c.y),
@@ -312,8 +312,8 @@ class ChessGame(Game):
             'W': lambda c: (c.x - 1, c.y),
             'NW': lambda c: (c.x - 1, c.y + 1)
         }
-        potential_coords = [adjacent_coords(king_coords)
-                            for adjacent_coords in _adjacent_coords.values()]
+        potential_coords = [adjacent_coord(king_coords)
+                            for adjacent_coord in adjacent_coords.values()]
 
         return [Coords(x, y) for x, y in potential_coords
                 if self.coords_on_board(x, y) and self.board[x][y] is None]
