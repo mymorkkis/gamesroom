@@ -13,8 +13,8 @@ class GamePiece(ABC):
             coords: Piece current coordinates on board
 
        Abstract methods:
-            valid_move:    Logic to decide valid move for piece
-            valid_capture: Logic to decide valid capture for piece
+            legal_move:    Logic to decide legal move for piece
+            legal_capture: Logic to decide legal capture for piece
     """
     def __init__(self):
         self.name = self.__class__.__name__
@@ -39,16 +39,16 @@ class GamePiece(ABC):
     @color.setter
     def color(self, color):
         if color not in Color:
-            # AttributeError thrown if invalid Color Enum, TODO Why can't I catch it?
-            raise ValueError('Not a valid game color')
+            # AttributeError thrown if illegal Color Enum, TODO Why can't I catch it?
+            raise ValueError('Not a legal game color')
         self._color = color
 
     @abstractmethod
-    def valid_move(self, to_coords):
+    def legal_move(self, to_coords):
         """Confirm if move at passed coordinates supported by this piece. Return bool."""
         raise NotImplementedError()
 
     @abstractmethod
-    def valid_capture(self, to_coords):
+    def legal_capture(self, to_coords):
         """Confirm if capture at passed coordinates supported by this piece. Return bool."""
         raise NotImplementedError()

@@ -14,7 +14,7 @@
 
 # from src.game_enums import Color
 # from src.game_enums import Direction
-# from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
+# from src.game_errors import IllegalMoveError, NotOnBoardError, PieceNotFoundError
 
 
 # Coords = namedtuple('Coords', 'x y')
@@ -45,7 +45,7 @@
 #         if piece.name == 'King':
 #             game.king_coords[piece.color] = piece.coords
 #     except IndexError:
-#         raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
+#         raise NotOnBoardError(coords, 'Saved coordinates are not legal coordinates')
 
 
 # def move_direction(from_coords, to_coords):
@@ -78,18 +78,18 @@
 
 #        Raises:
 #             NotOnBoardError:    If either passed coordinates are not in board grid.
-#             InvalidMoveError:   If from_coords and to_coords are the same.
+#             IllegalMoveError:   If from_coords and to_coords are the same.
 #             PieceNotFoundError: If no piece found at from coordinates.
 
 #     """
 #     if not coords_on_board(board, from_coords.x, from_coords.y):
-#         raise NotOnBoardError(from_coords, 'From coordinates not valid board coordinates')
+#         raise NotOnBoardError(from_coords, 'From coordinates not legal board coordinates')
 
 #     if not coords_on_board(board, to_coords.x, to_coords.y):
-#         raise NotOnBoardError(to_coords, 'To coordinates not valid board coordinates')
+#         raise NotOnBoardError(to_coords, 'To coordinates not legal board coordinates')
 
 #     if from_coords == to_coords:
-#         raise InvalidMoveError(from_coords, to_coords, 'Move to same square invalid')
+#         raise IllegalMoveError(from_coords, to_coords, 'Move to same square Illegal')
 
 #     piece = board[from_coords.x][from_coords.y]
 #     if not piece:

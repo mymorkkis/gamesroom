@@ -22,10 +22,10 @@ test_data = [
 ]
 
 @pytest.mark.parametrize('coords, rt_val', test_data)
-def test_bishop_valid_move(bishop, coords, rt_val):
-    assert bishop.valid_move(coords) == rt_val
+def test_bishop_legal_move(bishop, coords, rt_val):
+    assert bishop.legal_move(coords) == rt_val
 
 
 @pytest.mark.parametrize('coords, rt_val', test_data)
-def test_bishop_valid_capture(bishop, coords, rt_val):
-    assert bishop.valid_capture(coords) == rt_val
+def test_bishop_legal_capture(bishop, coords, rt_val):
+    assert bishop.legal_capture(coords) == rt_val

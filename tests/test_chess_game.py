@@ -3,7 +3,7 @@ import pytest
 
 from src.game_enums import Color
 from src.game import Coords
-from src.game_errors import InvalidMoveError
+from src.game_errors import IllegalMoveError
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -86,7 +86,7 @@ def test_player_and_opponent_color_updated(game):
 
 
 def test_player_cant_move_opponent_color(game):
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         # White trying to move black piece
         game.move(Coords(x=7, y=7), Coords(x=6, y=7))
 
@@ -124,20 +124,20 @@ def test_captured_piece_removed_from_board(game):
 def test_piece_blocking_move_raises_exception(game):
     game.add(Pawn(Color.WHITE), Coords(x=0, y=1))
     game.add(Pawn(Color.BLACK), Coords(x=0, y=2))
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         game.move(Coords(x=0, y=1), Coords(x=0, y=3))
 
 
-def test_invalid_piece_move_raises_exception(game):
+def test_Illegal_piece_move_raises_exception(game):
     game.add(Pawn(Color.WHITE), Coords(x=0, y=1))
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         # Pawn can't move horizontally
         game.move(Coords(x=0, y=1), Coords(x=1, y=1))
 
 
 def test_king_moving_into_check_raises_exception(game):
     game.add(Rook(Color.WHITE), Coords(x=6, y=1))
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         game.move(Coords(x=7, y=7), Coords(x=6, y=7))
 
 
@@ -145,14 +145,14 @@ def test_move_putting_own_king_in_check_raises_exception(game):
     game.add(Rook(Color.BLACK), Coords(x=7, y=6))
     game.add(Rook(Color.WHITE), Coords(x=7, y=1))
     game.playing_color = Color.BLACK
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         # Moving black Rook leaves King exposed to white Rook
         game.move(Coords(x=7, y=6), Coords(x=6, y=6))
 
 
 def test_not_moving_king_out_of_check_raises_exception(game):
     game.add(Rook(Color.WHITE), Coords(x=7, y=1))
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         # King moves but remains in check
         game.move(Coords(x=7, y=7), Coords(x=7, y=6))
 
@@ -349,7 +349,7 @@ def test_black_king_can_castle_queen_side(castle_game):
 def test_cant_castle_if_king_already_moved(castle_game):
     king = castle_game.board[4][0]
     king.moved = True
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
@@ -357,35 +357,35 @@ def test_cant_castle_if_king_already_moved(castle_game):
 def test_cant_castle_if_rook_already_moved(castle_game):
     rook = castle_game.board[7][0]
     rook.moved = True
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
 @pytest.mark.castle_tests
 def test_cant_castle_if__piece_blocking(castle_game):
     castle_game.add(Bishop(Color.WHITE), Coords(x=5, y=0))
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
 @pytest.mark.castle_tests
 def test_cant_castle_if_king_in_check(castle_game):
     castle_game.add(Queen(Color.BLACK), Coords(x=4, y=2))
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
 @pytest.mark.castle_tests
 def test_cant_castle_if_king_moves_into_check(castle_game):
     castle_game.add(Queen(Color.BLACK), Coords(x=6, y=2))
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
 @pytest.mark.castle_tests
 def test_cant_castle_if_king_moves_through_check(castle_game):
     castle_game.add(Queen(Color.BLACK), Coords(x=5, y=2))
-    with pytest.raises(InvalidMoveError):
+    with pytest.raises(IllegalMoveError):
         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
@@ -403,80 +403,77 @@ def test_checkmate_results_in_game_ending(new_game):
     assert game.winner == Color.BLACK
 
 
-# @pytest.mark.no_check_mate
-# @pytest.mark.parametrize('blocking_piece, coords', [
-#     (Pawn(Color.WHITE), Coords(x=2, y=1)),
-#     (Pawn(Color.WHITE), Coords(x=3, y=1)),
-#     (Rook(Color.WHITE), Coords(x=0, y=2)),
-#     (Rook(Color.WHITE), Coords(x=2, y=0)),
-#     (Bishop(Color.WHITE), Coords(x=0, y=2)),
-#     (Bishop(Color.WHITE), Coords(x=2, y=0)),
-#     (Knight(Color.WHITE), Coords(x=3, y=0)),
-#     (Knight(Color.WHITE), Coords(x=0, y=3)),
-#     (Queen(Color.WHITE), Coords(x=2, y=6)),
-#     (Queen(Color.WHITE), Coords(x=1, y=3))
-# ])
-# def test_own_piece_can_block_check_mate(game, blocking_piece, coords):
-#     game.add(Queen(Color.BLACK), Coords(x=3, y=4))
-#     # White King is blocked in by own Pawn and Bishop
-#     game.add(Pawn(Color.WHITE), Coords(x=0, y=1))
-#     game.add(Bishop(Color.WHITE), Coords(x=1, y=0))
-#     # Blocking piece is in postion to block potential check mate
-#     game.add(blocking_piece, coords)
-#     # Queen moves to put king in check
-#     game.move(Coords(x=3, y=4), Coords(x=4, y=4))
-#     king = game.board[0][0]
-#     assert king.in_check
-#     # But not check mate as own piece can block
-#     assert not game.check_mate
+@pytest.mark.no_check_mate
+@pytest.mark.parametrize('blocking_piece, coords', [
+    (Pawn(Color.WHITE), Coords(x=2, y=1)),
+    (Pawn(Color.WHITE), Coords(x=3, y=1)),
+    (Rook(Color.WHITE), Coords(x=0, y=2)),
+    (Rook(Color.WHITE), Coords(x=2, y=0)),
+    (Bishop(Color.WHITE), Coords(x=0, y=2)),
+    (Bishop(Color.WHITE), Coords(x=2, y=0)),
+    (Knight(Color.WHITE), Coords(x=3, y=0)),
+    (Knight(Color.WHITE), Coords(x=0, y=3)),
+    (Queen(Color.WHITE), Coords(x=2, y=6)),
+    (Queen(Color.WHITE), Coords(x=1, y=3))
+])
+def test_own_piece_can_block_check_mate(game, blocking_piece, coords):
+    game.playing_color = Color.BLACK
+    game.opponent_color = Color.WHITE
+    game.add(Queen(Color.BLACK), Coords(x=3, y=4))
+    # White King is blocked in by own Pawn and Bishop
+    game.add(Pawn(Color.WHITE), Coords(x=0, y=1))
+    game.add(Bishop(Color.WHITE), Coords(x=1, y=0))
+    # Blocking piece is in postion to block potential check mate
+    game.add(blocking_piece, coords)
+    # Queen moves to put king in check
+    game.move(Coords(x=3, y=4), Coords(x=4, y=4))
+    # But not check mate as own piece can block
+    assert not game.winner
 
 
-# @pytest.mark.no_check_mate
-# @pytest.mark.parametrize('attacking_piece, coords', [
-#     # (Pawn(Color.WHITE), Coords(x=3, y=3)),
-#     (Pawn(Color.WHITE), Coords(x=5, y=3)),
-#     (Rook(Color.WHITE), Coords(x=0, y=4)),
-#     (Rook(Color.WHITE), Coords(x=4, y=0)),
-#     (Bishop(Color.WHITE), Coords(x=5, y=3)),
-#     (Knight(Color.WHITE), Coords(x=3, y=2)),
-#     (Knight(Color.WHITE), Coords(x=0, y=3)),
-#     (Queen(Color.WHITE), Coords(x=4, y=0)),
-#     (Queen(Color.WHITE), Coords(x=3, y=5))
-# ])
-# def test_own_piece_in_attack_position_stops_check_mate(game, attacking_piece, coords):
-#     game.add(Queen(Color.BLACK), Coords(x=3, y=4))
-#     # White King is blocked in by own Pawn and Bishop
-#     game.add(Pawn(Color.WHITE), Coords(x=0, y=1))
-#     game.add(Bishop(Color.WHITE), Coords(x=1, y=0))
-#     # Attacking piece is in postiton to take Queen when she moves
-#     game.add(attacking_piece, coords)
-#     # Queen moves to put king in check
-#     game.move(Coords(x=3, y=4), Coords(x=4, y=4))
-#     king = game.board[0][0]
-#     assert king.in_check
-#     # But not check mate as own piece can block
-#     assert not game.check_mate
+@pytest.mark.no_check_mate
+@pytest.mark.parametrize('attacking_piece, coords', [
+    # (Pawn(Color.WHITE), Coords(x=3, y=3)),
+    (Pawn(Color.WHITE), Coords(x=5, y=3)),
+    (Rook(Color.WHITE), Coords(x=0, y=4)),
+    (Rook(Color.WHITE), Coords(x=4, y=0)),
+    (Bishop(Color.WHITE), Coords(x=5, y=3)),
+    (Knight(Color.WHITE), Coords(x=3, y=2)),
+    (Knight(Color.WHITE), Coords(x=0, y=3)),
+    (Queen(Color.WHITE), Coords(x=4, y=0)),
+    (Queen(Color.WHITE), Coords(x=3, y=5))
+])
+def test_own_piece_in_attack_position_stops_check_mate(game, attacking_piece, coords):
+    game.playing_color = Color.BLACK
+    game.opponent_color = Color.WHITE
+    game.add(Queen(Color.BLACK), Coords(x=3, y=4))
+    # White King is blocked in by own Pawn and Bishop
+    game.add(Pawn(Color.WHITE), Coords(x=0, y=1))
+    game.add(Bishop(Color.WHITE), Coords(x=1, y=0))
+    # Attacking piece is in postiton to take Queen when she moves
+    game.add(attacking_piece, coords)
+    # Queen moves to put king in check
+    game.move(Coords(x=3, y=4), Coords(x=4, y=4))
+    # But not check mate as own piece can block
+    assert not game.winner
 
 
-# @pytest.mark.no_check_mate
-# def test_king_can_attack_out_of_check_mate(game):
-#     game.add(Queen(Color.BLACK), Coords(x=1, y=4))
-#     game.move(Coords(x=1, y=4), Coords(x=1, y=1))
-#     king = game.board[0][0]
-#     assert king.in_check
-#     # But not check mate as King can attack Queen
-#     assert not game.check_mate
+@pytest.mark.no_check_mate
+def test_king_can_attack_out_of_check_mate(game):
+    game.playing_color = Color.BLACK
+    game.opponent_color = Color.WHITE
+    game.add(Queen(Color.BLACK), Coords(x=1, y=4))
+    game.move(Coords(x=1, y=4), Coords(x=1, y=1))
+    # But not check mate as King can attack Queen
+    assert not game.winner
 
 
-# @pytest.mark.no_check_mate
-# def test_king_can_escape_out_of_check_mate(game):
-#     game.add(Rook(Color.BLACK), Coords(x=1, y=4))
-#     game.add(Bishop(Color.BLACK), Coords(x=2, y=1))
-#     game.move(Coords(x=1, y=4), Coords(x=1, y=0))
-#     king = game.board[0][0]
-#     assert king.in_check
-#     # But not check mate as King escape (can't attack Rook as Bishop is protecting)
-#     assert not game.check_mate
-
-
-
+@pytest.mark.no_check_mate
+def test_king_can_escape_out_of_check_mate(game):
+    game.playing_color = Color.BLACK
+    game.opponent_color = Color.WHITE
+    game.add(Rook(Color.BLACK), Coords(x=1, y=4))
+    game.add(Bishop(Color.BLACK), Coords(x=2, y=1))
+    game.move(Coords(x=1, y=4), Coords(x=1, y=0))
+    # King can't attack Rook as Bishop is protecting but can escape
+    assert not game.winner

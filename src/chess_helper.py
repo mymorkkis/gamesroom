@@ -1,13 +1,13 @@
 # """Helper functions for ChessGame.
 
 #    Constants:
-#         VALID_PIECE_TYPES:      Set of valid chess piece types as str.
+#         legal_PIECE_TYPES:      Set of legal chess piece types as str.
 
 #    Functions:
 #         new_chess_setup:        Return dict of chess start positions. position: piece
 #         chess_piece_blocking:   Check if piece blocking move. Return bool.
 #         castling:               Check if castle attempt being made. Return bool.
-#         valid_castle:           Validate attempted castle move. Return bool.
+#         legal_castle:           validate attempted castle move. Return bool.
 #         move_rook:              Move Rook to other side of King during castle.
 #         own_king_in_check:      Check if move puts current player king in check. Return bool.
 #         king_in_check:          Check for King being put into check. Return bool.
@@ -23,7 +23,7 @@
 # from src.game_pieces.rook import Rook
 
 
-# VALID_PIECE_NAMES = {'Bishop', 'King', 'Knight', 'Pawn', 'Queen', 'Rook'}
+# legal_PIECE_NAMES = {'Bishop', 'King', 'Knight', 'Pawn', 'Queen', 'Rook'}
 
 
 # def new_chess_setup():
@@ -103,8 +103,8 @@
 #     return False
 
 
-# def valid_castle(board, king, to_coords):
-#     """Validate attempted castle move. Return bool."""
+# def legal_castle(board, king, to_coords):
+#     """validate attempted castle move. Return bool."""
 #     if king.in_check:
 #         return False
 
@@ -113,28 +113,28 @@
 #     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=2, y=0):
 #         potential_rook = board[0][0]
 #         king_move_coords = (Coords(x=3, y=0), Coords(x=2, y=0))
-#         return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color)
+#         return _legal_castle(board, king, king_move_coords, potential_rook, opponent_color)
 
 #     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=6, y=0):
 #         potential_rook = board[7][0]
 #         king_move_coords = (Coords(x=5, y=0), Coords(x=6, y=0))
-#         return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color)
+#         return _legal_castle(board, king, king_move_coords, potential_rook, opponent_color)
 
 #     if king.coords == Coords(x=4, y=7) and to_coords == Coords(x=2, y=7):
 #         potential_rook = board[0][7]
 #         king_move_coords = (Coords(x=3, y=7), Coords(x=2, y=7))
-#         return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color)
+#         return _legal_castle(board, king, king_move_coords, potential_rook, opponent_color)
 
 #     if king.coords == Coords(x=4, y=0) and to_coords == Coords(x=6, y=7):
 #         potential_rook = board[7][7]
 #         king_move_coords = (Coords(x=5, y=7), Coords(x=6, y=7))
-#         return _valid_castle(board, king, king_move_coords, potential_rook, opponent_color)
+#         return _legal_castle(board, king, king_move_coords, potential_rook, opponent_color)
 
 #     return True
 
 
-# def _valid_castle(board, king, king_move_coords, potential_rook, opponent_color):
-#     """Helper function. Main logic for valid castle. Return bool."""
+# def _legal_castle(board, king, king_move_coords, potential_rook, opponent_color):
+#     """Helper function. Main logic for legal castle. Return bool."""
 #     if potential_rook and potential_rook.name == 'Rook':
 #         rook = potential_rook
 #         thru, to = king_move_coords

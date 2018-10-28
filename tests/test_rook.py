@@ -23,10 +23,10 @@ test_data = [
 
 
 @pytest.mark.parametrize('coords, rt_val', test_data)
-def test_rook_valid_move(rook, coords, rt_val):
-    assert rook.valid_move(coords) == rt_val
+def test_rook_legal_move(rook, coords, rt_val):
+    assert rook.legal_move(coords) == rt_val
 
 
 @pytest.mark.parametrize('coords, rt_val', test_data)
-def test_rook_valid_capture(rook, coords, rt_val):
-    assert rook.valid_capture(coords) == rt_val
+def test_rook_legal_capture(rook, coords, rt_val):
+    assert rook.legal_capture(coords) == rt_val

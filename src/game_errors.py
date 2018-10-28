@@ -3,7 +3,7 @@
    Exceptions:
         NotOnBoardError:    Passed coordinates not on game board
         PieceNotFoundError: No piece located at from coordinates
-        InvalidMoveError:   Invalid move attempted
+        IllegalMoveError:   Illegal move attempted
 """
 class Error(Exception):
     """Base class for exceptions in this module."""
@@ -34,8 +34,8 @@ class PieceNotFoundError(Error):
         self.message = message
 
 
-class InvalidMoveError(Error):
-    """Exception raised when invalid move attempted on game board.
+class IllegalMoveError(Error):
+    """Exception raised when Illegal move attempted on game board.
 
        Attributes:
             from_coords: Attempted to move piece from

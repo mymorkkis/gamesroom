@@ -2,19 +2,21 @@ from abc import ABC, abstractmethod
 from collections import namedtuple
 
 from src.game_enums import Direction
-from src.game_errors import InvalidMoveError, NotOnBoardError, PieceNotFoundError
+from src.game_errors import IllegalMoveError, NotOnBoardError, PieceNotFoundError
+
 
 Coords = namedtuple('Coords', 'x y')
 
+
 class Game(ABC):
-    def __init__(self, board, valid_piece_colors, valid_piece_names,
+    def __init__(self, board, legal_piece_colors, legal_piece_names,
                  pieces, restore_positions):
         self.board = board
         self.board_width = len(self.board[0])
         self.board_height = len(self.board)
         self.pieces = pieces
-        self.valid_piece_names = valid_piece_names
-        self.valid_piece_colors = valid_piece_colors
+        self.legal_piece_names = legal_piece_names
+        self.legal_piece_colors = legal_piece_colors
         self._setup_game(restore_positions)
         self.winner = None
         # Move attributes
@@ -36,8 +38,8 @@ class Game(ABC):
             game_positions = self.new_setup()
 
         for coords, piece in game_positions.items():
-            assert piece.color in self.valid_piece_colors
-            assert piece.name in self.valid_piece_names
+            assert piece.color in self.legal_piece_colors
+            assert piece.name in self.legal_piece_names
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             self.add(piece, coords)
 
@@ -59,14 +61,14 @@ class Game(ABC):
             piece.coords = coords
             self.pieces[piece.color][piece.name] += 1
         except IndexError:
-            raise NotOnBoardError(coords, 'Saved coordinates are not valid coordinates')
+            raise NotOnBoardError(coords, 'Saved coordinates are not legal coordinates')
 
     def set_move_attributes(self, from_coords, to_coords, playing_color):
         self.from_coords = from_coords
         self.to_coords = to_coords
         self.playing_piece = self.board[from_coords.x][from_coords.y]
         if self.playing_piece.color != playing_color:
-            raise InvalidMoveError(from_coords, to_coords, 'Incorrect piece color for current player')
+            raise IllegalMoveError(from_coords, to_coords, 'Incorrect piece color for current player')
 
     def coords_on_board(self, x_coord, y_coord):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
@@ -80,17 +82,17 @@ class Game(ABC):
                 to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
         Raises:
                 NotOnBoardError:    If either passed coordinates are not in board grid.
-                InvalidMoveError:   If from_coords and to_coords are the same.
+                IllegalMoveError:   If from_coords and to_coords are the same.
                 PieceNotFoundError: If no piece found at from coordinates.
         """
         if not self.coords_on_board(from_coords.x, from_coords.y):
-            raise NotOnBoardError(from_coords, 'From coordinates not valid board coordinates')
+            raise NotOnBoardError(from_coords, 'From coordinates not board coordinates')
 
         if not self.coords_on_board(to_coords.x, to_coords.y):
-            raise NotOnBoardError(to_coords, 'To coordinates not valid board coordinates')
+            raise NotOnBoardError(to_coords, 'To coordinates not board coordinates')
 
         if from_coords == to_coords:
-            raise InvalidMoveError(from_coords, to_coords, 'Move to same square invalid')
+            raise IllegalMoveError(from_coords, to_coords, 'Move to same square illegal')
 
         piece = self.board[from_coords.x][from_coords.y]
         if not piece:

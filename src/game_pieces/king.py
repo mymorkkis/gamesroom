@@ -11,17 +11,17 @@ class King(GamePiece):
         self.color = color
         self.moved = False
 
-    def valid_move(self, to_coords):
+    def legal_move(self, to_coords):
         if not self.moved:
-            return self._valid(to_coords) or self._valid_castle(to_coords)
-        return self._valid(to_coords)
+            return self._legal(to_coords) or self._legal_castle(to_coords)
+        return self._legal(to_coords)
 
-    def valid_capture(self, to_coords):
-        return self._valid(to_coords)
+    def legal_capture(self, to_coords):
+        return self._legal(to_coords)
 
-    def _valid(self, to_coords):
+    def _legal(self, to_coords):
         return adjacent_squares(self.coords, to_coords)
 
-    def _valid_castle(self, to_coords):
+    def _legal_castle(self, to_coords):
         return (self.color == Color.WHITE and to_coords in (Coords(x=2, y=0), Coords(x=6, y=0))
                 or self.color == Color.BLACK and to_coords in (Coords(x=2, y=7), Coords(x=6, y=7)))

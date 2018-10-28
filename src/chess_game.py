@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from src.game_enums import Color, Direction
-from src.game_errors import InvalidMoveError
+from src.game_errors import IllegalMoveError
 from src.game import Coords, Game, move_direction
 
 from src.game_pieces.bishop import Bishop
@@ -17,8 +17,8 @@ class ChessGame(Game):
     def __init__(self, restore_positions=None):
         super().__init__(
             board=[[None] * 8 for _ in range(8)],
-            valid_piece_colors={Color.WHITE, Color.BLACK},
-            valid_piece_names={'Bishop', 'King', 'Knight', 'Pawn', 'Queen', 'Rook'},
+            legal_piece_colors={Color.WHITE, Color.BLACK},
+            legal_piece_names={'Bishop', 'King', 'Knight', 'Pawn', 'Queen', 'Rook'},
             pieces={
                 Color.WHITE: defaultdict(int),
                 Color.BLACK: defaultdict(int)
@@ -55,16 +55,16 @@ class ChessGame(Game):
                 # TODO End game
             self.switch_players()
         else:
-            raise InvalidMoveError(from_coords, to_coords, 'Illegal chess move attempted')
+            raise IllegalMoveError(from_coords, to_coords, 'Illegal chess move attempted')
 
     def _move_type(self):
         if self._castle_move():
             return self._legal_castle, self._castle_move_type()
         if self._prawn_promotion():
-            return self.playing_piece.valid_move, self._promote_pawn
+            return self.playing_piece.legal_move, self._promote_pawn
         if self._capture_move():
-            return self.playing_piece.valid_capture, self._capture
-        return self.playing_piece.valid_move, self._move
+            return self.playing_piece.legal_capture, self._capture
+        return self.playing_piece.legal_move, self._move
 
     def switch_players(self):
         playing_color = self.playing_color
@@ -219,7 +219,7 @@ class ChessGame(Game):
         return self.board[self.to_coords.x][self.to_coords.y] is not None or self._en_passant()
 
     def _en_passant(self):
-        if (self.playing_piece.name == 'Pawn' and self.playing_piece.valid_capture(self.to_coords)
+        if (self.playing_piece.name == 'Pawn' and self.playing_piece.legal_capture(self.to_coords)
                 and self.board[self.to_coords.x][self.to_coords.y] is None):
             if self.playing_piece.color == Color.WHITE and self.to_coords.y == 5:
                 return self.board[self.to_coords.x][self.to_coords.y - 1] == Pawn(Color.BLACK)
@@ -268,7 +268,7 @@ class ChessGame(Game):
         opponent_color = Color.WHITE if king_color == Color.BLACK else Color.BLACK
 
         for piece in self._board_pieces(opponent_color):
-            if (piece.valid_capture(king_coords)
+            if (piece.legal_capture(king_coords)
                     and not self._piece_blocking(piece.coords, king_coords)):
                 return True
         return False
@@ -281,7 +281,7 @@ class ChessGame(Game):
 
     def _can_attack_attacking_piece(self):
         for piece in self._board_pieces(self.opponent_color):
-            if (piece.valid_capture(self.to_coords)
+            if (piece.legal_capture(self.to_coords)
                     and not self._piece_blocking(piece.coords, self.to_coords)):
                 return True
         return False
@@ -290,7 +290,7 @@ class ChessGame(Game):
         pieces = self._board_pieces(self.opponent_color, king_wanted=False)
         for coords in self.coords_between(self.to_coords, king_coords):
             for piece in pieces:
-                if (piece.valid_move(coords)
+                if (piece.legal_move(coords)
                         and not self._piece_blocking(piece.coords, coords)):
                     return True
         return False

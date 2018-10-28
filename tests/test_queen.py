@@ -23,10 +23,10 @@ test_data = [
 
 
 @pytest.mark.parametrize('coords, rt_val', test_data)
-def test_queen_valid_move(queen, coords, rt_val):
-    assert queen.valid_move(coords) == rt_val
+def test_queen_legal_move(queen, coords, rt_val):
+    assert queen.legal_move(coords) == rt_val
 
 
 @pytest.mark.parametrize('coords, rt_val', test_data)
-def test_queen_valid_capture(queen, coords, rt_val):
-    assert queen.valid_capture(coords) == rt_val
+def test_queen_legal_capture(queen, coords, rt_val):
+    assert queen.legal_capture(coords) == rt_val

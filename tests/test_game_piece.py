@@ -21,7 +21,7 @@ def test_child_class_inherits_properties():
     assert str(pawn) == 'Black Pawn: None'
 
 
-def test_invalid_game_color_throws_error():
+def test_illegal_game_color_throws_error():
     with pytest.raises(AttributeError):
         Pawn(Color.GREY)
 

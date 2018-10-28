@@ -31,10 +31,10 @@ test_data = [
 
 
 @pytest.mark.parametrize('coords, rt_val', test_data)
-def test_knight_valid_move(knight, coords, rt_val):
-    assert knight.valid_move(coords) == rt_val
+def test_knight_legal_move(knight, coords, rt_val):
+    assert knight.legal_move(coords) == rt_val
 
 
 @pytest.mark.parametrize('coords, rt_val', test_data)
-def test_knight_valid_capture(knight, coords, rt_val):
-    assert knight.valid_capture(coords) == rt_val
+def test_knight_legal_capture(knight, coords, rt_val):
+    assert knight.legal_capture(coords) == rt_val
