@@ -72,7 +72,7 @@ class Game(ABC):
 
     def coords_on_board(self, x_coord, y_coord):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
-        return 0 <= x_coord < self.board_width and 0 <= y_coord < self.board_height
+        return x_coord in range(self.board_width) and y_coord in range(self.board_height)
 
     def validate_coords(self, from_coords, to_coords):
         """Check for errors in passed board coordinates.
