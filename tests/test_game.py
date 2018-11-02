@@ -3,7 +3,7 @@ import pytest
 
 from src.game_enums import Direction
 from src.game import adjacent_squares, Coords, move_direction
-from src.game_errors import IllegalMoveError, NotOnBoardError, PieceNotFoundError
+from src.game_errors import IllegalMoveError, NotOnBoardError
 
 
 @pytest.mark.parametrize('to_coords, direction', [
@@ -24,14 +24,14 @@ def test_move_direction_correct_for_coordinates(to_coords, direction):
 def test_illegal_from_coords_raises_exception(game):
     from_coords = Coords(x=1, y=50)  # From coordinates not on board
     to_coords = Coords(x=1, y=6)
-    with pytest.raises(NotOnBoardError):
+    with pytest.raises(IllegalMoveError):
         game.validate_coords(from_coords, to_coords)
 
 
 def test_illegal_to_coords_raises_exception(game):
     from_coords = Coords(x=1, y=0)
     to_coords = Coords(x=50, y=7)  # To coordinates not on board
-    with pytest.raises(NotOnBoardError):
+    with pytest.raises(IllegalMoveError):
         game.validate_coords(from_coords, to_coords)
 
 
@@ -45,7 +45,7 @@ def test_same_from_and_to_coords_raise_exception(game):
 def test_no_piece_at_from_coords_raises_exception(game):
     from_coords = Coords(x=1, y=6)
     to_coords = Coords(x=1, y=5)
-    with pytest.raises(PieceNotFoundError):
+    with pytest.raises(IllegalMoveError):
         # No piece passed to function
         game.validate_coords(from_coords, to_coords)
 

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from collections import namedtuple
 
 from src.game_enums import Direction
-from src.game_errors import IllegalMoveError, NotOnBoardError, PieceNotFoundError
+from src.game_errors import IllegalMoveError, NotOnBoardError
 
 
 Coords = namedtuple('Coords', 'x y')
@@ -68,7 +68,7 @@ class Game(ABC):
         self.to_coords = to_coords
         self.playing_piece = self.board[from_coords.x][from_coords.y]
         if self.playing_piece.color != playing_color:
-            raise IllegalMoveError(from_coords, to_coords, 'Incorrect piece color for current player')
+            raise IllegalMoveError('Incorrect piece color for current player')
 
     def coords_on_board(self, x_coord, y_coord):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
@@ -85,18 +85,15 @@ class Game(ABC):
                 IllegalMoveError:   If from_coords and to_coords are the same.
                 PieceNotFoundError: If no piece found at from coordinates.
         """
-        if not self.coords_on_board(from_coords.x, from_coords.y):
-            raise NotOnBoardError(from_coords, 'From coordinates not board coordinates')
-
-        if not self.coords_on_board(to_coords.x, to_coords.y):
-            raise NotOnBoardError(to_coords, 'To coordinates not board coordinates')
+        for coords in (from_coords, to_coords):
+            if not self.coords_on_board(coords.x, coords.y):
+                raise IllegalMoveError('Coordinates are not within board boundary')
 
         if from_coords == to_coords:
-            raise IllegalMoveError(from_coords, to_coords, 'Move to same square illegal')
+            raise IllegalMoveError('Move to same square illegal')
 
-        piece = self.board[from_coords.x][from_coords.y]
-        if not piece:
-            raise PieceNotFoundError(from_coords, 'No piece found at from coordinates')
+        if not self.board[from_coords.x][from_coords.y]:
+            raise IllegalMoveError('No piece found at from coordinates')
 
     def coords_between(self, from_coords, to_coords):
         """Helper function. Return generator of all coords between from_coords and to_coords."""

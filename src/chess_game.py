@@ -55,7 +55,7 @@ class ChessGame(Game):
                 # TODO End game
             self._switch_players()
         else:
-            raise IllegalMoveError(from_coords, to_coords, 'Illegal chess move attempted')
+            raise IllegalMoveError('Illegal chess move attempted')
 
     def _move_type(self):
         if self._castle_move():
