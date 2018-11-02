@@ -104,7 +104,8 @@ class Game(ABC):
         y_coords = self._y_coords(from_coords, to_coords)
         return (Coords(x, y) for x, y in zip(x_coords, y_coords))
 
-    def _y_coords(self, from_coords, to_coords):
+    @staticmethod
+    def _y_coords(from_coords, to_coords):
         if from_coords.y > to_coords.y:
             y_coords = reversed(list(range(to_coords.y + 1, from_coords.y)))
         elif from_coords.y == to_coords.y:
@@ -114,7 +115,8 @@ class Game(ABC):
             y_coords = list(range(from_coords.y + 1, to_coords.y))
         return y_coords
 
-    def _x_coords(self, from_coords, to_coords):
+    @staticmethod
+    def _x_coords(from_coords, to_coords):
         if from_coords.x > to_coords.x:
             x_coords = reversed(list(range(to_coords.x + 1, from_coords.x)))
         elif from_coords.x == to_coords.x:

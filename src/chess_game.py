@@ -53,7 +53,7 @@ class ChessGame(Game):
             if self._check_mate():
                 self.winner = self.playing_color
                 # TODO End game
-            self.switch_players()
+            self._switch_players()
         else:
             raise IllegalMoveError(from_coords, to_coords, 'Illegal chess move attempted')
 
@@ -66,7 +66,7 @@ class ChessGame(Game):
             return self.playing_piece.legal_capture, self._capture
         return self.playing_piece.legal_move, self._move
 
-    def switch_players(self):
+    def _switch_players(self):
         playing_color = self.playing_color
         self.playing_color = self.opponent_color
         self.opponent_color = playing_color
@@ -104,61 +104,73 @@ class ChessGame(Game):
         self._move()
 
     def _castle_move(self):
-        if self.playing_piece.name == 'King' and self.playing_piece.color == Color.WHITE:
+        if self.playing_piece.name == 'King' and self.playing_color == Color.WHITE:
             if (self.from_coords == Coords(4, 0)
                     and self.to_coords in (Coords(2, 0), Coords(6, 0))):
                 return True
-        if self.playing_piece.name == 'King' and self.playing_piece.color == Color.BLACK:
+        if self.playing_piece.name == 'King' and self.playing_color == Color.BLACK:
             if (self.from_coords == Coords(4, 7)
                     and self.to_coords in (Coords(2, 7), Coords(6, 7))):
                 return True
         return False
 
     def _castle_move_type(self):
-        if self.to_coords.y == 0:
-            if self.to_coords.x == 2:
-                return self._white_castle_queen_side
-            return self._white_castle_king_side
-        if self.to_coords.y == 7:
-            if self.to_coords.x == 2:
-                return self._black_castle_queen_side
-            return self._black_castle_king_side
+        if self._white_king_row():
+            return self._white_castle()
+        if self._black_king_row():
+            return self._black_castle()
+
+    def _white_king_row(self):
+        return self.to_coords.y == 0
+
+    def _black_king_row(self):
+        return self.to_coords.y == 7
+
+    def _king_side(self):
+        return self.to_coords.x == 6
+
+    def _queen_side(self):
+        return self.to_coords.x == 2
+
+    def _white_castle(self):
+        if self._queen_side():
+            return self._white_castle_queen_side
+        return self._white_castle_king_side
+
+    def _black_castle(self):
+        if self._queen_side():
+            return self._black_castle_queen_side
+        return self._black_castle_king_side
 
     def _prawn_promotion(self):
         return self.playing_piece.name == 'Pawn' and self.to_coords.y in (0, 7)
 
-    def _legal_castle(self, to_coords):
-        color, side, move_thru, move_to = self._castle_info(to_coords)
+    def _legal_castle(self, to_coords=None):
+        playing_color = self.playing_color
+        move_coords = self._castle_coords()
 
-        if (self._king_moved(color) or self._rook_moved(color, side)
-                or self._king_in_check(color, self.from_coords)):
+        if (self._king_moved(playing_color) or self._rook_moved(playing_color)
+                or self._king_in_check(playing_color, self.from_coords)):
             return False
 
-        for coords in (move_thru, move_to):
+        for coords in move_coords:
             if (self.board[coords.x][coords.y] is not None
-                    or self._king_in_check(color, coords)):
+                    or self._king_in_check(playing_color, coords)):
                 return False
         return True
 
-    def _castle_info(self, to_coords):
-        if to_coords.y == 0:
-            color = Color.WHITE
-            if to_coords.x == 2:
-                side = 'Queen'
-                move_thru, move_to = Coords(x=3, y=0), Coords(x=2, y=0)
-            if to_coords.x == 6:
-                side = 'King'
-                move_thru, move_to = Coords(x=5, y=0), Coords(x=6, y=0)
-        if to_coords.y == 7:
-            color = Color.BLACK
-            if to_coords.x == 2:
-                side = 'Queen'
-                move_thru, move_to = Coords(x=3, y=7), Coords(x=2, y=7)
-            if to_coords.x == 6:
-                side = 'King'
-                move_thru, move_to = Coords(x=5, y=7), Coords(x=6, y=7)
-
-        return color, side, move_thru, move_to
+    def _castle_coords(self):
+        if self._white_king_row():
+            if self._queen_side():
+                castle_coords = (Coords(x=3, y=0), Coords(x=2, y=0))
+            if self._king_side():
+                castle_coords = (Coords(x=5, y=0), Coords(x=6, y=0))
+        if self._black_king_row():
+            if self._queen_side():
+                castle_coords = (Coords(x=3, y=7), Coords(x=2, y=7))
+            if self._king_side():
+                castle_coords = (Coords(x=5, y=7), Coords(x=6, y=7))
+        return castle_coords
 
     def _king(self, color):
         for row in self.board:
@@ -170,17 +182,17 @@ class ChessGame(Game):
         king = self._king(color)
         return king.moved
 
-    def _rook_moved(self, color, side):
+    def _rook_moved(self, color):
         if color == Color.WHITE:
-            if side == 'King':
+            if self._king_side():
                 piece = self.board[7][0]
-            if side == 'Queen':
+            if self._queen_side():
                 piece = self.board[0][0]
 
         if color == Color.BLACK:
-            if side == 'King':
+            if self._king_side():
                 piece = self.board[7][7]
-            if side == 'Queen':
+            if self._queen_side():
                 piece = self.board[0][7]
 
         if piece:
