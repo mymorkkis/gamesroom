@@ -14,8 +14,8 @@ from enum import Enum, auto
 
 class Color(Enum):
     """Colors: WHITE, BLACK"""
-    WHITE = auto()
-    BLACK = auto()
+    WHITE = 'White'
+    BLACK = 'Black'
 
 
 class Direction(Enum):

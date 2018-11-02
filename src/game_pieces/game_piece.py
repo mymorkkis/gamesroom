@@ -22,10 +22,10 @@ class GamePiece(ABC):
         self.coords = None
 
     def __repr__(self):
-        return f'{self.name}({self.color!r})'
+        return f'{self.name}({self.color.value!r})'
 
     def __str__(self):
-        return f'{self.color.name.title()} {self.name}: {self.coords!r}'
+        return f'{self.color.value} {self.name}: {self.coords!r}'
 
     def __eq__(self, other):
         if other.__class__ is self.__class__:
