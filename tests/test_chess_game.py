@@ -365,6 +365,50 @@ def test_cant_castle_if_king_moves_through_check(castle_game):
         castle_game.move(Coords(x=4, y=0), Coords(x=6, y=0))
 
 
+def test_en_passant_sucessful(game):
+    game.add(Pawn(Color.WHITE), Coords(x=0, y=3))
+    game.add(Pawn(Color.BLACK), Coords(x=1, y=6))
+    game.move(Coords(x=0, y=3), Coords(x=0, y=4))
+    # Black pawn moves 2 squares
+    game.move(Coords(x=1, y=6), Coords(x=1, y=4))
+    assert game.board[1][4] == Pawn(Color.BLACK)
+    # White pawn captures en passant
+    game.move(Coords(x=0, y=4), Coords(x=1, y=5))
+    assert game.board[1][4] is None
+
+
+def test_error_thrown_for_illegal_en_passant_as_pawn_not_moved_two_spaces(game):
+    game.add(Pawn(Color.WHITE), Coords(x=0, y=2))
+    game.add(Pawn(Color.BLACK), Coords(x=1, y=6))
+    game.move(Coords(x=0, y=2), Coords(x=0, y=3))
+    game.move(Coords(x=1, y=6), Coords(x=1, y=5))
+    game.move(Coords(x=0, y=3), Coords(x=0, y=4))
+    game.move(Coords(x=1, y=5), Coords(x=1, y=4))
+    # Black pawn made two single space moves
+    with pytest.raises(IllegalMoveError):
+        game.move(Coords(x=0, y=4), Coords(x=1, y=5))
+
+
+def test_error_thrown_for_illegal_en_passant_as_pawn_not_moved_in_previous_move(game):
+    game.add(Pawn(Color.WHITE), Coords(x=0, y=2))
+    game.add(Pawn(Color.BLACK), Coords(x=1, y=6))
+    game.move(Coords(x=0, y=2), Coords(x=0, y=3))
+    # Black pawn move 2 squares
+    game.move(Coords(x=1, y=6), Coords(x=1, y=4))
+    game.move(Coords(x=0, y=3), Coords(x=0, y=4))
+    # King move means pawn move not last move
+    game.move(Coords(x=7, y=7), Coords(x=7, y=6))
+    with pytest.raises(IllegalMoveError):
+        # Illegal as pawn not moved in previous move
+        game.move(Coords(x=0, y=4), Coords(x=1, y=5))
+
+
+def test_error_thrown_for_illegal_en_passant_as_no_pawn(game):
+    game.add(Pawn(Color.WHITE), Coords(x=0, y=4))
+    with pytest.raises(IllegalMoveError):
+        game.move(Coords(x=0, y=4), Coords(x=1, y=5))
+
+
 def test_checkmate_results_in_game_ending(new_game):
     game = new_game
     # Setup classic "fool's mate"

@@ -21,6 +21,7 @@ class ChessGame(Game):
         )
         self.playing_color = Color.WHITE
         self.opponent_color = Color.BLACK
+        self.opponent_pawn_two_space_last_move = (False, None)
 
     @staticmethod
     def new_setup():
@@ -56,6 +57,8 @@ class ChessGame(Game):
             return self._legal_castle, self._castle_move_type()
         if self._prawn_promotion():
             return self.playing_piece.legal_move, self._promote_pawn
+        if self._en_passant():
+            return self._legal_en_passant, self._capture_en_passant
         if self._capture_move():
             return self.playing_piece.legal_capture, self._capture
         return self.playing_piece.legal_move, self._move
@@ -86,12 +89,34 @@ class ChessGame(Game):
         self.board[self.from_coords.x][self.from_coords.y] = None
         self.playing_piece.coords = self.to_coords
         self.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
+
+        if self._pawn_two_space_first_move():
+            self.opponent_pawn_two_space_last_move = (True, self.to_coords)
+        else:
+            self.opponent_pawn_two_space_last_move = (False, None)
+
         if self.playing_piece in [King(self.playing_color), Rook(self.playing_color)]:
             self.playing_piece.moved = True
+
+    def _pawn_two_space_first_move(self):
+        if (self.playing_piece == Pawn(Color.WHITE)
+                and self.from_coords.y == 1 and self.to_coords.y == 3):
+            return True
+        if (self.playing_piece == Pawn(Color.BLACK)
+                and self.from_coords.y == 6 and self.to_coords.y == 4):
+            return True
+        return False
 
     def _capture(self):
         captured_piece = self.board[self.to_coords.x][self.to_coords.y]
         captured_piece.coords = None
+        self._move()
+
+    def _capture_en_passant(self):
+        _, coords = self.opponent_pawn_two_space_last_move
+        captured_piece = self.board[coords.x][coords.y]
+        captured_piece.coords = None
+        self.board[coords.x][coords.y] = None
         self._move()
 
     def _castle_move(self):
@@ -189,9 +214,17 @@ class ChessGame(Game):
 
         return piece and piece == Rook(playing_color) and piece.moved
 
-    def _legal_en_passant(self):
-        # check last move was opponent pawn moving 2 spaces
-        pass
+    def _legal_en_passant(self, to_coords):
+        last_move_pawn_two_spaces, last_move_coords = self.opponent_pawn_two_space_last_move
+
+        if not last_move_pawn_two_spaces:
+            return False
+
+        if self.playing_piece == Pawn(Color.WHITE) and to_coords.y == 5:
+            return Coords(to_coords.x, to_coords.y - 1) == last_move_coords
+        if self.playing_piece == Pawn(Color.BLACK) and to_coords.y == 2:
+            return Coords(to_coords.x, to_coords.y + 1) == last_move_coords
+        return False
 
     def _white_castle_king_side(self):
         king, rook = self.board[4][0], self.board[7][0]
@@ -218,17 +251,13 @@ class ChessGame(Game):
         king.moved, rook.moved = True, True
 
     def _capture_move(self):
-        return self.board[self.to_coords.x][self.to_coords.y] is not None or self._en_passant()
+        return self.board[self.to_coords.x][self.to_coords.y] is not None
 
     def _en_passant(self):
-        piece = self.playing_piece
-        # TODO Messy, needs a re-write
-        if (piece == Pawn(self.playing_color) and piece.legal_capture(self.to_coords)
+        if (self.playing_piece == Pawn(self.playing_color)
+                and self.playing_piece.legal_capture(self.to_coords)
                 and self.board[self.to_coords.x][self.to_coords.y] is None):
-            if piece == Pawn(Color.WHITE) and self.to_coords.y == 5:
-                return self.board[self.to_coords.x][self.to_coords.y - 1] == Pawn(Color.BLACK)
-            if piece == Pawn(Color.BLACK) and self.to_coords.y == 2:
-                return self.board[self.to_coords.x][self.to_coords.y + 1] == Pawn(Color.WHITE)
+            return True
         return False
 
     def own_king_in_check(self):
