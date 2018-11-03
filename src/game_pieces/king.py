@@ -11,6 +11,10 @@ class King(GamePiece):
         self.color = color
         self.moved = False
 
+    def __str__(self):
+        # Colors inverted as I use dark terminal
+        return '\U0000265A' if self.color == Color.WHITE else '\U00002654'
+
     def legal_move(self, to_coords):
         if not self.moved:
             return self._legal(to_coords) or self._legal_castle(to_coords)

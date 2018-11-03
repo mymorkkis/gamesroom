@@ -1,5 +1,5 @@
 """Module for Rook class."""
-from src.game_enums import Direction
+from src.game_enums import Color, Direction
 from src.game_pieces.game_piece import GamePiece
 from src.game import move_direction
 
@@ -10,6 +10,10 @@ class Rook(GamePiece):
         super().__init__()
         self.color = color
         self.moved = False
+
+    def __str__(self):
+        # Colors inverted as I use dark terminal
+        return '\U0000265C' if self.color == Color.WHITE else '\U00002656'
 
     def legal_move(self, to_coords):
         return self._legal(to_coords)

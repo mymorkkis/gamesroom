@@ -9,6 +9,10 @@ class Pawn(GamePiece):
         super().__init__()
         self.color = color
 
+    def __str__(self):
+        # Colors inverted as I use dark terminal
+        return '\U0000265F' if self.color == Color.WHITE else '\U00002659'
+
     def legal_move(self, to_coords):
         if to_coords.x == self.coords.x and self._legal_y_coord(to_coords.y):
             return True

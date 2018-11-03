@@ -11,6 +11,7 @@ pytest-cov = "*"
 rope = "*"
 
 [packages]
+tabulate = "*"
 
 [requires]
 python_version = "3.6"

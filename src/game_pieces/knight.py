@@ -1,4 +1,5 @@
 """Module for Knight class."""
+from src.game_enums import Color
 from src.game_pieces.game_piece import GamePiece
 
 
@@ -7,6 +8,10 @@ class Knight(GamePiece):
     def __init__(self, color):
         super().__init__()
         self.color = color
+
+    def __str__(self):
+        # Colors inverted as I use dark terminal
+        return '\U0000265E' if self.color == Color.WHITE else '\U00002658'
 
     def legal_move(self, to_coords):
         return self._legal(to_coords)

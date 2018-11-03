@@ -1,5 +1,5 @@
 """Module for Bishop class."""
-from src.game_enums import Direction
+from src.game_enums import Color, Direction
 from src.game_pieces.game_piece import GamePiece
 from src.game import move_direction
 
@@ -9,6 +9,10 @@ class Bishop(GamePiece):
     def __init__(self, color):
         super().__init__()
         self.color = color
+
+    def __str__(self):
+        # Colors inverted as I use dark terminal
+        return '\U0000265D' if self.color == Color.WHITE else '\U00002657'
 
     def legal_move(self, to_coords):
         return self._legal(to_coords)

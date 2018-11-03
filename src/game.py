@@ -4,6 +4,7 @@ from collections import namedtuple
 from src.game_enums import Direction
 from src.game_errors import IllegalMoveError, NotOnBoardError
 
+from tabulate import tabulate
 
 Coords = namedtuple('Coords', 'x y')
 
@@ -119,6 +120,14 @@ class Game(ABC):
         else:
             x_coords = list(range(from_coords.x + 1, to_coords.x))
         return x_coords
+
+    def display(self):
+        """Display current game board and stats to terminal"""
+        transposed_board = [list(row) for row in zip(*self.board)]
+        transposed_board.append([0, 1, 2, 3, 4, 5, 6, 7])  # x-axis numbers
+        print(tabulate(transposed_board,
+                       tablefmt="fancy_grid",
+                       showindex=True))  # y-axis numbers
 
 
 def move_direction(from_coords, to_coords):
