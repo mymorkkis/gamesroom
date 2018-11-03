@@ -1,16 +1,24 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
+# from typing import List, NamedTuple, Optional, Set
 
-from src.game_enums import Direction
+from src.game_enums import Color, Direction
 from src.game_errors import IllegalMoveError, NotOnBoardError
+from src.game_pieces.game_piece import GamePiece
 
+
+# Coord = NamedTuple("Coords", [('x', int), ('y', int)])
 
 Coords = namedtuple('Coords', 'x y')
 
 
 class Game(ABC):
-    def __init__(self, board, legal_piece_colors, legal_piece_names,
-                 pieces, restore_positions):
+    def __init__(self,
+                 board,  #: List[List][Optional[GamePiece]],
+                 legal_piece_colors,  #: Set[str],
+                 legal_piece_names,
+                 pieces,
+                 restore_positions):
         self.board = board
         self.board_width = len(self.board[0])
         self.board_height = len(self.board)
@@ -38,8 +46,8 @@ class Game(ABC):
             game_positions = self.new_setup()
 
         for coords, piece in game_positions.items():
-            assert piece.color in self.legal_piece_colors
-            assert piece.name in self.legal_piece_names
+            # assert piece.color in self.legal_piece_colors
+            # assert piece.name in self.legal_piece_names
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             self.add(piece, coords)
 

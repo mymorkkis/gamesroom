@@ -17,7 +17,7 @@ def test_child_class_inherits_properties():
     assert pawn.name == 'Pawn'
     assert pawn.color == Color.BLACK
     assert pawn.coords is None
-    assert repr(pawn) == 'Pawn(<Color.BLACK: 2>)'
+    assert repr(pawn) == "Pawn('Black')"
     assert str(pawn) == 'Black Pawn: None'
 
 
