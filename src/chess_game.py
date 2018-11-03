@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from src.game_enums import ChessPiece, Color, Direction
 from src.game_errors import IllegalMoveError
 from src.game import Coords, Game, move_direction
@@ -19,10 +17,6 @@ class ChessGame(Game):
             board=[[None] * 8 for _ in range(8)],
             legal_piece_colors={Color.WHITE, Color.BLACK},
             legal_piece_names={piece.value for piece in ChessPiece},
-            pieces={
-                Color.WHITE: defaultdict(int),
-                Color.BLACK: defaultdict(int)
-            },
             restore_positions=restore_positions
         )
         self.playing_color = Color.WHITE
@@ -87,8 +81,6 @@ class ChessGame(Game):
         promoted_piece = Queen(self.playing_color)
         promoted_piece.coords = Coords(self.to_coords.x, self.to_coords.y)
         self.board[self.to_coords.x][self.to_coords.y] = promoted_piece
-        self.pieces[self.playing_color]['Pawn'] -= 1
-        self.pieces[self.playing_color]['Queen'] += 1
 
     def _move(self):
         self.board[self.from_coords.x][self.from_coords.y] = None
@@ -100,7 +92,6 @@ class ChessGame(Game):
     def _capture(self):
         captured_piece = self.board[self.to_coords.x][self.to_coords.y]
         captured_piece.coords = None
-        self.pieces[captured_piece.color][captured_piece.name] -= 1
         self._move()
 
     def _castle_move(self):
@@ -144,7 +135,7 @@ class ChessGame(Game):
 
     def _prawn_promotion(self):
         return (self.playing_piece == Pawn(Color.WHITE) and self.to_coords.y == 7
-                    or self.playing_piece == Pawn(Color.BLACK) and self.to_coords.y == 0)
+                or self.playing_piece == Pawn(Color.BLACK) and self.to_coords.y == 0)
 
     def _legal_castle(self, to_coords=None):
         playing_color = self.playing_color

@@ -1,28 +1,18 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
-# from typing import List, NamedTuple, Optional, Set
 
-from src.game_enums import Color, Direction
+from src.game_enums import Direction
 from src.game_errors import IllegalMoveError, NotOnBoardError
-from src.game_pieces.game_piece import GamePiece
 
-
-# Coord = NamedTuple("Coords", [('x', int), ('y', int)])
 
 Coords = namedtuple('Coords', 'x y')
 
 
 class Game(ABC):
-    def __init__(self,
-                 board,  #: List[List][Optional[GamePiece]],
-                 legal_piece_colors,  #: Set[str],
-                 legal_piece_names,
-                 pieces,
-                 restore_positions):
+    def __init__(self, board, legal_piece_colors, legal_piece_names, restore_positions):
         self.board = board
         self.board_width = len(self.board[0])
         self.board_height = len(self.board)
-        self.pieces = pieces
         self.legal_piece_names = legal_piece_names
         self.legal_piece_colors = legal_piece_colors
         self._setup_game(restore_positions)
@@ -67,7 +57,6 @@ class Game(ABC):
         try:
             self.board[coords.x][coords.y] = piece
             piece.coords = coords
-            self.pieces[piece.color][piece.name] += 1
         except IndexError:
             raise NotOnBoardError(coords, 'Saved coordinates are not legal coordinates')
 
