@@ -131,12 +131,11 @@ def move_direction(from_coords, to_coords):
     """
     if abs(from_coords.x - to_coords.x) == abs(from_coords.y - to_coords.y):
         return Direction.DIAGONAL
-    elif from_coords.x != to_coords.x and from_coords.y == to_coords.y:
+    if from_coords.x != to_coords.x and from_coords.y == to_coords.y:
         return Direction.HORIZONTAL
-    elif from_coords.y != to_coords.y and from_coords.x == to_coords.x:
+    if from_coords.y != to_coords.y and from_coords.x == to_coords.x:
         return Direction.VERTICAL
-    else:
-        return Direction.NON_LINEAR
+    return Direction.NON_LINEAR
 
 
 def adjacent_squares(from_coords, to_coords):
