@@ -123,11 +123,11 @@ class Game(ABC):
 
     def display(self):
         """Display current game board and stats to terminal"""
-        transposed_board = [list(row) for row in zip(*self.board)]
-        transposed_board.append([0, 1, 2, 3, 4, 5, 6, 7])  # x-axis numbers
-        print(tabulate(transposed_board,
-                       tablefmt="fancy_grid",
-                       showindex=True))  # y-axis numbers
+        display_board = [list(row) for row in zip(*reversed(self.board))]
+        x_axis = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        y_axis = [8, 7, 6, 5, 4, 3, 2, 1, '']
+        display_board.append(x_axis)
+        print(tabulate(display_board, tablefmt="fancy_grid", showindex=y_axis))
 
 
 def move_direction(from_coords, to_coords):
