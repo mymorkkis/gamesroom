@@ -1,3 +1,4 @@
+"""Module with one class: ChessGame."""
 from src.game_enums import ChessPiece, Color, Direction
 from src.game_errors import IllegalMoveError
 from src.game import Coords, Game, move_direction
@@ -11,7 +12,19 @@ from src.game_pieces.rook import Rook
 
 
 class ChessGame(Game):
-    """temp"""
+    """Contains logic for chess game.
+       Optional Argument:
+            restore_positions:
+                dict of pieces for game restore
+                expected in the following key/value format:
+                key = str representation of game coordinates xy
+                value = chess GamePiece
+                e.g. "32": Queen.WHITE
+                White Queen will be placed at Coords(x=3, y=2)
+
+       Methods:
+            move: move piece from coordinates, to coordinates
+    """
     def __init__(self, restore_positions=None):
         super().__init__(
             board=[[None] * 8 for _ in range(8)],
@@ -21,7 +34,7 @@ class ChessGame(Game):
         )
         self.playing_color = Color.WHITE
         self.opponent_color = Color.BLACK
-        self.opponent_pawn_two_space_last_move = (False, None)
+        self.last_move_pawn = None  # Used for checking legality of en passant attempt
 
     @staticmethod
     def new_setup():
@@ -37,12 +50,18 @@ class ChessGame(Game):
         return dict(white_pieces + black_pieces)
 
     def move(self, from_coords, to_coords):
-        """temp"""
+        """Move piece from coordinates, to coordianates. Remove captured piece, if any.
+           Args:
+                from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
+                to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
+           Raises:
+                IllegalMoveError
+        """
         self.validate_coords(from_coords, to_coords)
         self.set_move_attributes(from_coords, to_coords, self.playing_color)
         legal_move, make_move = self._move_type()
 
-        if (legal_move(to_coords) and not self.own_king_in_check()
+        if (legal_move(to_coords) and not self._own_king_in_check()
                 and not self._piece_blocking(from_coords, to_coords)):
             make_move()
             if self._check_mate():
@@ -69,7 +88,6 @@ class ChessGame(Game):
         self.opponent_color = playing_color
 
     def _piece_blocking(self, from_coords, to_coords):
-        """Check if any piece blocking move from_coords to_coords. Return bool."""
         if move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
             # Only Knights move non_linear and they can jump over pieces
             for coords in self.coords_between(from_coords, to_coords):
@@ -91,9 +109,9 @@ class ChessGame(Game):
         self.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
 
         if self._pawn_two_space_first_move():
-            self.opponent_pawn_two_space_last_move = (True, self.to_coords)
+            self.last_move_pawn = self.playing_piece
         else:
-            self.opponent_pawn_two_space_last_move = (False, None)
+            self.last_move_pawn = None
 
         if self.playing_piece in [King(self.playing_color), Rook(self.playing_color)]:
             self.playing_piece.moved = True
@@ -113,7 +131,7 @@ class ChessGame(Game):
         self._move()
 
     def _capture_en_passant(self):
-        _, coords = self.opponent_pawn_two_space_last_move
+        coords = self.last_move_pawn.coords
         captured_piece = self.board[coords.x][coords.y]
         captured_piece.coords = None
         self.board[coords.x][coords.y] = None
@@ -215,15 +233,12 @@ class ChessGame(Game):
         return piece and piece == Rook(playing_color) and piece.moved
 
     def _legal_en_passant(self, to_coords):
-        last_move_pawn_two_spaces, last_move_coords = self.opponent_pawn_two_space_last_move
-
-        if not last_move_pawn_two_spaces:
+        if not self.last_move_pawn:
             return False
-
         if self.playing_piece == Pawn(Color.WHITE) and to_coords.y == 5:
-            return Coords(to_coords.x, to_coords.y - 1) == last_move_coords
+            return Coords(to_coords.x, to_coords.y - 1) == self.last_move_pawn.coords
         if self.playing_piece == Pawn(Color.BLACK) and to_coords.y == 2:
-            return Coords(to_coords.x, to_coords.y + 1) == last_move_coords
+            return Coords(to_coords.x, to_coords.y + 1) == self.last_move_pawn.coords
         return False
 
     def _white_castle_king_side(self):
@@ -260,7 +275,7 @@ class ChessGame(Game):
             return True
         return False
 
-    def own_king_in_check(self):
+    def _own_king_in_check(self):
         """Check if move puts current player king in check. Return bool."""
         # Keep track of current game state
         king = self._king(self.playing_color)
