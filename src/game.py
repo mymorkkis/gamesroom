@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from collections import namedtuple
 
+from tabulate import tabulate
+
 from src.game_enums import Direction
 from src.game_errors import IllegalMoveError, NotOnBoardError
-
-from tabulate import tabulate
 
 Coords = namedtuple('Coords', 'x y')
 
@@ -121,9 +121,10 @@ class Game(ABC):
             x_coords = list(range(from_coords.x + 1, to_coords.x))
         return x_coords
 
-    def display(self):
-        """Display current game board and stats to terminal"""
-        display_board = [list(row) for row in zip(*reversed(self.board))]
+    def display_board(self):
+        """Tabulate and display game board current state"""
+        transposed_board = [list(row) for row in zip(*self.board)]
+        display_board = list(reversed(transposed_board))
         x_axis = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         y_axis = [8, 7, 6, 5, 4, 3, 2, 1, '']
         display_board.append(x_axis)

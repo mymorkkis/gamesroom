@@ -61,12 +61,13 @@ class ChessGame(Game):
         self.set_move_attributes(from_coords, to_coords, self.playing_color)
         legal_move, make_move = self._move_type()
 
-        if (legal_move(to_coords) and not self._own_king_in_check()
-                and not self._piece_blocking(from_coords, to_coords)):
+        if self._own_king_in_check():
+            raise IllegalMoveError('Must move king out of check')
+
+        if legal_move(to_coords) and not self._piece_blocking(from_coords, to_coords):
             make_move()
             if self._check_mate():
-                self.winner = self.playing_color
-                # TODO End game
+                self.winner = self.playing_color.value
             self._switch_players()
         else:
             raise IllegalMoveError('Illegal chess move attempted')

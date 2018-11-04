@@ -420,7 +420,7 @@ def test_checkmate_results_in_game_ending(new_game):
     # Queen to put king in check mate
     game.move(Coords(x=3, y=7), Coords(x=7, y=3))
     # assert game.check_mate
-    assert game.winner == Color.BLACK
+    assert game.winner == Color.BLACK.value
 
 
 @pytest.mark.no_check_mate

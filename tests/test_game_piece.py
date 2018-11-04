@@ -18,7 +18,6 @@ def test_child_class_inherits_properties():
     assert pawn.color == Color.BLACK
     assert pawn.coords is None
     assert repr(pawn) == "Pawn('Black')"
-    assert str(pawn) == 'Black Pawn: None'
 
 
 def test_illegal_game_color_throws_error():

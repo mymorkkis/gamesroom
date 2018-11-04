@@ -3,4 +3,3 @@
 .pytest_cache/
 .vscode/
 scratch*
-play_chess.py
