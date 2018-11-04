@@ -1,3 +1,9 @@
+"""Main game module with Game abstract base class.
+
+   Functions:
+        move_direction:   return move Direction enum type
+        adjacent_squares: return bool
+"""
 from abc import ABC, abstractmethod
 from collections import namedtuple
 
@@ -10,6 +16,20 @@ Coords = namedtuple('Coords', 'x y')
 
 
 class Game(ABC):
+    """Abstract Base class for game.
+
+       Methods:
+            validate_coords
+            add
+            set_move_attributes
+            coords_on_board
+            coords_between
+            display_board
+
+       Abstract methods:
+            move
+            new_setup
+    """
     def __init__(self, board, legal_piece_colors, legal_piece_names, restore_positions):
         self.board = board
         self.board_width = len(self.board[0])
@@ -37,8 +57,8 @@ class Game(ABC):
             game_positions = self.new_setup()
 
         for coords, piece in game_positions.items():
-            # assert piece.color in self.legal_piece_colors
-            # assert piece.name in self.legal_piece_names
+            assert piece.color in self.legal_piece_colors
+            assert piece.name in self.legal_piece_names
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             self.add(piece, coords)
 
@@ -46,11 +66,9 @@ class Game(ABC):
         pass
 
     def add(self, piece, coords):
-        """Add piece on board at given coordinates and update piece coordinates. Increment pieces.
-        (Chess only): Add King coordinates to king_coords dictionary.
+        """Add piece on board at given coordinates and update piece coordinates.
         Args:
                 piece:  Any piece that inherits from GamePiece
-                game:   Game object
                 coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
         Raises:
                 NotOnBoardError
@@ -62,6 +80,11 @@ class Game(ABC):
             raise NotOnBoardError(coords, 'Saved coordinates are not legal coordinates')
 
     def set_move_attributes(self, from_coords, to_coords, playing_color):
+        """Sets temporary game attributes, from_coords, to_coords and playing_piece.
+
+           Raises:
+                IllegalMoveError
+        """
         self.from_coords = from_coords
         self.to_coords = to_coords
         self.playing_piece = self.board[from_coords.x][from_coords.y]
@@ -75,13 +98,10 @@ class Game(ABC):
     def validate_coords(self, from_coords, to_coords):
         """Check for errors in passed board coordinates.
         Args:
-                board:       Game board.
                 from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
                 to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
         Raises:
-                NotOnBoardError:    If either passed coordinates are not in board grid.
-                IllegalMoveError:   If from_coords and to_coords are the same.
-                PieceNotFoundError: If no piece found at from coordinates.
+                IllegalMoveError
         """
         for coords in (from_coords, to_coords):
             if not self.coords_on_board(coords.x, coords.y):
