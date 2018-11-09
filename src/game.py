@@ -12,6 +12,7 @@ from tabulate import tabulate
 from src.game_enums import Direction
 from src.game_errors import IllegalMoveError, NotOnBoardError
 
+
 Coords = namedtuple('Coords', 'x y')
 
 
@@ -63,6 +64,7 @@ class Game(ABC):
             self.add(piece, coords)
 
     def save_game(self):
+        'TODO'
         pass
 
     def add(self, piece, coords):
@@ -115,31 +117,17 @@ class Game(ABC):
 
     def coords_between(self, from_coords, to_coords):
         """Helper function. Return generator of all coords between from_coords and to_coords."""
-        x_coords = self._x_coords(from_coords, to_coords)
-        y_coords = self._y_coords(from_coords, to_coords)
+        x_coords = self._coords_between(from_coords.x, to_coords.x, abs(from_coords.y - to_coords.y))
+        y_coords = self._coords_between(from_coords.y, to_coords.y, abs(from_coords.x - to_coords.x))
         return (Coords(x, y) for x, y in zip(x_coords, y_coords))
 
     @staticmethod
-    def _y_coords(from_coords, to_coords):
-        if from_coords.y > to_coords.y:
-            y_coords = reversed(list(range(to_coords.y + 1, from_coords.y)))
-        elif from_coords.y == to_coords.y:
-            list_length = abs(from_coords.x - to_coords.x)
-            y_coords = list_length * [from_coords.y]
-        else:
-            y_coords = list(range(from_coords.y + 1, to_coords.y))
-        return y_coords
-
-    @staticmethod
-    def _x_coords(from_coords, to_coords):
-        if from_coords.x > to_coords.x:
-            x_coords = reversed(list(range(to_coords.x + 1, from_coords.x)))
-        elif from_coords.x == to_coords.x:
-            list_length = abs(from_coords.y - to_coords.y)
-            x_coords = list_length * [from_coords.x]
-        else:
-            x_coords = list(range(from_coords.x + 1, to_coords.x))
-        return x_coords
+    def _coords_between(from_coord, to_coord, other_coord_length):
+        if from_coord > to_coord:
+            return reversed(list(range(to_coord + 1, from_coord)))
+        if from_coord == to_coord:
+            return [from_coord] * other_coord_length
+        return list(range(from_coord + 1, to_coord))
 
     def display_board(self):
         """Tabulate and display game board current state"""

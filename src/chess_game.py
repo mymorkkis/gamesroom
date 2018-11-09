@@ -313,7 +313,6 @@ class ChessGame(Game):
         return True
 
     def _king_in_check(self, king_color, king_coords):
-        # king = self._king(color)
         opponent_color = Color.WHITE if king_color == Color.BLACK else Color.BLACK
 
         for piece in self._board_pieces(opponent_color):
@@ -369,7 +368,7 @@ class ChessGame(Game):
 
 
 def chess_pieces(color, *, y_idxs=None):
-    """Helper method for new_chess_setup."""
+    """Helper function for new_chess_setup."""
     coords = [f'{x_idx}{y_idx}' for y_idx in y_idxs for x_idx in range(8)]
     pieces = [
         Rook(color),
