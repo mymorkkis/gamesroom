@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+  <meta charset="UTF-8">
+  <style>
+    .chess-board {
+      border-spacing: 0;
+      border-collapse: collapse;
+    }
+
+    .chess-board th {
+      padding: .5em;
+    }
+
+    .chess-board td {
+      border: 1px solid;
+      width: 2em;
+      height: 2em;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .chess-board .light {
+      background: #eee;
+    }
+
+    .chess-board .dark {
+      background-color: rgba(0, 0, 0, 0.5);
+      /* background: #000; */
+    }
+  </style>
+</head>
+
+<body>
+  <table class="chess-board">
+    <tbody>
+        {% for axis_number, row in board %}
+          <tr>
+            <th>{{ axis_number }}</th>
+              {% if loop.index % 2 != 0 %}
+                {% for item in row %}
+                  {% if loop.index % 2 != 0 %}
+                    <td class="light">{{ item if item else '' }}</td>
+                  {% else %}
+                    <td class="dark">{{ item if item else '' }}</td>
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                {% for item in row %}
+                  {% if loop.index % 2 == 0 %}
+                    <td class="light">{{ item if item else '' }}</td>
+                  {% else %}
+                    <td class="dark">{{ item if item else '' }}</td>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+          </tr>
+        {% endfor %}
+      <tr>
+        <th></th>
+        <th>a</th>
+        <th>b</th>
+        <th>c</th>
+        <th>d</th>
+        <th>e</th>
+        <th>f</th>
+        <th>g</th>
+        <th>h</th>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>

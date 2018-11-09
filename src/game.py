@@ -130,13 +130,17 @@ class Game(ABC):
         return list(range(from_coord + 1, to_coord))
 
     def display_board(self):
-        """Tabulate and display game board current state"""
+        """Return board in correct chess setup for display purposes"""
         transposed_board = [list(row) for row in zip(*self.board)]
-        display_board = list(reversed(transposed_board))
+        return list(reversed(transposed_board))
+
+    def display_board_to_terminal(self):
+        """Tabulate and display game board current state to terminal"""
+        board = self.display_board()
         x_axis = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         y_axis = [8, 7, 6, 5, 4, 3, 2, 1, '']
-        display_board.append(x_axis)
-        print(tabulate(display_board, tablefmt="fancy_grid", showindex=y_axis))
+        board.append(x_axis)
+        print(tabulate(board, tablefmt="fancy_grid", showindex=y_axis))
 
 
 def move_direction(from_coords, to_coords):
