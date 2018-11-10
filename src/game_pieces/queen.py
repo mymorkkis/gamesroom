@@ -11,8 +11,7 @@ class Queen(GamePiece):
         self.color = color
 
     def __str__(self):
-        # Colors inverted as I use dark terminal
-        return '\U0000265B' if self.color == Color.WHITE else '\U00002655'
+        return '\u2655' if self.color == Color.WHITE else '\u265B'
 
     def legal_move(self, to_coords):
         return self._legal(to_coords)

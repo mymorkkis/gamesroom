@@ -11,8 +11,7 @@ class Bishop(GamePiece):
         self.color = color
 
     def __str__(self):
-        # Colors inverted as I use dark terminal
-        return '\U0000265D' if self.color == Color.WHITE else '\U00002657'
+        return '\u2657' if self.color == Color.WHITE else '\u265D'
 
     def legal_move(self, to_coords):
         return self._legal(to_coords)

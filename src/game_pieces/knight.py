@@ -10,8 +10,7 @@ class Knight(GamePiece):
         self.color = color
 
     def __str__(self):
-        # Colors inverted as I use dark terminal
-        return '\U0000265E' if self.color == Color.WHITE else '\U00002658'
+        return '\u2658' if self.color == Color.WHITE else '\u265E'
 
     def legal_move(self, to_coords):
         return self._legal(to_coords)

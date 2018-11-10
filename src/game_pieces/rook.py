@@ -12,8 +12,7 @@ class Rook(GamePiece):
         self.moved = False
 
     def __str__(self):
-        # Colors inverted as I use dark terminal
-        return '\U0000265C' if self.color == Color.WHITE else '\U00002656'
+        return '\u2656' if self.color == Color.WHITE else '\u265C'
 
     def legal_move(self, to_coords):
         return self._legal(to_coords)
