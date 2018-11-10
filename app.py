@@ -15,9 +15,8 @@ def home():
 @app.route('/chess')
 def chess():
     game = ChessGame()
-    board = game.display_board()
-    y_axis = [8, 7, 6, 5, 4, 3, 2, 1, '']
-    return render_template('chess.html', board=zip(y_axis, board))
+    board = zip(game.y_axis, game.display_board())
+    return render_template('chess.html', board=board, x_axis=game.x_axis)
 
 
 if __name__ == '__main__':

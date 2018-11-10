@@ -28,7 +28,6 @@
 
     .chess-board .dark {
       background-color: rgba(0, 0, 0, 0.5);
-      /* background: #000; */
     }
   </style>
 </head>
@@ -36,9 +35,15 @@
 <body>
   <table class="chess-board">
     <tbody>
-        {% for axis_number, row in board %}
+      <tr>
+        <th></th>
+        {% for axis in x_axis %}
+          <th>{{ axis }}</th>
+        {% endfor %}
+      </tr>
+        {% for y_axis_number, row in board %}
           <tr>
-            <th>{{ axis_number }}</th>
+            <th>{{ y_axis_number }}</th>
               {% if loop.index % 2 != 0 %}
                 {% for item in row %}
                   {% if loop.index % 2 != 0 %}
@@ -56,18 +61,14 @@
                   {% endif %}
                 {% endfor %}
               {% endif %}
+            <th>{{ y_axis_number }}</th>
           </tr>
         {% endfor %}
       <tr>
         <th></th>
-        <th>a</th>
-        <th>b</th>
-        <th>c</th>
-        <th>d</th>
-        <th>e</th>
-        <th>f</th>
-        <th>g</th>
-        <th>h</th>
+        {% for axis in x_axis %}
+          <th>{{ axis }}</th>
+        {% endfor %}
       </tr>
     </tbody>
   </table>
