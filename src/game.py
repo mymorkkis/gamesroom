@@ -13,6 +13,8 @@ from src.game_enums import Direction
 from src.game_errors import IllegalMoveError, NotOnBoardError
 
 
+ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
+
 Coords = namedtuple('Coords', 'x y')
 
 
@@ -35,6 +37,8 @@ class Game(ABC):
         self.board = board
         self.board_width = len(self.board[0])
         self.board_height = len(self.board)
+        self.y_axis = list(reversed(range(self.board_height + 1)))
+        self.x_axis = list(ALPHABET[:self.board_width])
         self.legal_piece_names = legal_piece_names
         self.legal_piece_colors = legal_piece_colors
         self._setup_game(restore_positions)
@@ -130,13 +134,15 @@ class Game(ABC):
         return list(range(from_coord + 1, to_coord))
 
     def display_board(self):
-        """Tabulate and display game board current state"""
+        """Return board in correct position for display purposes"""
         transposed_board = [list(row) for row in zip(*self.board)]
-        display_board = list(reversed(transposed_board))
-        x_axis = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-        y_axis = [8, 7, 6, 5, 4, 3, 2, 1, '']
-        display_board.append(x_axis)
-        print(tabulate(display_board, tablefmt="fancy_grid", showindex=y_axis))
+        return list(reversed(transposed_board))
+
+    def display_board_to_terminal(self):
+        """Tabulate and display game board current state"""
+        board = self.display_board()
+        board.append(self.x_axis)
+        print(tabulate(board, tablefmt="fancy_grid", showindex=self.y_axis))
 
 
 def move_direction(from_coords, to_coords):

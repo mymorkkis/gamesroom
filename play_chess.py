@@ -13,14 +13,14 @@ def play():
     game = ChessGame()
 
     while not game.winner:
-        game.display_board()
+        game.display_board_to_terminal()
         try:
             _make_move(game)
         except IllegalMoveError as error:
             _clear_screen()
             print(f'\n{RED}{error.message}{END}\n')
 
-    game.display_board()
+    game.display_board_to_terminal()
     print(f'\n{RED}{game.winner} wins!!! Thanks for playing.....{END}\n')
 
 
