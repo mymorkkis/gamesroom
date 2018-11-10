@@ -25,8 +25,7 @@ class GamePiece(ABC):
         return f'{self.name}({self.color.value!r})'
 
     def __str__(self):
-        # return f'{self.color.value} {self.name}: {self.coords!r}'
-        NotImplementedError
+        raise NotImplementedError()
 
     def __eq__(self, other):
         if other.__class__ is self.__class__:
