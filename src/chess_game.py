@@ -59,10 +59,10 @@ class ChessGame(Game):
         """
         self.validate_coords(from_coords, to_coords)
         self.set_move_attributes(from_coords, to_coords, self.playing_color)
-        legal_move, make_move = self._move_type()
-
         if self._own_king_in_check():
             raise IllegalMoveError('Must move king out of check')
+
+        legal_move, make_move = self._move_type()
 
         if legal_move(to_coords) and not self._piece_blocking(from_coords, to_coords):
             make_move()
@@ -178,8 +178,8 @@ class ChessGame(Game):
         return self._black_castle_king_side
 
     def _prawn_promotion(self):
-        return (self.playing_piece == Pawn(Color.WHITE) and self.to_coords.y == 7
-                or self.playing_piece == Pawn(Color.BLACK) and self.to_coords.y == 0)
+        return (self.playing_piece == Pawn(Color.WHITE) and self._black_king_row()
+                or self.playing_piece == Pawn(Color.BLACK) and self._white_king_row())
 
     def _legal_castle(self, to_coords=None):
         playing_color = self.playing_color
@@ -346,8 +346,10 @@ class ChessGame(Game):
     def _board_pieces(self, color, king_wanted=True):
         king = None if king_wanted else King(color)
 
-        return [piece for row in self.board for piece in row
-                if piece and piece.color == color and piece != king]
+        return [piece for row in self.board
+                for piece in row
+                if piece and piece.color == color
+                and piece != king]
 
     def _adjacent_empty_square_coords(self, king_coords):
         adjacent_coords = {
