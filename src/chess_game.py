@@ -1,4 +1,6 @@
 """Module with one class: ChessGame."""
+from copy import deepcopy
+
 from src.game_enums import ChessPiece, Color, Direction
 from src.game_errors import IllegalMoveError
 from src.game import Coords, Game, move_direction
@@ -277,27 +279,12 @@ class ChessGame(Game):
         return False
 
     def _own_king_in_check(self):
-        """Check if move puts current player king in check. Return bool."""
-        # Keep track of current game state
-        king = self._king(self.playing_color)
-        original_king_coords = king.coords
-        original_piece = self.board[self.to_coords.x][self.to_coords.y]
-
-        # Temporarily change to future board position to see if it will lead to check
-        self.board[self.from_coords.x][self.from_coords.y] = None
-        self.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
-        if self.playing_piece == king:
-            king.coords = self.to_coords
-
-        # Perform check evaluation
-        in_check = True if self._king_in_check(king.color, king.coords) else False
-
-        # Return game to previous state
-        self.board[self.from_coords.x][self.from_coords.y] = self.playing_piece
-        self.board[self.to_coords.x][self.to_coords.y] = original_piece
-        king.coords = original_king_coords
-
-        return in_check
+        """Check if move will put/keep current player king in check. Return bool."""
+        cloned_game = deepcopy(self)
+        cloned_game.board[self.from_coords.x][self.from_coords.y] = None
+        cloned_game.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
+        king = cloned_game._king(self.playing_color)
+        return cloned_game._king_in_check(king.color, king.coords)
 
     def _check_mate(self):
         king = self._king(self.opponent_color)
