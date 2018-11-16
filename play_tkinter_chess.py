@@ -13,20 +13,21 @@ class Board(tk.Frame):
         self.size = size
         self.square_color1 = square_color1
         self.square_color2 = square_color2
-        self.pieces = {}
+        # self.pieces = {}
 
-        canvas_width = self.game.board_height * size
-        canvas_height = self.game.board_width * size
+        canvas_width = (self.game.board_height + 2) * size
+        canvas_height = (self.game.board_width + 2) * size
 
         tk.Frame.__init__(self, parent)
         self.canvas = tk.Canvas(
             self, borderwidth=0, highlightthickness=0, width=canvas_width, height=canvas_height, background="bisque"
         )
         self.canvas.pack(side="top", fill="both", expand=True, padx=2, pady=2)
+
         # Will cause a refresh if the user interactively changes the window size
         self.canvas.bind("<Configure>", self.refresh)
 
-        self.statusbar = tk.Frame(self, height=64)
+        self.statusbar = tk.Frame(self)
         self._setup_statusbar()
         self.statusbar.pack(expand=False, fill="x", side='bottom')
 
@@ -47,13 +48,14 @@ class Board(tk.Frame):
             self.game.process_coords(input_from_coords, input_to_coords)
             self.refresh(event=None)
         except (ValueError, KeyError):
-            raise IllegalMoveError('Invalid coords, coords seperated by white space. Example usage: a1 a2')
+            error_message = 'Invalid coords, coords seperated by white space. Example usage: a1 a2'
+            messagebox.showerror("Incorrect coords entered!", error_message)
         except IllegalMoveError as error:
             messagebox.showerror("Illegal move!", error.message)
 
     def placepiece(self, name, row, column):
         '''Place a piece at the given row/column'''
-        self.pieces[name] = (row, column)
+        # self.pieces[name] = (row, column)
         x0 = (column * self.size) + int(self.size/2)
         y0 = (row * self.size) + int(self.size/2)
         self.canvas.coords(name, x0, y0)
@@ -63,28 +65,48 @@ class Board(tk.Frame):
         if event:
             self._readjust_board_size(event)
 
+        # test_board = self.game.gui_display_board()
+
         self.canvas.delete('piece')
         self.canvas.delete("square")
         square_color = self.square_color2
 
-        for x_idx, row in enumerate(self.game.display_board()):
+        for y_idx, row in enumerate(self.game.gui_display_board()):
             square_color = self._next_square_color(square_color)
-            for y_idx, piece in enumerate(row):
+            for x_idx, piece in enumerate(row):
                 # Plot points for square corners
-                x1, y1 = (y_idx * self.size), (x_idx * self.size)
+                x1, y1 = (x_idx * self.size), (y_idx * self.size)
                 x2, y2 = x1 + self.size, y1 + self.size
 
-                self.canvas.create_rectangle(
-                    x1, y1, x2, y2, outline="black", fill=square_color, tags="square"
-                )
-
-                if piece:
-                    piece = self.canvas.create_text(
-                        x_idx, y_idx, text=str(piece), font=("Courier", y1 - y2), tags='piece', anchor='c'
+                if ((y_idx == 0 or y_idx == len(self.game.gui_display_board()) - 1)
+                        and (x_idx != 0 or x_idx != len(row) -1)):
+                    self.canvas.create_rectangle(
+                        x1, y1, x2, y2, outline="black", fill="brown", tags="border_square"
                     )
-                    self.placepiece(piece, x_idx, y_idx)
+                    axis_square = self.canvas.create_text(
+                        y_idx, x_idx, text=str(piece), font=("Courier", y1 - y2), tags='x_axis', anchor='c'
+                    )
+                    self.placepiece(axis_square, y_idx, x_idx)
+                elif x_idx == 0 or x_idx == len(row) -1:
+                    self.canvas.create_rectangle(
+                        x1, y1, x2, y2, outline="black", fill="brown", tags="border_square"
+                    )
+                    axis_square = self.canvas.create_text(
+                        y_idx, x_idx, text=str(piece), font=("Courier", y1 - y2), tags='y_axis', anchor='c'
+                    )
+                    self.placepiece(axis_square, y_idx, x_idx)
+                else:
+                    self.canvas.create_rectangle(
+                        x1, y1, x2, y2, outline="black", fill=square_color, tags="square"
+                    )
 
-                square_color = self._next_square_color(square_color)
+                    if piece:
+                        piece = self.canvas.create_text(
+                            y_idx, x_idx, text=str(piece), font=("Courier", y1 - y2), tags='piece', anchor='c'
+                        )
+                        self.placepiece(piece, y_idx, x_idx)
+
+                    square_color = self._next_square_color(square_color)
 
         # for name in self.pieces:
         #     self.placepiece(name, self.pieces[name][0], self.pieces[name][1])
@@ -93,8 +115,8 @@ class Board(tk.Frame):
         # self.canvas.tag_lower("square")
 
     def _readjust_board_size(self, event):
-        xsize = int((event.width-1) / self.game.board_height)
-        ysize = int((event.height-1) / self.game.board_width)
+        xsize = int((event.width-1) / (self.game.board_height + 2))
+        ysize = int((event.height-1) / (self.game.board_width + 2))
         self.size = min(xsize, ysize)
 
     def _next_square_color(self, current_color):

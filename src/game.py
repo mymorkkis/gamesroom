@@ -5,6 +5,7 @@
         adjacent_squares: return bool
 """
 from abc import ABC, abstractmethod
+from itertools import chain
 from collections import namedtuple
 
 from tabulate import tabulate
@@ -37,8 +38,6 @@ class Game(ABC):
         self.board = board
         self.board_width = len(self.board[0])
         self.board_height = len(self.board)
-        self.y_axis = list(reversed(range(self.board_height + 1)))
-        self.x_axis = list(ALPHABET[:self.board_width])
         self.legal_piece_names = legal_piece_names
         self.legal_piece_colors = legal_piece_colors
         self._setup_game(restore_positions)
@@ -133,16 +132,39 @@ class Game(ABC):
             return [from_coord] * other_coord_length
         return list(range(from_coord + 1, to_coord))
 
+    def x_axis(self):
+        return list(ALPHABET[:self.board_width])
+
+    def y_axis(self):
+        return list(reversed(range(self.board_height + 1)))
+
     def display_board(self):
         """Return board in correct position for display purposes"""
         transposed_board = [list(row) for row in zip(*self.board)]
         return list(reversed(transposed_board))
 
+    def gui_display_board(self):
+        """TODO messy board setup, neaten up"""
+        display_board = []
+        board = [self.x_axis()] + self.display_board() + [self.x_axis()]
+
+        # self.y_axis().pop()
+        y_axis = [''] + self.y_axis()
+        y_axis.pop()
+        y_axis = y_axis + ['']
+
+        for axis_no, board_row in zip(y_axis, board):
+            board_row.insert(0, axis_no)
+            board_row.append(axis_no)
+            display_board.append(board_row)
+
+        return display_board
+
     def display_board_to_terminal(self):
         """Tabulate and display game board current state"""
         board = self.display_board()
-        board.append(self.x_axis)
-        print(tabulate(board, tablefmt="fancy_grid", showindex=self.y_axis))
+        board.append(self.x_axis())
+        print(tabulate(board, tablefmt="fancy_grid", showindex=self.y_axis()))
 
     def process_coords(self, input_from_coords, input_to_coords):
         from_coords = self._coords_from(input_from_coords)
