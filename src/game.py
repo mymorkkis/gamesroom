@@ -144,6 +144,19 @@ class Game(ABC):
         board.append(self.x_axis)
         print(tabulate(board, tablefmt="fancy_grid", showindex=self.y_axis))
 
+    def process_coords(self, input_from_coords, input_to_coords):
+        from_coords = self._coords_from(input_from_coords)
+        to_coords = self._coords_from(input_to_coords)
+        self.move(from_coords, to_coords)
+
+    @staticmethod
+    def _coords_from(input_coords):
+        input_x, input_y = input_coords
+        x_coords = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
+        y_coords = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7}
+        x_coord, y_coord = x_coords[input_x], y_coords[input_y]
+        return Coords(x_coord, y_coord)
+
 
 def move_direction(from_coords, to_coords):
     """Calculate direction from from_coordinates to coordinates. Return Direction enum.
