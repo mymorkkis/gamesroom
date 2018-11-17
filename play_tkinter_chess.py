@@ -7,12 +7,16 @@ from src.game_errors import IllegalMoveError
 
 
 BORDER_SIZE = 2
+WHITE = 'white'
+BLACK = 'black'
+LIGHT_BROWN = '#804000'
+DARK_BROWN = '#1a0300'
+LIGHT_GREY = '#adad85'
 
 
 class Board(tk.Frame):
     """Main tkinter frame"""
-
-    def __init__(self, parent, game, pixel_size=64, square_color1='white', square_color2='grey'):
+    def __init__(self, parent, game, pixel_size=64, square_color1=WHITE, square_color2=LIGHT_BROWN):
         self.game = game
         self.pixel_size = pixel_size
         self.square_color1 = square_color1
@@ -34,7 +38,6 @@ class Board(tk.Frame):
         self._setup_statusbar()
         self.statusbar.pack(expand=False, fill='x', side='bottom')
 
-
     def _setup_statusbar(self):
         tk.Button(self.statusbar, text='Resign', command=None).pack(side='left', padx=10)
 
@@ -44,8 +47,9 @@ class Board(tk.Frame):
 
         self.move_entry = tk.Entry(self.statusbar, width=10)
         self.move_entry.pack(side='right', padx=10)
+        self.move_entry.bind("<Return>", self.make_move)
 
-    def make_move(self):
+    def make_move(self, event=None):
         try:
             input_from_coords, input_to_coords = self.move_entry.get().split()
             self.game.process_coords(input_from_coords, input_to_coords)
@@ -100,7 +104,7 @@ class Board(tk.Frame):
 
     def _create_board_square(self, square_coords, square_color, image_size, piece, idxs):
         self.canvas.create_rectangle(
-            *square_coords, outline='black', fill=square_color, tags='square'
+            *square_coords, outline=BLACK, fill=square_color, tags='square'
         )
 
         if piece:
@@ -110,11 +114,13 @@ class Board(tk.Frame):
             self.place_item(piece, *idxs)
 
     def _create_border_square(self, square_coords, image_size, piece, idxs, tags):
+        axis_char_size = int(image_size / 2)
+
         self.canvas.create_rectangle(
-            *square_coords, outline='black', fill='brown', tags='border_square'
+            *square_coords, outline=DARK_BROWN, fill=DARK_BROWN, tags='border_square'
         )
         axis_square = self.canvas.create_text(
-            *idxs, text=str(piece), font=('Courier', image_size), tags=tags, anchor='c'
+            *idxs, text=str(piece), font=('Courier', axis_char_size), fill=LIGHT_GREY, tags=tags, anchor='c'
         )
         self.place_item(axis_square, *idxs)
 
