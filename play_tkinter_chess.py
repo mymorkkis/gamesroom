@@ -1,4 +1,6 @@
 """1st attempt at tkinter chess board"""
+from itertools import cycle
+
 import tkinter as tk
 from tkinter import messagebox
 
@@ -16,11 +18,10 @@ LIGHT_GREY = '#adad85'
 
 class Board(tk.Frame):
     """Main tkinter frame"""
-    def __init__(self, parent, game, pixel_size=64, square_color1=WHITE, square_color2=LIGHT_BROWN):
+    def __init__(self, parent, game, square_colors, pixel_size=64):
         self.game = game
         self.pixel_size = pixel_size
-        self.square_color1 = square_color1
-        self.square_color2 = square_color2
+        self.square_colors = square_colors
 
         canvas_width = (self.game.board_height + BORDER_SIZE) * pixel_size
         canvas_height = (self.game.board_width + BORDER_SIZE) * pixel_size
@@ -78,10 +79,8 @@ class Board(tk.Frame):
 
         self.canvas.delete('piece', 'square', 'y_axis', 'x_axis', 'border_square')
 
-        square_color = self.square_color2
-
         for y_idx, row in enumerate(self.game.gui_display_board()):
-            square_color = self._next_square_color(square_color)
+            next(self.square_colors)
             for x_idx, piece in enumerate(row):
                 idxs = (y_idx, x_idx)
                 square_coords, image_size = self._plot_square_coordinates(*idxs)
@@ -96,9 +95,8 @@ class Board(tk.Frame):
                     )
                 else:
                     self._create_board_square(
-                        square_coords, square_color, image_size, piece, idxs
+                        square_coords, next(self.square_colors), image_size, piece, idxs
                     )
-                    square_color = self._next_square_color(square_color)
 
     def _plot_square_coordinates(self, y_idx, x_idx):
         x1, y1 = (x_idx * self.pixel_size), (y_idx * self.pixel_size)
@@ -154,6 +152,7 @@ if __name__ == '__main__':
     root = tk.Tk()
     root.title("Max's Chess")
     chess_game = ChessGame()
-    board = Board(root, chess_game)
+    square_color_cycle = cycle([WHITE, LIGHT_BROWN])
+    board = Board(root, chess_game, square_color_cycle)
     board.pack(side='top', fill='both', expand='true', padx=4, pady=4)
     root.mainloop()
