@@ -39,25 +39,30 @@ class Board(tk.Frame):
         self.statusbar.pack(expand=False, fill='x', side='bottom')
 
     def _setup_statusbar(self):
+        # TODO
         tk.Button(self.statusbar, text='Resign', command=None).pack(side='left', padx=10)
-
+        # TODO
         tk.Button(self.statusbar, text='Save', command=None).pack(side='left', padx=10)
 
         tk.Button(self.statusbar, text='Next move...', command=self.make_move).pack(side='right', padx=10)
 
         self.move_entry = tk.Entry(self.statusbar, width=10)
         self.move_entry.pack(side='right', padx=10)
+        self.move_entry.focus()
         self.move_entry.bind("<Return>", self.make_move)
 
     def make_move(self, event=None):
         try:
             input_from_coords, input_to_coords = self.move_entry.get().split()
             self.game.process_coords(input_from_coords, input_to_coords)
+            self.move_entry.delete(0, 'end')
             self.refresh()
         except (ValueError, KeyError):
+            self.move_entry.delete(0, 'end')
             error_message = 'Input coords using chess notation, seperated by white space. Example usage: a1 a2'
             messagebox.showerror('Incorrect coords entered!', error_message)
         except IllegalMoveError as error:
+            self.move_entry.delete(0, 'end')
             messagebox.showerror('Illegal move!', error.message)
 
     def place_item(self, item, row, column):
@@ -98,8 +103,8 @@ class Board(tk.Frame):
     def _plot_square_coordinates(self, y_idx, x_idx):
         x1, y1 = (x_idx * self.pixel_size), (y_idx * self.pixel_size)
         x2, y2 = x1 + self.pixel_size, y1 + self.pixel_size
-        image_size = y1 - y2
         square_coords = x1, y1, x2, y2
+        image_size = y1 - y2
         return square_coords, image_size
 
     def _create_board_square(self, square_coords, square_color, image_size, piece, idxs):
