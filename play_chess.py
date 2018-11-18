@@ -1,6 +1,5 @@
 """Command line script to play chess game."""
 from src.chess_game import ChessGame
-from src.game import Coords
 from src.game_errors import IllegalMoveError
 
 

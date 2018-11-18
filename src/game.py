@@ -55,10 +55,9 @@ class Game(ABC):
     def new_setup(self):
         raise NotImplementedError
 
-    def _setup_game(self, game_positions):
+    def _setup_game(self, restore_positions):
         """Setup board for new or previously stored game."""
-        if game_positions is None:
-            game_positions = self.new_setup()
+        game_positions = self.new_setup() if restore_positions is None else restore_positions
 
         for coords, piece in game_positions.items():
             assert piece.color in self.legal_piece_colors

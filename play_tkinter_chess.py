@@ -1,5 +1,6 @@
 """1st attempt at tkinter chess board"""
 from itertools import cycle
+from copy import deepcopy
 
 import tkinter as tk
 from tkinter import messagebox
@@ -24,24 +25,24 @@ class Board(tk.Frame):
         self.game = game
         self.pixel_size = pixel_size
         self.square_colors = square_colors
+        self.new_chess_setup = deepcopy(game.board)
 
         canvas_width = (self.game.board_height + BORDER_SIZE) * pixel_size
         canvas_height = (self.game.board_width + BORDER_SIZE) * pixel_size
 
         tk.Frame.__init__(self, parent)
-        self.canvas = tk.Canvas(
-            self, borderwidth=0, highlightthickness=0, width=canvas_width, height=canvas_height, background='bisque'
-        )
+        self.canvas = tk.Canvas(self, borderwidth=0, highlightthickness=0,
+                                width=canvas_width, height=canvas_height,
+                                background='bisque')
         self.canvas.pack(side='top', fill='both', expand=True, padx=2, pady=2)
 
         # Will cause a refresh if the user interactively changes the window size
         self.canvas.bind('<Configure>', self.refresh)
 
-        self.statusbar = tk.Frame(self)
         self._setup_statusbar()
-        self.statusbar.pack(expand=False, fill='x', side='bottom')
 
     def _setup_statusbar(self):
+        self.statusbar = tk.Frame(self)
         # TODO
         tk.Button(self.statusbar, text='Save Game', command=None).pack(side='left', padx=10)
         # TODO
@@ -54,6 +55,10 @@ class Board(tk.Frame):
 
         self.label_status = tk.Label(self.statusbar, text=None, fg=BLACK)
         self.label_status.pack(side='left', expand=0)
+
+        self.play_again_btn = tk.Button(self.statusbar, text='Play Again?', command=self.play_again)
+
+        self.statusbar.pack(expand=False, fill='x', side='bottom')
 
 
     def make_move(self, event=None):
@@ -82,7 +87,7 @@ class Board(tk.Frame):
             self._readjust_board_size(event)
         self.canvas.delete('piece', 'square', 'y_axis', 'x_axis', 'border_square')
         self._draw_board_and_pieces()
-        self._enter_label_text()
+        self._check_for_winner()
 
     def _draw_board_and_pieces(self):
         for y_idx, row in enumerate(self.game.gui_display_board()):
@@ -104,13 +109,13 @@ class Board(tk.Frame):
                         square_coords, next(self.square_colors), image_size, piece, idxs
                     )
 
-    def _enter_label_text(self):
+    def _check_for_winner(self):
         player = self.game.playing_color.name
         if self.game.winner:
-            self.move_entry.destroy()
+            self.move_entry.pack_forget()
             self.label_status['text'] = f'\t{player} wins!!!\t'
             self.label_status['fg'] = RED
-            # tk.Button(self.statusbar, text='Play Again?', command=self.play_again).pack(side='left')
+            self.play_again_btn.pack(side='left')
         else:
             self.label_status['text'] = f'{player} to move. Enter chess notation e.g. "a1 a2"'
 
@@ -155,10 +160,15 @@ class Board(tk.Frame):
         ysize = int((event.height - 1) / (self.game.board_width + BORDER_SIZE))
         self.pixel_size = min(xsize, ysize)
 
-    # def play_again(self):
-    #     """Destroy current frame and restart new one"""
-    #     play_chess_game()
-    #     self.parent.destroy()
+    def play_again(self):
+        self.game.board = self.new_chess_setup
+        self.game.winner = None
+        self.play_again_btn.pack_forget()
+        self.label_status.pack_forget()
+        self.move_entry.pack(side='left', padx=10)
+        self.label_status.pack(side='left', expand=0)
+        self.label_status['fg'] = BLACK
+        self.refresh()
 
     @staticmethod
     def first_and_last_index(item):
