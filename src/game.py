@@ -144,11 +144,10 @@ class Game(ABC):
         return list(reversed(transposed_board))
 
     def gui_display_board(self):
-        """TODO messy board setup, neaten up"""
+        """TODO messy board setup, must be more pythonic way"""
         display_board = []
         board = [self.x_axis()] + self.display_board() + [self.x_axis()]
 
-        # self.y_axis().pop()
         y_axis = [''] + self.y_axis()
         y_axis.pop()
         y_axis = y_axis + ['']
@@ -166,9 +165,9 @@ class Game(ABC):
         board.append(self.x_axis())
         print(tabulate(board, tablefmt="fancy_grid", showindex=self.y_axis()))
 
-    def process_coords(self, input_from_coords, input_to_coords):
-        from_coords = self._coords_from(input_from_coords)
-        to_coords = self._coords_from(input_to_coords)
+    def process_input_coords(self, input_from_coords, input_to_coords):
+        from_coords = self._coords_from(input_from_coords.lower())
+        to_coords = self._coords_from(input_to_coords.lower())
         self.move(from_coords, to_coords)
 
     @staticmethod
