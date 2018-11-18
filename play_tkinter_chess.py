@@ -11,6 +11,7 @@ from src.game_errors import IllegalMoveError
 BORDER_SIZE = 2
 WHITE = 'white'
 BLACK = 'black'
+RED = 'red'
 LIGHT_BROWN = '#804000'
 DARK_BROWN = '#1a0300'
 LIGHT_GREY = '#adad85'
@@ -19,6 +20,7 @@ LIGHT_GREY = '#adad85'
 class Board(tk.Frame):
     """Main tkinter frame"""
     def __init__(self, parent, game, square_colors, pixel_size=64):
+        # self.parent = parent
         self.game = game
         self.pixel_size = pixel_size
         self.square_colors = square_colors
@@ -41,16 +43,18 @@ class Board(tk.Frame):
 
     def _setup_statusbar(self):
         # TODO
-        tk.Button(self.statusbar, text='Resign', command=None).pack(side='left', padx=10)
+        tk.Button(self.statusbar, text='Save Game', command=None).pack(side='left', padx=10)
         # TODO
-        tk.Button(self.statusbar, text='Save', command=None).pack(side='left', padx=10)
-
-        tk.Button(self.statusbar, text='Next move...', command=self.make_move).pack(side='right', padx=10)
+        tk.Button(self.statusbar, text='Resign', command=None).pack(side='left', padx=20)
 
         self.move_entry = tk.Entry(self.statusbar, width=10)
-        self.move_entry.pack(side='right', padx=10)
+        self.move_entry.pack(side='left', padx=10)
         self.move_entry.focus()
-        self.move_entry.bind("<Return>", self.make_move)
+        self.move_entry.bind('<Return>', self.make_move)
+
+        self.label_status = tk.Label(self.statusbar, text=None, fg=BLACK)
+        self.label_status.pack(side='left', expand=0)
+
 
     def make_move(self, event=None):
         try:
@@ -76,9 +80,11 @@ class Board(tk.Frame):
         """Redraw the board, either move taken or window being resized"""
         if event:
             self._readjust_board_size(event)
-
         self.canvas.delete('piece', 'square', 'y_axis', 'x_axis', 'border_square')
+        self._draw_board_and_pieces()
+        self._enter_label_text()
 
+    def _draw_board_and_pieces(self):
         for y_idx, row in enumerate(self.game.gui_display_board()):
             next(self.square_colors)
             for x_idx, piece in enumerate(row):
@@ -97,6 +103,16 @@ class Board(tk.Frame):
                     self._create_board_square(
                         square_coords, next(self.square_colors), image_size, piece, idxs
                     )
+
+    def _enter_label_text(self):
+        player = self.game.playing_color.name
+        if self.game.winner:
+            self.move_entry.destroy()
+            self.label_status['text'] = f'\t{player} wins!!!\t'
+            self.label_status['fg'] = RED
+            # tk.Button(self.statusbar, text='Play Again?', command=self.play_again).pack(side='left')
+        else:
+            self.label_status['text'] = f'{player} to move. Enter chess notation e.g. "a1 a2"'
 
     def _plot_square_coordinates(self, y_idx, x_idx):
         x1, y1 = (x_idx * self.pixel_size), (y_idx * self.pixel_size)
@@ -139,8 +155,10 @@ class Board(tk.Frame):
         ysize = int((event.height - 1) / (self.game.board_width + BORDER_SIZE))
         self.pixel_size = min(xsize, ysize)
 
-    def _next_square_color(self, current_color):
-        return self.square_color1 if current_color == self.square_color2 else self.square_color2
+    # def play_again(self):
+    #     """Destroy current frame and restart new one"""
+    #     play_chess_game()
+    #     self.parent.destroy()
 
     @staticmethod
     def first_and_last_index(item):
@@ -148,11 +166,14 @@ class Board(tk.Frame):
         return 0, len(item) - 1
 
 
-if __name__ == '__main__':
+def play_chess_game():
     root = tk.Tk()
     root.title("Max's Chess")
-    chess_game = ChessGame()
-    square_color_cycle = cycle([WHITE, LIGHT_BROWN])
-    board = Board(root, chess_game, square_color_cycle)
+    game = ChessGame()
+    board = Board(root, game, cycle([WHITE, LIGHT_BROWN]))
     board.pack(side='top', fill='both', expand='true', padx=4, pady=4)
-    root.mainloop()
+    return root
+
+if __name__ == '__main__':
+    chess_game = play_chess_game()
+    chess_game.mainloop()
