@@ -1,9 +1,10 @@
 """Test module form game_helper module."""
 import pytest
 
-from src.game_enums import Direction
+from src.game_enums import Color, Direction
 from src.game import adjacent_squares, Coords, move_direction
 from src.game_errors import IllegalMoveError, NotOnBoardError
+from src.game_pieces.pawn import Pawn
 
 
 @pytest.mark.parametrize('to_coords, direction', [
@@ -49,6 +50,12 @@ def test_no_piece_at_from_coords_raises_exception(game):
         # No piece passed to function
         game.validate_coords(from_coords, to_coords)
 
+
+def test_attacking_piece_of_own_color_raises_exception(game):
+    game.add(Pawn(Color.WHITE), Coords(x=1, y=1))
+    with pytest.raises(IllegalMoveError):
+        # White king can't attack white Pawn
+        game.move(Coords(x=0, y=0), Coords(x=1, y=1))
 
 def test_adjacent_squares():
     assert not adjacent_squares(Coords(x=0, y=0), Coords(x=7, y=7))
