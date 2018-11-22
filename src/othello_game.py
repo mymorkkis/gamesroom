@@ -1,6 +1,12 @@
+from itertools import cycle
+
 from src.game_enums import Color
 from src.game_pieces.othello_disc import Disc
 from src.game import Game, NEXT_ADJACENT_COORD
+
+
+PLAYER_COLORS = cycle([Color.BLACK, Color.WHITE])
+
 
 class Othello(Game):
     def __init__(self, restore_positions=None):
@@ -10,8 +16,7 @@ class Othello(Game):
             legal_piece_names={'Disc'},
             restore_positions=restore_positions
         )
-        self.playing_color = Color.BLACK
-        self.opponent_color = Color.WHITE
+        self.playing_color = next(PLAYER_COLORS)
 
     @staticmethod
     def new_setup():
@@ -26,6 +31,7 @@ class Othello(Game):
         self._place_disc(to_coords)
         for disc in self._trapped_discs(to_coords):
             disc.color = self.playing_color
+        self.playing_color = next(PLAYER_COLORS)
 
     def _place_disc(self, to_coords):
         disc = Disc(self.playing_color)
