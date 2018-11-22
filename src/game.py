@@ -113,19 +113,12 @@ class Game(ABC):
                 IllegalMoveError
         """
         if from_coords:
-            for coords in (from_coords, to_coords):
-                if not self.coords_on_board(coords.x, coords.y):
-                    raise IllegalMoveError('Coordinates are not within board boundary')
-
             if from_coords == to_coords:
                 raise IllegalMoveError('Move to same square illegal')
 
             if not self.board[from_coords.x][from_coords.y]:
                 raise IllegalMoveError('No piece found at from coordinates')
         else:
-            if not self.coords_on_board(to_coords.x, to_coords.y):
-                raise IllegalMoveError('Coordinates are not within board boundary')
-
             if self.board[to_coords.x][to_coords.y]:
                 raise IllegalMoveError('Piece found at coordinates')
 
