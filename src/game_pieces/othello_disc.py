@@ -11,7 +11,7 @@ class Disc(GamePiece):
         return '\u25CF' if self.color == Color.WHITE else '\u25CB'
 
     def legal_move(self, to_coords):
-        pass
+        raise NotImplementedError()
 
     def legal_capture(self, to_coords):
-        pass
+        raise NotImplementedError()

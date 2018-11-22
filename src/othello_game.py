@@ -3,7 +3,7 @@ from itertools import cycle
 from src.game_enums import Color
 from src.game_pieces.othello_disc import Disc
 from src.game_errors import IllegalMoveError
-from src.game import Game, NEXT_ADJACENT_COORD
+from src.game import Coords, Game, NEXT_ADJACENT_COORD
 
 
 class OthelloGame(Game):
@@ -21,17 +21,18 @@ class OthelloGame(Game):
     def move(self, to_coords):
         for disc in self._trapped_discs(to_coords):
             disc.color = self.playing_color
-
         self._place_disc(to_coords)
+        self._declare_winner_or_switch_players()
 
-        if self._winner():
+    def _declare_winner_or_switch_players(self):
+        if not self.discs_left:
             self.winner = self._winning_color()
+        elif self.next_player_cant_move():
+            self.playing_color = next(self._playing_colors)
+            if self.next_player_cant_move():
+                self.winner = self._winning_color()
         else:
             self.playing_color = next(self._playing_colors)
-
-    def _winner(self):
-        # TODO No moves possible
-        return not self.discs_left
 
     def _winning_color(self):
         white_discs = self._disc_count(Color.WHITE)
@@ -50,10 +51,27 @@ class OthelloGame(Game):
         self.discs_left -= 1
 
     def _trapped_discs(self, to_coords):
-        trapped_discs = []
+        trapped_discs = self._scan_board_for_trapped_discs(to_coords)
 
+        if not trapped_discs:
+            raise IllegalMoveError('Either incorrect coords or move not trapping opponent discs')
+
+        return trapped_discs
+
+    def next_player_cant_move(self):
+        empty_square_coords = self._empty_square_coords()
+
+        for square_coords in empty_square_coords:
+            trapped_discs = self._scan_board_for_trapped_discs(passed_coords=square_coords,
+                                                               scan_all_directions=False)
+            if trapped_discs:
+                return False
+        return True
+
+    def _scan_board_for_trapped_discs(self, passed_coords, scan_all_directions=True):
+        trapped_discs = []
         for direction in 'N NE E SE S SW W NW'.split():
-            next_coords = to_coords
+            next_coords = passed_coords
             possible_trapped_discs = []
             while True:
                 next_coords = NEXT_ADJACENT_COORD[direction](next_coords)
@@ -64,15 +82,20 @@ class OthelloGame(Game):
                     break
                 elif disc.color == self.playing_color:
                     trapped_discs.extend(possible_trapped_discs)
-                    break
+                    if scan_all_directions:
+                        break
+                    return trapped_discs
                 else:
                     possible_trapped_discs.append(disc)
-
-        if not trapped_discs:
-            raise IllegalMoveError('Move must trap opponent discs')
-
         return trapped_discs
 
+    def _empty_square_coords(self):
+        empty_squares = []
+        for x_idx, row in enumerate(self.board):
+            for y_idx, disc in enumerate(row):
+                if not disc:
+                    empty_squares.append(Coords(x_idx, y_idx))
+        return empty_squares
 
     def _disc_count(self, color):
         return len([disc for row in self.board
