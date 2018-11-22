@@ -7,8 +7,7 @@ class Disc(GamePiece):
         self.color = color
 
     def __str__(self):
-        # return '\u26C0' if self.color == Color.WHITE else '\u26C2'
-        return '\u25CF' if self.color == Color.WHITE else '\u25CB'
+        return '\u26C0' if self.color == Color.WHITE else '\u26C2'
 
     def legal_move(self, to_coords):
         raise NotImplementedError()

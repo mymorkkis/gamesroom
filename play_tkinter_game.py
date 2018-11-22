@@ -3,16 +3,19 @@ from itertools import cycle
 from copy import deepcopy
 
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 
 from src.chess_game import ChessGame
+from src.othello_game import OthelloGame
 from src.game_errors import IllegalMoveError
+from src.command_line_helper import parse_args_to_fetch_game
 
 
 BORDER_SIZE = 2
 WHITE = 'white'
 BLACK = 'black'
 RED = 'red'
+GREEN = 'green'
 LIGHT_BROWN = '#804000'
 DARK_BROWN = '#1a0300'
 LIGHT_GREY = '#adad85'
@@ -20,11 +23,13 @@ LIGHT_GREY = '#adad85'
 
 class Board(tk.Frame):
     """Main tkinter frame"""
-    def __init__(self, parent, game, square_colors, pixel_size=64):
+    def __init__(self, parent, game, square_colors, two_coord_move, err_msg, pixel_size=64):
         self.game = game
         self.pixel_size = pixel_size
         self.square_colors = square_colors
+        self.illegal_coord_error_message = err_msg
         self.new_chess_setup = deepcopy(game.board)
+        self.move = self._two_coord_move if two_coord_move else self._one_coord_move
 
         canvas_width = (self.game.board_height + BORDER_SIZE) * pixel_size
         canvas_height = (self.game.board_width + BORDER_SIZE) * pixel_size
@@ -62,14 +67,12 @@ class Board(tk.Frame):
 
     def make_move(self, event=None):
         try:
-            from_coords, to_coords = self.move_entry.get().split()
-            self.game.process_input_coords([from_coords, to_coords])
+            self.move()
             self.move_entry.delete(0, 'end')
             self.refresh()
         except (ValueError, KeyError):
             self.move_entry.delete(0, 'end')
-            error_message = 'Input coords using chess notation, seperated by white space. Example usage: a1 a2'
-            messagebox.showerror('Incorrect coords entered!', error_message)
+            messagebox.showerror('Incorrect coords entered!', self.illegal_coord_error_message)
         except IllegalMoveError as error:
             self.move_entry.delete(0, 'end')
             messagebox.showerror('Illegal move!', error.message)
@@ -79,6 +82,14 @@ class Board(tk.Frame):
         x0 = (column * self.pixel_size) + int(self.pixel_size / 2)
         y0 = (row * self.pixel_size) + int(self.pixel_size / 2)
         self.canvas.coords(item, x0, y0)
+
+    def _one_coord_move(self):
+        to_coords = self.move_entry.get()
+        self.game.process_input_coords([to_coords])
+
+    def _two_coord_move(self):
+        from_coords, to_coords = self.move_entry.get().split()
+        self.game.process_input_coords([from_coords, to_coords])
 
     def refresh(self, event=None):
         """Redraw the board, either move taken or window being resized"""
@@ -174,15 +185,38 @@ class Board(tk.Frame):
         """Return tuple of item first and last index"""
         return 0, len(item) - 1
 
+GAME_OPTIONS = {
+    'C': {
+        'game': ChessGame(),
+        'title': 'Chess Game',
+        'square_colors': cycle([WHITE, LIGHT_BROWN]),
+        'two_coord_move': True,
+        'err_msg': 'Input coords using chess notation, seperated by white space. Example usage: a1 a2'
+    },
+    'O': {
+        'game': OthelloGame(),
+        'title': 'Othello Game',
+        'square_colors': cycle([GREEN]),
+        'two_coord_move': False,
+        'err_msg': 'Input coords using chess notation. Example usage: a1'
+    }
+}
 
-def _play_chess_game():
+
+def _play_game():
     root = tk.Tk()
-    root.title("Max's Chess")
-    game = ChessGame()
-    board = Board(parent=root, game=game, square_colors=cycle([WHITE, LIGHT_BROWN]))
+    # game_type = simpledialog.askstring(
+    #     'Choose a game to play...', 'Options: (C)hess, (O)thello'
+    # ).title()[0]
+    # game = GAME[game_type]
+    game = parse_args_to_fetch_game(GAME_OPTIONS)
+    root.title(game['title'])
+    board = Board(parent=root, game=game['game'], square_colors=game['square_colors'],
+                  two_coord_move=game['two_coord_move'], err_msg=game['err_msg'])
     board.pack(side='top', fill='y', expand=True, padx=4, pady=4)
     return root
 
+
 if __name__ == '__main__':
-    chess_game = _play_chess_game()
-    chess_game.mainloop()
+    game = _play_game()
+    game.mainloop()
