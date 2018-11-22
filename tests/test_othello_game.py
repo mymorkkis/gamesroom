@@ -1,5 +1,8 @@
+import pytest
+
 from src.game import Coords
 from src.game_enums import Color
+from src.game_errors import IllegalMoveError
 from src.othello_game import Othello
 
 def test_othello_board_setup():
@@ -35,3 +38,9 @@ def test_player_color_swaps_for_each_turn():
 
     game.move(Coords(x=5, y=4))
     assert game.playing_color == Color.BLACK
+
+
+def test_illegal_disc_placement_raises_exception():
+    game = Othello()
+    with pytest.raises(IllegalMoveError):
+        game.move(Coords(x=5, y=4))

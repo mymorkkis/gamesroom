@@ -2,10 +2,8 @@ from itertools import cycle
 
 from src.game_enums import Color
 from src.game_pieces.othello_disc import Disc
+from src.game_errors import IllegalMoveError
 from src.game import Game, NEXT_ADJACENT_COORD
-
-
-PLAYER_COLORS = cycle([Color.BLACK, Color.WHITE])
 
 
 class Othello(Game):
@@ -16,7 +14,8 @@ class Othello(Game):
             legal_piece_names={'Disc'},
             restore_positions=restore_positions
         )
-        self.playing_color = next(PLAYER_COLORS)
+        self.playing_colors = cycle([Color.BLACK, Color.WHITE])
+        self.playing_color = next(self.playing_colors)
 
     @staticmethod
     def new_setup():
@@ -28,10 +27,16 @@ class Othello(Game):
         }
 
     def move(self, to_coords):
-        self._place_disc(to_coords)
-        for disc in self._trapped_discs(to_coords):
+        trapped_discs = self._trapped_discs(to_coords)
+
+        if not trapped_discs:
+            raise IllegalMoveError('Move must trap opponent discs')
+
+        for disc in trapped_discs:
             disc.color = self.playing_color
-        self.playing_color = next(PLAYER_COLORS)
+
+        self._place_disc(to_coords)
+        self.playing_color = next(self.playing_colors)
 
     def _place_disc(self, to_coords):
         disc = Disc(self.playing_color)
@@ -40,7 +45,6 @@ class Othello(Game):
 
     def _trapped_discs(self, to_coords):
         trapped_discs = []
-
         for direction in 'N NE E SE S SW W NW'.split():
             next_coords = to_coords
             possible_trapped_discs = []
@@ -56,5 +60,4 @@ class Othello(Game):
                     break
                 else:
                     possible_trapped_discs.append(disc)
-
         return trapped_discs

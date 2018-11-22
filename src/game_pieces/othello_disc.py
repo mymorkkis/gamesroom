@@ -5,6 +5,9 @@ class Disc(GamePiece):
         super().__init__()
         self.color = color
 
+    def __str__(self):
+        return str(self.color)
+
     def legal_move(self, to_coords):
         pass
 
