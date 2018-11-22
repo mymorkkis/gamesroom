@@ -16,16 +16,18 @@ class OthelloGame(Game):
         )
         self._playing_colors = cycle([Color.BLACK, Color.WHITE])
         self.playing_color = next(self._playing_colors)
-        self.discs_left = 66
 
     def move(self, to_coords):
+        self.validate_coords(to_coords=to_coords)
+
         for disc in self._trapped_discs(to_coords):
             disc.color = self.playing_color
+
         self._place_disc(to_coords)
         self._declare_winner_or_switch_players()
 
     def _declare_winner_or_switch_players(self):
-        if not self.discs_left:
+        if not self._empty_square_coords():
             self.winner = self._winning_color()
         elif self.next_player_cant_move():
             self.playing_color = next(self._playing_colors)
@@ -48,7 +50,6 @@ class OthelloGame(Game):
         disc = Disc(self.playing_color)
         self.board[to_coords.x][to_coords.y] = disc
         disc.coords = to_coords
-        self.discs_left -= 1
 
     def _trapped_discs(self, to_coords):
         trapped_discs = self._scan_board_for_trapped_discs(to_coords)

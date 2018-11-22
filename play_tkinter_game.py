@@ -50,7 +50,7 @@ class Board(tk.Frame):
         # TODO
         tk.Button(statusbar, text='Save Game', command=None).pack(side='left', padx=10)
         # TODO
-        tk.Button(statusbar, text='Resign', command=None).pack(side='left', padx=20)
+        tk.Button(statusbar, text='Resign', command=None).pack(side='left', padx=10)
 
         self.move_entry = tk.Entry(statusbar, width=10)
         self.move_entry.pack(side='left', padx=10)
@@ -73,9 +73,11 @@ class Board(tk.Frame):
         except (ValueError, KeyError):
             self.move_entry.delete(0, 'end')
             messagebox.showerror('Incorrect coords entered!', self.illegal_coord_error_message)
+            self.refresh()
         except IllegalMoveError as error:
             self.move_entry.delete(0, 'end')
             messagebox.showerror('Illegal move!', error.message)
+            self.refresh()
 
     def _place_item(self, item, row, column):
         """Place a piece at the given row/column"""

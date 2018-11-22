@@ -61,8 +61,11 @@ def test_illegal_disc_placement_raises_exception():
 
 
 def test_winner_declared():
-    game = OthelloGame()
-    game.discs_left = 1
+    game = OthelloGame({
+        '43': Disc(Color.WHITE),
+        '33': Disc(Color.BLACK),
+        '77': Disc(Color.WHITE),
+    })
     assert not game.winner
 
     game.move(Coords(x=5, y=3))
@@ -70,22 +73,36 @@ def test_winner_declared():
 
 
 def test_drawer_declared():
-    game = OthelloGame()
-    game.discs_left = 2
-    assert not game.winner
+    game = OthelloGame({
+        '00': Disc(Color.WHITE),
+        '70': Disc(Color.WHITE),
+        '77': Disc(Color.WHITE),
+        '33': Disc(Color.BLACK),
+        '34': Disc(Color.WHITE)
+    })
 
-    game.move(Coords(x=5, y=3))
-    game.move(Coords(x=5, y=2))
+    game.move(Coords(x=3, y=5))
     assert game.winner == 'Draw'
 
 
 def test_game_ends_if_both_players_cant_move():
     game = OthelloGame({
-            '43': Disc(Color.WHITE),
-            '33': Disc(Color.BLACK),
-            '77': Disc(Color.WHITE),
+        '43': Disc(Color.WHITE),
+        '33': Disc(Color.BLACK),
+        '77': Disc(Color.WHITE),
     })
     assert game.playing_color == Color.BLACK
 
     game.move(Coords(x=5, y=3))
     assert game.winner == Color.BLACK
+
+
+def test_placing_piece_on_taken_square_raises_error():
+    game = OthelloGame({
+        '42': Disc(Color.WHITE),
+        '43': Disc(Color.WHITE),
+        '44': Disc(Color.BLACK),
+    })
+
+    with pytest.raises(IllegalMoveError):
+        game.move(Coords(x=4, y=2))

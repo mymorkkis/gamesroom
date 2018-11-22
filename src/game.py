@@ -104,7 +104,7 @@ class Game(ABC):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
         return x_coord in range(self.board_width) and y_coord in range(self.board_height)
 
-    def validate_coords(self, from_coords, to_coords):
+    def validate_coords(self, from_coords=None, to_coords=None):
         """Check for errors in passed board coordinates.
         Args:
                 from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
@@ -112,15 +112,23 @@ class Game(ABC):
         Raises:
                 IllegalMoveError
         """
-        for coords in (from_coords, to_coords):
-            if not self.coords_on_board(coords.x, coords.y):
+        if from_coords:
+            for coords in (from_coords, to_coords):
+                if not self.coords_on_board(coords.x, coords.y):
+                    raise IllegalMoveError('Coordinates are not within board boundary')
+
+            if from_coords == to_coords:
+                raise IllegalMoveError('Move to same square illegal')
+
+            if not self.board[from_coords.x][from_coords.y]:
+                raise IllegalMoveError('No piece found at from coordinates')
+        else:
+            if not self.coords_on_board(to_coords.x, to_coords.y):
                 raise IllegalMoveError('Coordinates are not within board boundary')
 
-        if from_coords == to_coords:
-            raise IllegalMoveError('Move to same square illegal')
+            if self.board[to_coords.x][to_coords.y]:
+                raise IllegalMoveError('Piece found at coordinates')
 
-        if not self.board[from_coords.x][from_coords.y]:
-            raise IllegalMoveError('No piece found at from coordinates')
 
     def coords_between(self, from_coords, to_coords):
         """Helper function. Return generator of all coords between from_coords and to_coords."""
