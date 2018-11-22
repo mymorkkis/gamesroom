@@ -9,8 +9,19 @@ def test_othello_board_setup():
                                 (Color.BLACK, Coords(x=3, y=3)),
                                 (Color.BLACK, Coords(x=4, y=4))])
     actual_board_setup = set(
-        (piece.color, piece.coords)
+        (disc.color, disc.coords)
         for row in game.board
-        for piece in row if piece
+        for disc in row if disc
     )
     assert actual_board_setup == expected_board_setup
+
+
+def test_can_place_piece_and_trap_an_opponent_disc():
+    game = Othello()
+
+    assert game.board[5][3] is None
+    assert game.board[4][3].color == Color.WHITE
+
+    game.move(Coords(x=5, y=3))
+    assert game.board[5][3].color == Color.BLACK
+    assert game.board[4][3].color == Color.BLACK

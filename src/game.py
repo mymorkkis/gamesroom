@@ -48,7 +48,7 @@ class Game(ABC):
         self.playing_piece = None
 
     @abstractmethod
-    def move(self, from_coords, to_coords):
+    def move(self):
         raise NotImplementedError
 
     @abstractmethod
@@ -207,3 +207,15 @@ def adjacent_squares(from_coords, to_coords):
     if x_abs == 0 or y_abs == 0:
         return x_abs + y_abs == 1
     return x_abs + y_abs == 2
+
+
+NEXT_ADJACENT_COORD = {
+    'N': lambda c: Coords(c.x, c.y + 1),
+    'NE': lambda c: Coords(c.x + 1, c.y + 1),
+    'E': lambda c: Coords(c.x + 1, c.y),
+    'SE': lambda c: Coords(c.x + 1, c.y - 1),
+    'S': lambda c: Coords(c.x, c.y - 1),
+    'SW': lambda c: Coords(c.x - 1, c.y - 1),
+    'W': lambda c: Coords(c.x - 1, c.y),
+    'NW': lambda c: Coords(c.x - 1, c.y + 1)
+    }

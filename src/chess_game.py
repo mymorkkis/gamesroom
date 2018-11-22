@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from src.game_enums import ChessPiece, Color, Direction
 from src.game_errors import IllegalMoveError
-from src.game import Coords, Game, move_direction
+from src.game import Coords, Game, move_direction, NEXT_ADJACENT_COORD
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -339,21 +339,13 @@ class ChessGame(Game):
                 and piece != king]
 
     def _adjacent_empty_square_coords(self, king_coords):
-        adjacent_coords = {
-            'N': lambda c: (c.x, c.y + 1),
-            'NE': lambda c: (c.x + 1, c.y + 1),
-            'E': lambda c: (c.x + 1, c.y),
-            'SE': lambda c: (c.x + 1, c.y - 1),
-            'S': lambda c: (c.x, c.y - 1),
-            'SW': lambda c: (c.x - 1, c.y - 1),
-            'W': lambda c: (c.x - 1, c.y),
-            'NW': lambda c: (c.x - 1, c.y + 1)
-        }
         potential_coords = [adjacent_coord(king_coords)
-                            for adjacent_coord in adjacent_coords.values()]
+                            for adjacent_coord
+                            in NEXT_ADJACENT_COORD.values()]
 
-        return [Coords(x, y) for x, y in potential_coords
-                if self.coords_on_board(x, y) and self.board[x][y] is None]
+        return [coord for coord in potential_coords
+                if self.coords_on_board(coord.x, coord.y)
+                and self.board[coord.x][coord.y] is None]
 
 
 def chess_pieces(color, *, y_idxs=None):
