@@ -21,7 +21,6 @@ LIGHT_GREY = '#adad85'
 class Board(tk.Frame):
     """Main tkinter frame"""
     def __init__(self, parent, game, square_colors, pixel_size=64):
-        # self.parent = parent
         self.game = game
         self.pixel_size = pixel_size
         self.square_colors = square_colors
@@ -34,7 +33,7 @@ class Board(tk.Frame):
         self.canvas = tk.Canvas(self, borderwidth=0, highlightthickness=0,
                                 width=canvas_width, height=canvas_height,
                                 background='bisque')
-        self.canvas.pack(side='top', fill='both', expand=True, padx=2, pady=2)
+        self.canvas.pack(side='top', fill='both', expand=True)
 
         # Will cause a refresh if the user interactively changes the window size
         self.canvas.bind('<Configure>', self.refresh)
@@ -42,23 +41,23 @@ class Board(tk.Frame):
         self._setup_statusbar()
 
     def _setup_statusbar(self):
-        self.statusbar = tk.Frame(self)
+        statusbar = tk.Frame(self, height=30)
         # TODO
-        tk.Button(self.statusbar, text='Save Game', command=None).pack(side='left', padx=10)
+        tk.Button(statusbar, text='Save Game', command=None).pack(side='left', padx=10)
         # TODO
-        tk.Button(self.statusbar, text='Resign', command=None).pack(side='left', padx=20)
+        tk.Button(statusbar, text='Resign', command=None).pack(side='left', padx=20)
 
-        self.move_entry = tk.Entry(self.statusbar, width=10)
+        self.move_entry = tk.Entry(statusbar, width=10)
         self.move_entry.pack(side='left', padx=10)
         self.move_entry.focus()
         self.move_entry.bind('<Return>', self.make_move)
 
-        self.label_status = tk.Label(self.statusbar, text=None, fg=BLACK)
+        self.label_status = tk.Label(statusbar, text=None, fg=BLACK)
         self.label_status.pack(side='left', expand=0)
 
-        self.play_again_btn = tk.Button(self.statusbar, text='Play Again?', command=self.play_again)
+        self.play_again_btn = tk.Button(statusbar, text='Play Again?', command=self._play_again)
 
-        self.statusbar.pack(expand=False, fill='x', side='bottom')
+        statusbar.pack(expand=True, fill='y', side='bottom')
 
 
     def make_move(self, event=None):
@@ -75,7 +74,7 @@ class Board(tk.Frame):
             self.move_entry.delete(0, 'end')
             messagebox.showerror('Illegal move!', error.message)
 
-    def place_item(self, item, row, column):
+    def _place_item(self, item, row, column):
         """Place a piece at the given row/column"""
         x0 = (column * self.pixel_size) + int(self.pixel_size / 2)
         y0 = (row * self.pixel_size) + int(self.pixel_size / 2)
@@ -135,7 +134,7 @@ class Board(tk.Frame):
             piece = self.canvas.create_text(
                 *idxs, text=str(piece), font=('Courier', image_size), tags='piece', anchor='c'
             )
-            self.place_item(piece, *idxs)
+            self._place_item(piece, *idxs)
 
     def _create_border_square(self, square_coords, image_size, piece, idxs, tags):
         axis_char_size = int(image_size / 2)
@@ -146,7 +145,7 @@ class Board(tk.Frame):
         axis_square = self.canvas.create_text(
             *idxs, text=str(piece), font=('Courier', axis_char_size), fill=LIGHT_GREY, tags=tags, anchor='c'
         )
-        self.place_item(axis_square, *idxs)
+        self._place_item(axis_square, *idxs)
 
     def _x_axis_square(self, y_idx, x_idx, row):
         return (x_idx not in self.first_and_last_index(row)
@@ -160,7 +159,7 @@ class Board(tk.Frame):
         ysize = int((event.height - 1) / (self.game.board_width + BORDER_SIZE))
         self.pixel_size = min(xsize, ysize)
 
-    def play_again(self):
+    def _play_again(self):
         self.game.board = self.new_chess_setup
         self.game.winner = None
         self.play_again_btn.pack_forget()
@@ -176,14 +175,14 @@ class Board(tk.Frame):
         return 0, len(item) - 1
 
 
-def play_chess_game():
+def _play_chess_game():
     root = tk.Tk()
     root.title("Max's Chess")
     game = ChessGame()
-    board = Board(root, game, cycle([WHITE, LIGHT_BROWN]))
-    board.pack(side='top', fill='both', expand='true', padx=4, pady=4)
+    board = Board(parent=root, game=game, square_colors=cycle([WHITE, LIGHT_BROWN]))
+    board.pack(side='top', fill='y', expand=True, padx=4, pady=4)
     return root
 
 if __name__ == '__main__':
-    chess_game = play_chess_game()
+    chess_game = _play_chess_game()
     chess_game.mainloop()
