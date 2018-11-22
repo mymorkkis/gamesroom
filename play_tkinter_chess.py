@@ -63,7 +63,7 @@ class Board(tk.Frame):
     def make_move(self, event=None):
         try:
             from_coords, to_coords = self.move_entry.get().split()
-            self.game.process_input_coords(from_coords, to_coords)
+            self.game.process_input_coords([from_coords, to_coords])
             self.move_entry.delete(0, 'end')
             self.refresh()
         except (ValueError, KeyError):

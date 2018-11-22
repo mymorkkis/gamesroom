@@ -1,3 +1,4 @@
+from src.game_enums import Color
 from src.game_pieces.game_piece import GamePiece
 
 class Disc(GamePiece):
@@ -6,7 +7,8 @@ class Disc(GamePiece):
         self.color = color
 
     def __str__(self):
-        return str(self.color)
+        # return '\u26C0' if self.color == Color.WHITE else '\u26C2'
+        return '\u25CF' if self.color == Color.WHITE else '\u25CB'
 
     def legal_move(self, to_coords):
         pass

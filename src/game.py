@@ -169,10 +169,10 @@ class Game(ABC):
         board.append(self.x_axis())
         print(tabulate(board, tablefmt="fancy_grid", showindex=self.y_axis()))
 
-    def process_input_coords(self, input_from_coords, input_to_coords):
-        from_coords = self._coords_from(input_from_coords.lower())
-        to_coords = self._coords_from(input_to_coords.lower())
-        self.move(from_coords, to_coords)
+    def process_input_coords(self, input_coords):
+        processed_coords = [self._coords_from(coords)
+                            for coords in input_coords]
+        self.move(*processed_coords)
 
     @staticmethod
     def _coords_from(input_coords):

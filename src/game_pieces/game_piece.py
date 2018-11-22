@@ -32,11 +32,6 @@ class GamePiece(ABC):
             return (self.name, self.color) == (other.name, other.color)
         return NotImplemented
 
-    def __ne__(self, other):
-        if other.__class__ is self.__class__:
-            return (self.name, self.color) != (other.name, other.color)
-        return NotImplemented
-
     @property
     def color(self):
         return self._color
