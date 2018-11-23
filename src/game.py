@@ -16,6 +16,7 @@ from src.game_errors import IllegalMoveError, NotOnBoardError
 
 ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
 
+
 Coords = namedtuple('Coords', 'x y')
 
 
