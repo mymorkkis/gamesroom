@@ -28,17 +28,17 @@ class OthelloGame(Game):
 
     def _declare_winner_or_switch_players(self):
         if not self._empty_square_coords():
-            self.winner = self._winning_color()
+            self.winner = self._winning_color_or_draw()
         elif self.next_player_cant_move():
             self.playing_color = next(self._playing_colors)
             if self.next_player_cant_move():
-                self.winner = self._winning_color()
+                self.winner = self._winning_color_or_draw()
         else:
             self.playing_color = next(self._playing_colors)
 
-    def _winning_color(self):
-        white_discs = self._disc_count(Color.WHITE)
-        black_discs = self._disc_count(Color.BLACK)
+    def _winning_color_or_draw(self):
+        white_discs = self.disc_count(Color.WHITE)
+        black_discs = self.disc_count(Color.BLACK)
 
         if white_discs > black_discs:
             return Color.WHITE
@@ -83,9 +83,9 @@ class OthelloGame(Game):
                     break
                 elif disc.color == self.playing_color:
                     trapped_discs.extend(possible_trapped_discs)
-                    if scan_all_directions:
-                        break
-                    return trapped_discs
+                    if trapped_discs and not scan_all_directions:
+                        return trapped_discs
+                    break
                 else:
                     possible_trapped_discs.append(disc)
         return trapped_discs
@@ -98,7 +98,7 @@ class OthelloGame(Game):
                     empty_squares.append(Coords(x_idx, y_idx))
         return empty_squares
 
-    def _disc_count(self, color):
+    def disc_count(self, color):
         return len([disc for row in self.board
                     for disc in row
                     if disc and disc.color == color])

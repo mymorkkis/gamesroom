@@ -30,6 +30,21 @@ def test_can_place_piece_and_trap_an_opponent_disc():
     assert game.board[4][3].color == Color.BLACK
 
 
+def test_can_trap_multiple_discs():
+    game = OthelloGame({
+        '42': Disc(Color.WHITE),
+        '43': Disc(Color.WHITE),
+        '44': Disc(Color.BLACK),
+        '51': Disc(Color.WHITE),
+        '61': Disc(Color.WHITE),
+        '71': Disc(Color.BLACK),
+    })
+    assert game.disc_count(Color.BLACK) == 2
+
+    game.move(Coords(x=4, y=1))
+    assert game.disc_count(Color.BLACK) == 7
+
+
 def test_player_color_swaps_for_each_turn():
     game = OthelloGame()
     assert game.playing_color == Color.BLACK
@@ -44,9 +59,6 @@ def test_player_color_swaps_for_each_turn():
 def test_illegal_disc_placement_raises_exception():
     game = OthelloGame()
     assert game.playing_color == Color.BLACK
-
-    with pytest.raises(IllegalMoveError):
-        game.move(Coords(x=8, y=8))  # off board
 
     with pytest.raises(IllegalMoveError):
         game.move(Coords(x=4, y=4))  # square taken
@@ -83,6 +95,20 @@ def test_drawer_declared():
 
     game.move(Coords(x=3, y=5))
     assert game.winner == 'Draw'
+
+
+def test_player_can_move_detected_correctly():
+    game = OthelloGame({
+        '01': Disc(Color.BLACK),
+        '11': Disc(Color.WHITE),
+        '22': Disc(Color.BLACK)
+    })
+    black_can_move = game._scan_board_for_trapped_discs(
+        Coords(x=0, y=0), scan_all_directions=False
+    )
+    assert black_can_move
+
+
 
 
 def test_game_ends_if_both_players_cant_move():
