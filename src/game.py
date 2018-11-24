@@ -93,13 +93,14 @@ class Game(ABC):
         self.from_coords = from_coords
         self.to_coords = to_coords
         self.playing_piece = self.board[from_coords.x][from_coords.y]
-        piece_to_attack = self.board[self.to_coords.x][self.to_coords.y]
+        # piece_to_attack = self.board[self.to_coords.x][self.to_coords.y]
 
         if self.playing_piece.color != playing_color:
             raise IllegalMoveError('Incorrect piece color for current player')
 
-        if piece_to_attack and piece_to_attack.color == playing_color:
-            raise IllegalMoveError('Cannot attack own piece')
+        # TODO Chess specific, needs to move
+        # if piece_to_attack and piece_to_attack.color == playing_color:
+        #     raise IllegalMoveError('Cannot attack own piece')
 
     def coords_on_board(self, x_coord, y_coord):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
