@@ -42,7 +42,8 @@ class Counter(GamePiece):
             y_coord = self.coords.y + 4
             return self._legal_capture(x_coords, y_coord)
         if self._white_three_piece_capture():
-            x_coords = (self.coords.x + 2, self.coords.x - 2)
+            x_coords = (self.coords.x + 2, self.coords.x + 6,
+                        self.coords.x - 2, self.coords.x - 6)
             y_coord = self.coords.y + 6
             return self._legal_capture(x_coords, y_coord)
         return False
@@ -57,7 +58,8 @@ class Counter(GamePiece):
             y_coord = self.coords.y - 4
             return self._legal_capture(x_coords, y_coord)
         if self._black_three_piece_capture():
-            x_coords = (self.coords.x + 2, self.coords.x - 2)
+            x_coords = (self.coords.x + 2, self.coords.x + 6,
+                        self.coords.x - 2, self.coords.x - 6)
             y_coord = self.coords.y - 6
             return self._legal_capture(x_coords, y_coord)
         return False

@@ -23,7 +23,9 @@ class DraughtsGame(Game):
         if self.playing_piece.legal_move(to_coords) and not self._potential_capture():
             self._move_piece()
         elif self.playing_piece.legal_capture(to_coords):
-            self._capture_pieces()
+            capture_coords = self._calculate_capture_coords()
+            self._capture_pieces(capture_coords)
+            # TODO if other capture possible: force capture
             self._move_piece()
         else:
             raise IllegalMoveError('Illegal move attempted')
@@ -42,13 +44,17 @@ class DraughtsGame(Game):
         if self._king_row_reached():
             self.playing_piece.crowned = True
 
-    def _capture_pieces(self):
+    def _capture_pieces(self, capture_coords):
+        from_coords, to_coords = capture_coords[:-1], capture_coords[1:]
+        for coords in zip(from_coords, to_coords):
+            self._capture(*coords)
+
+    def _calculate_capture_coords(self):
         if self._two_move_multiple_direction_capture():
-            self._two_move_capture()
-        elif self._three_move_multiple_direction_capture():
-            self._three_move_capture()
-        else:  # one direction capture
-            self._capture(self.from_coords, self.to_coords)
+            return self._two_move_capture_coords()
+        if self._three_move_multiple_direction_capture():
+            return self._three_move_capture_coords()
+        return self.from_coords, self.to_coords
 
     def _king_row_reached(self):
         if self.playing_color == Color.WHITE:
@@ -63,70 +69,88 @@ class DraughtsGame(Game):
         return False
 
     def _playing_pieces(self):
-        return [piece for row in self.board
+        return (piece for row in self.board
                 for piece in row if piece
-                and piece.color == self.playing_color]
+                and piece.color == self.playing_color)
 
-    def _y_coord_and_x_coords_adjust(self):
-        y_coord = self._y_coord_adjust(self.from_coords.y)
-        x_coords = cycle([self.from_coords.x + 2, self.from_coords.x - 2])
-        return y_coord, x_coords
+    def _two_move_capture_coords(self):
+        for two_move_capture in (self._capture_east_west, self._capture_west_east):
+            capture_coords = two_move_capture()
+            if self._move_route_found(capture_coords):
+                return capture_coords
+        assert False, 'Reached unexpected path in _two_move_capture_coords'
 
-    def _y_coord_adjust(self, y_coord):
-        return y_coord + 2 if self.playing_color == Color.WHITE else y_coord - 2
+    def _three_move_capture_coords(self):
+        for three_move_capture in self._three_move_capture_directions():
+            capture_coords = three_move_capture()
+            if self._move_route_found(capture_coords):
+                return capture_coords
+        assert False, 'Reached unexpected path in _three_move_capture_coords'
 
-    def _two_move_capture(self):
-        y_coord, x_coords = self._y_coord_and_x_coords_adjust()
+    def _three_move_capture_directions(self):
+        return (self._capture_east_west_east, self._capture_east_west_west,
+                self._capture_west_east_east, self._capture_west_east_west,
+                self._capture_east_east_west, self._capture_west_west_east)
 
-        for capture_possible in (self._capture_east_west_possible, self._capture_west_east_possible):
-            second_capture_from = Coords(next(x_coords), y_coord)
-            if capture_possible(second_capture_from):
-                self._multi_direction_capture(second_capture_from)
-                return
+    def _move_route_found(self, capture_coords):
+        return capture_coords and capture_coords[-1] == self.to_coords
 
-    def _three_move_capture(self):
-        y_coord, x_coords = self._y_coord_and_x_coords_adjust()
-        board_side = [None, None, 'east', 'west']
-        two_move_directions = [self._capture_east_west_possible, self._capture_west_east_possible,
-                               self._capture_east_east_possible, self._capture_west_west_possible]
-        third_move_directions = [self._capture_east_possible, self._capture_west_possible]
+    def _capture_east_west(self):
+        second_capture_from_coords = self._capture_east_possible(self.from_coords)
+        to_coords = self._capture_west_possible(second_capture_from_coords)
+        return self._capture_coords_or_none(second_capture_from_coords, to_coords)
 
-        for capture_possible, board_side in zip(two_move_directions, board_side):
-            second_capture_from = Coords(next(x_coords), y_coord)
-            if capture_possible(second_capture_from):
-                third_capture_from = self._third_capture_from_coords(second_capture_from, board_side)
-                for third_move_possible in third_move_directions:
-                    if third_move_possible(third_capture_from):
-                        self._multi_direction_capture(second_capture_from, third_capture_from)
-                        return
+    def _capture_west_east(self):
+        second_capture_from_coords = self._capture_west_possible(self.from_coords)
+        to_coords = self._capture_east_possible(second_capture_from_coords)
+        return self._capture_coords_or_none(second_capture_from_coords, to_coords)
 
-    def _third_capture_from_coords(self, second_capture_from, board_side):
-        y_coord = self._y_coord_adjust(second_capture_from.y)
-        if board_side == 'east':
-            x_coord = second_capture_from.x + 2
-        elif board_side == 'west':
-            x_coord = second_capture_from.x - 2
-        else:  # centre of board
-            x_coord = self.from_coords.x
-        return Coords(x_coord, y_coord)
+    def _capture_east_west_east(self):
+        second_capture_from_coords = self._capture_east_possible(self.from_coords)
+        third_capture_from_coords = self._capture_west_possible(second_capture_from_coords)
+        to_coords = self._capture_east_possible(third_capture_from_coords)
+        return self._capture_coords_or_none(second_capture_from_coords, third_capture_from_coords, to_coords)
 
-    def _capture_east_west_possible(self, second_capture_from):
-        return (self._capture_east_possible(self.from_coords)
-                and self._capture_west_possible(second_capture_from))
+    def _capture_east_west_west(self):
+        second_capture_from_coords = self._capture_east_possible(self.from_coords)
+        third_capture_from_coords = self._capture_west_possible(second_capture_from_coords)
+        to_coords = self._capture_west_possible(third_capture_from_coords)
+        return self._capture_coords_or_none(second_capture_from_coords, third_capture_from_coords, to_coords)
 
-    def _capture_west_west_possible(self, second_capture_from):
-        return (self._capture_west_possible(self.from_coords)
-                and self._capture_west_possible(second_capture_from))
+    def _capture_west_east_east(self):
+        second_capture_from_coords = self._capture_west_possible(self.from_coords)
+        third_capture_from_coords = self._capture_east_possible(second_capture_from_coords)
+        to_coords = self._capture_east_possible(third_capture_from_coords)
+        return self._capture_coords_or_none(second_capture_from_coords, third_capture_from_coords, to_coords)
 
-    def _capture_west_east_possible(self, second_capture_from):
-        return (self._capture_west_possible(self.from_coords)
-                and self._capture_east_possible(second_capture_from))
+    def _capture_west_east_west(self):
+        second_capture_from_coords = self._capture_west_possible(self.from_coords)
+        third_capture_from_coords = self._capture_east_possible(second_capture_from_coords)
+        to_coords = self._capture_west_possible(third_capture_from_coords)
+        return self._capture_coords_or_none(second_capture_from_coords, third_capture_from_coords, to_coords)
 
-    def _capture_east_east_possible(self, second_capture_from):
-        return (self._capture_east_possible(self.from_coords)
-                and self._capture_east_possible(second_capture_from))
+    def _capture_east_east_west(self):
+        second_capture_from_coords = self._capture_east_possible(self.from_coords)
+        third_capture_from_coords = self._capture_east_possible(second_capture_from_coords)
+        to_coords = self._capture_west_possible(third_capture_from_coords)
+        return self._capture_coords_or_none(second_capture_from_coords, third_capture_from_coords, to_coords)
+
+    def _capture_west_west_east(self):
+        second_capture_from_coords = self._capture_west_possible(self.from_coords)
+        third_capture_from_coords = self._capture_west_possible(second_capture_from_coords)
+        to_coords = self._capture_east_possible(third_capture_from_coords)
+        return self._capture_coords_or_none(second_capture_from_coords, third_capture_from_coords, to_coords)
+
+    def _capture_coords_or_none(self, *move_coords):
+        for coords in move_coords:
+            if not coords:
+                return None
+        return (self.from_coords, *move_coords)
 
     def _capture_east_possible(self, from_coords):
+        if not from_coords:
+            return None
+
         if self.playing_color == Color.WHITE:
             capture_coords = Coords(from_coords.x + 1, from_coords.y + 1)
             to_coords = Coords(from_coords.x + 2, from_coords.y + 2)
@@ -134,9 +158,14 @@ class DraughtsGame(Game):
             capture_coords = Coords(from_coords.x + 1, from_coords.y - 1)
             to_coords = Coords(from_coords.x + 2, from_coords.y - 2)
 
-        return self._capture_possible(capture_coords, to_coords)
+        if self._capture_possible(capture_coords, to_coords):
+            return to_coords
+        return None
 
     def _capture_west_possible(self, from_coords):
+        if not from_coords:
+            return None
+
         if self.playing_color == Color.WHITE:
             capture_coords = Coords(from_coords.x - 1, from_coords.y + 1)
             to_coords = Coords(from_coords.x - 2, from_coords.y + 2)
@@ -144,7 +173,9 @@ class DraughtsGame(Game):
             capture_coords = Coords(from_coords.x - 1, from_coords.y - 1)
             to_coords = Coords(from_coords.x - 2, from_coords.y - 2)
 
-        return self._capture_possible(capture_coords, to_coords)
+        if self._capture_possible(capture_coords, to_coords):
+            return to_coords
+        return None
 
     def _capture_possible(self, capture_coords, to_coords):
         for coords in (capture_coords, to_coords):
@@ -170,15 +201,6 @@ class DraughtsGame(Game):
                     and self.to_coords.x in legal_x_coords)
         return (self.to_coords.y == self.from_coords.y - 6
                 and self.to_coords.x in legal_x_coords)
-
-    def _multi_direction_capture(self, second_capture_from, third_capture_from=None):
-        if third_capture_from:
-            self._capture(self.from_coords, second_capture_from)
-            self._capture(second_capture_from, third_capture_from)
-            self._capture(third_capture_from, self.to_coords)
-        else:
-            self._capture(self.from_coords, second_capture_from)
-            self._capture(second_capture_from, self.to_coords)
 
     def _capture(self, from_coords, to_coords):
         captured_pieces = []

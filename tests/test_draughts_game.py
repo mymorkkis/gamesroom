@@ -149,6 +149,21 @@ def test_black_can_capture_two_pieces_in_multiple_direction():
     assert game.board[5][3] is None
     assert game.board[6][2] == Counter(Color.BLACK)
 
+
+def test_can_capture_three_pieces_in_straight_line():
+    game = DraughtsGame({
+        '77': Counter(Color.BLACK),
+        '66': Counter(Color.WHITE),
+        '44': Counter(Color.WHITE),
+        '22': Counter(Color.WHITE),
+    })
+
+    game.move(Coords(x=7, y=7), Coords(x=1, y=1))
+    assert game.board[6][6] is None
+    assert game.board[4][4] is None
+    assert game.board[2][2] is None
+    assert game.board[1][1] == Counter(Color.BLACK)
+
 def test_white_can_capture_three_pieces_in_multiple_directions_l_shape():
     game = DraughtsGame({
         '60': Counter(Color.WHITE),
