@@ -19,13 +19,15 @@ class DraughtsGame(Game):
 
     def move(self, from_coords, to_coords):
         self.set_move_attributes(from_coords, to_coords, self.playing_color)
-        if self.playing_piece.legal_move(to_coords):
+
+        if self.playing_piece.legal_move(to_coords) and not self._potential_capture():
             self._move_piece()
         elif self.playing_piece.legal_capture(to_coords):
             self._capture_pieces()
             self._move_piece()
         else:
             raise IllegalMoveError('Illegal move attempted')
+
         self._switch_players()
 
     def _switch_players(self):
@@ -52,6 +54,18 @@ class DraughtsGame(Game):
         if self.playing_color == Color.WHITE:
             return self.playing_piece.coords.y == 7
         return self.playing_piece.coords.y == 0
+
+    def _potential_capture(self):
+        for piece in self._playing_pieces():
+            if (self._capture_east_possible(piece.coords)
+                    or self._capture_west_possible(piece.coords)):
+                raise IllegalMoveError('Move Illegal as capture is possible')
+        return False
+
+    def _playing_pieces(self):
+        return [piece for row in self.board
+                for piece in row if piece
+                and piece.color == self.playing_color]
 
     def _y_coord_and_x_coords_adjust(self):
         y_coord = self._y_coord_adjust(self.from_coords.y)
