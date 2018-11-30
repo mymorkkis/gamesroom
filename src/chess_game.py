@@ -343,9 +343,9 @@ class ChessGame(Game):
                             for adjacent_coord
                             in NEXT_ADJACENT_COORD.values()]
 
-        return [coord for coord in potential_coords
-                if self.coords_on_board(coord.x, coord.y)
-                and self.board[coord.x][coord.y] is None]
+        return [coords for coords in potential_coords
+                if self.coords_on_board(coords)
+                and self.board[coords.x][coords.y] is None]
 
 
 def chess_pieces(color, *, y_idxs=None):

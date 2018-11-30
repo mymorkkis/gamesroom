@@ -76,7 +76,7 @@ class OthelloGame(Game):
             possible_trapped_discs = []
             while True:
                 next_coords = NEXT_ADJACENT_COORD[direction](next_coords)
-                if not self.coords_on_board(next_coords.x, next_coords.y):
+                if not self.coords_on_board(next_coords):
                     break
                 disc = self.board[next_coords.x][next_coords.y]
                 if not disc:

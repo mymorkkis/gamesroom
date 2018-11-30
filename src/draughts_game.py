@@ -106,26 +106,34 @@ class DraughtsGame(Game):
                 and self._capture_east_possible(second_capture_from))
 
     def _capture_east_possible(self, from_coords):
-        opponent = Counter(self.opponent_color)
-        try:
-            if self.playing_color == Color.WHITE:
-                return (self.board[from_coords.x + 1][from_coords.y + 1] == opponent
-                        and self.board[from_coords.x + 2][from_coords.y + 2] is None)
-            return (self.board[from_coords.x + 1][from_coords.y - 1] == opponent
-                    and self.board[from_coords.x + 2][from_coords.y - 2] is None)
-        except IndexError:
-            return False
+        if self.playing_color == Color.WHITE:
+            capture_coords = Coords(from_coords.x + 1, from_coords.y + 1)
+            to_coords = Coords(from_coords.x + 2, from_coords.y + 2)
+        else:
+            capture_coords = Coords(from_coords.x + 1, from_coords.y - 1)
+            to_coords = Coords(from_coords.x + 2, from_coords.y - 2)
+
+        return self._capture_possible(capture_coords, to_coords)
 
     def _capture_west_possible(self, from_coords):
-        opponent = Counter(self.opponent_color)
-        try:
-            if self.playing_color == Color.WHITE:
-                return (self.board[from_coords.x - 1][from_coords.y + 1] == opponent
-                        and self.board[from_coords.x - 2][from_coords.y + 2] is None)
-            return (self.board[from_coords.x - 1][from_coords.y - 1] == opponent
-                    and self.board[from_coords.x - 2][from_coords.y - 2] is None)
-        except IndexError:
-            return False
+        if self.playing_color == Color.WHITE:
+            capture_coords = Coords(from_coords.x - 1, from_coords.y + 1)
+            to_coords = Coords(from_coords.x - 2, from_coords.y + 2)
+        else:
+            capture_coords = Coords(from_coords.x - 1, from_coords.y - 1)
+            to_coords = Coords(from_coords.x - 2, from_coords.y - 2)
+
+        return self._capture_possible(capture_coords, to_coords)
+
+    def _capture_possible(self, capture_coords, to_coords):
+        for coords in (capture_coords, to_coords):
+            if not self.coords_on_board(coords):
+                return False
+
+        capture_square = self.board[capture_coords.x][capture_coords.y]
+        move_to_square = self.board[to_coords.x][to_coords.y]
+
+        return capture_square == Counter(self.opponent_color) and move_to_square is None
 
     def _two_move_multiple_direction_capture(self):
         if self.playing_piece.color == Color.WHITE:

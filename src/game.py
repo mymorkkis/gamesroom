@@ -102,9 +102,9 @@ class Game(ABC):
         # if piece_to_attack and piece_to_attack.color == playing_color:
         #     raise IllegalMoveError('Cannot attack own piece')
 
-    def coords_on_board(self, x_coord, y_coord):
+    def coords_on_board(self, coords):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
-        return x_coord in range(self.board_width) and y_coord in range(self.board_height)
+        return coords.x in range(self.board_width) and coords.y in range(self.board_height)
 
     def validate_coords(self, from_coords=None, to_coords=None):
         """Check for errors in passed board coordinates.
