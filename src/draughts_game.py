@@ -37,6 +37,8 @@ class DraughtsGame(Game):
         self.board[self.from_coords.x][self.from_coords.y] = None
         self.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
         self.playing_piece.coords = self.to_coords
+        if self._king_row_reached():
+            self.playing_piece.crowned = True
 
     def _capture_pieces(self):
         if self._two_move_multiple_direction_capture():
@@ -45,6 +47,11 @@ class DraughtsGame(Game):
             self._three_move_capture()
         else:  # one direction capture
             self._capture(self.from_coords, self.to_coords)
+
+    def _king_row_reached(self):
+        if self.playing_color == Color.WHITE:
+            return self.playing_piece.coords.y == 7
+        return self.playing_piece.coords.y == 0
 
     def _y_coord_and_x_coords_adjust(self):
         y_coord = self._y_coord_adjust(self.from_coords.y)

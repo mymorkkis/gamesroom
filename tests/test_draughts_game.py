@@ -61,10 +61,11 @@ def test_illegal_move_raises_exception():
 
 
 def test_draughts_piece_can_capture():
-    game = DraughtsGame({})  # empty board
+    game = DraughtsGame({
+        '00': Counter(Color.WHITE),
+        '11': Counter(Color.BLACK),
+    })
     game.playing_color = Color.WHITE
-    game.add(Counter(Color.WHITE), Coords(x=0, y=0))
-    game.add(Counter(Color.BLACK), Coords(x=1, y=1))
 
     game.move(Coords(x=0, y=0), Coords(x=2, y=2))
     assert game.board[1][1] is None
@@ -72,20 +73,44 @@ def test_draughts_piece_can_capture():
 
 
 def test_illegal_capture_raises_exception():
-    game = DraughtsGame({})  # empty board
+    game = DraughtsGame({
+        '00': Counter(Color.WHITE),
+    })
     game.playing_color = Color.WHITE
-    game.add(Counter(Color.WHITE), Coords(x=0, y=0))
 
     with pytest.raises(IllegalMoveError):
         game.move(Coords(x=0, y=0), Coords(x=2, y=2))
 
 
+def test_counters_can_be_crowned():
+    game = DraughtsGame({
+        '16': Counter(Color.WHITE),
+        '11': Counter(Color.BLACK),
+    })
+    black_piece = game.board[1][1]
+    white_piece = game.board[1][6]
+
+    assert str(black_piece) == '\u26C2'
+    assert not black_piece.crowned
+
+    game.move(Coords(x=1, y=1), Coords(x=0, y=0))
+    assert black_piece.crowned
+    assert str(black_piece) == '\u26C3'
+
+    assert str(white_piece) == '\u26C0'
+    assert not white_piece.crowned
+
+    game.move(Coords(x=1, y=6), Coords(x=0, y=7))
+    assert white_piece.crowned
+    assert str(white_piece) == '\u26C1'
+
 def test_can_capture_two_pieces_in_straight_line():
-    game = DraughtsGame({})  # empty board
+    game = DraughtsGame({
+        '00': Counter(Color.WHITE),
+        '11': Counter(Color.BLACK),
+        '33': Counter(Color.BLACK),
+    })
     game.playing_color = Color.WHITE
-    game.add(Counter(Color.WHITE), Coords(x=0, y=0))
-    game.add(Counter(Color.BLACK), Coords(x=1, y=1))
-    game.add(Counter(Color.BLACK), Coords(x=3, y=3))
 
     game.move(Coords(x=0, y=0), Coords(x=4, y=4))
     assert game.board[1][1] is None
@@ -94,12 +119,13 @@ def test_can_capture_two_pieces_in_straight_line():
 
 
 def test_can_capture_two_pieces_in_multiple_direction():
-    game = DraughtsGame({})  # empty board
+    game = DraughtsGame({
+        '00': Counter(Color.WHITE),
+        '11': Counter(Color.BLACK),
+        '13': Counter(Color.BLACK),
+    })
     game.playing_color = Color.WHITE
     game.opponent_color = Color.BLACK
-    game.add(Counter(Color.WHITE), Coords(x=0, y=0))
-    game.add(Counter(Color.BLACK), Coords(x=1, y=1))
-    game.add(Counter(Color.BLACK), Coords(x=1, y=3))
 
     game.move(Coords(x=0, y=0), Coords(x=0, y=4))
     assert game.board[1][1] is None
@@ -108,10 +134,11 @@ def test_can_capture_two_pieces_in_multiple_direction():
 
 
 def test_black_can_capture_two_pieces_in_multiple_direction():
-    game = DraughtsGame({})  # empty board
-    game.add(Counter(Color.BLACK), Coords(x=6, y=6))
-    game.add(Counter(Color.WHITE), Coords(x=5, y=5))
-    game.add(Counter(Color.WHITE), Coords(x=5, y=3))
+    game = DraughtsGame({
+        '66': Counter(Color.BLACK),
+        '55': Counter(Color.WHITE),
+        '53': Counter(Color.WHITE),
+    })
 
     game.move(Coords(x=6, y=6), Coords(x=6, y=2))
     assert game.board[5][5] is None
@@ -119,13 +146,14 @@ def test_black_can_capture_two_pieces_in_multiple_direction():
     assert game.board[6][2] == Counter(Color.BLACK)
 
 def test_white_can_capture_three_pieces_in_multiple_directions_l_shape():
-    game = DraughtsGame({})  # empty board
+    game = DraughtsGame({
+        '60': Counter(Color.WHITE),
+        '51': Counter(Color.BLACK),
+        '33': Counter(Color.BLACK),
+        '35': Counter(Color.BLACK),
+    })
     game.playing_color = Color.WHITE
     game.opponent_color = Color.BLACK
-    game.add(Counter(Color.WHITE), Coords(x=6, y=0))
-    game.add(Counter(Color.BLACK), Coords(x=5, y=1))
-    game.add(Counter(Color.BLACK), Coords(x=3, y=3))
-    game.add(Counter(Color.BLACK), Coords(x=3, y=5))
 
     game.move(Coords(x=6, y=0), Coords(x=4, y=6))
     assert game.board[5][1] is None
@@ -135,13 +163,14 @@ def test_white_can_capture_three_pieces_in_multiple_directions_l_shape():
 
 
 def test_white_can_capture_three_pieces_in_multiple_directions_s_shape():
-    game = DraughtsGame({})  # empty board
+    game = DraughtsGame({
+        '60': Counter(Color.WHITE),
+        '51': Counter(Color.BLACK),
+        '53': Counter(Color.BLACK),
+        '55': Counter(Color.BLACK),
+    })
     game.playing_color = Color.WHITE
     game.opponent_color = Color.BLACK
-    game.add(Counter(Color.WHITE), Coords(x=6, y=0))
-    game.add(Counter(Color.BLACK), Coords(x=5, y=1))
-    game.add(Counter(Color.BLACK), Coords(x=5, y=3))
-    game.add(Counter(Color.BLACK), Coords(x=5, y=5))
 
     game.move(Coords(x=6, y=0), Coords(x=4, y=6))
     assert game.board[5][1] is None
@@ -151,11 +180,12 @@ def test_white_can_capture_three_pieces_in_multiple_directions_s_shape():
 
 
 def test_black_can_capture_three_pieces_in_multiple_directions_s_shape():
-    game = DraughtsGame({})  # empty board
-    game.add(Counter(Color.BLACK), Coords(x=6, y=6))
-    game.add(Counter(Color.WHITE), Coords(x=5, y=5))
-    game.add(Counter(Color.WHITE), Coords(x=5, y=3))
-    game.add(Counter(Color.WHITE), Coords(x=5, y=1))
+    game = DraughtsGame({
+        '66': Counter(Color.BLACK),
+        '55': Counter(Color.WHITE),
+        '53': Counter(Color.WHITE),
+        '51': Counter(Color.WHITE),
+    })
 
     game.move(Coords(x=6, y=6), Coords(x=4, y=0))
     assert game.board[5][5] is None
