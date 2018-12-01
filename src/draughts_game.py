@@ -25,7 +25,7 @@ class DraughtsGame(Game):
         elif self.playing_piece.legal_capture(to_coords):
             capture_coords = self._calculate_capture_coords()
             self._capture_pieces(capture_coords)
-            # TODO if other capture possible: force capture
+            self._force_capture_if_extra_capture_possible()
             self._move_piece()
         else:
             raise IllegalMoveError('Illegal move attempted')
@@ -72,6 +72,14 @@ class DraughtsGame(Game):
         return (piece for row in self.board
                 for piece in row if piece
                 and piece.color == self.playing_color)
+
+    def _force_capture_if_extra_capture_possible(self):
+        for capture_possible in (self._capture_east_possible, self._capture_west_possible):
+            coords = capture_possible(self.to_coords)
+            if coords:
+                self._capture(self.to_coords, coords)
+                self.to_coords = coords
+                # TODO message to screen?
 
     def _two_move_capture_coords(self):
         for two_move_capture in (self._capture_east_west, self._capture_west_east):

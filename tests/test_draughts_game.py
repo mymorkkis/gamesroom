@@ -223,33 +223,33 @@ def test_move_raises_error_if_capture_possible():
         game.move(Coords(x=6, y=6), Coords(x=7, y=5))
 
 
-# def test_one_piece_capture_forced_to_make_two_move_capture_if_possible():
-#     game = DraughtsGame({
-#         '66': Counter(Color.BLACK),
-#         '55': Counter(Color.WHITE),
-#         '33': Counter(Color.WHITE),
-#     })
+def test_one_piece_capture_forced_to_make_two_move_capture_if_possible():
+    game = DraughtsGame({
+        '66': Counter(Color.BLACK),
+        '55': Counter(Color.WHITE),
+        '33': Counter(Color.WHITE),
+    })
 
-#     game.move(Coords(x=6, y=6), Coords(x=4, y=4))
-#     assert game.board[6][6] is None
-#     assert game.board[5][5] is None
-#     assert game.board[4][4] is None
-#     assert game.board[3][3] is None
-#     assert game.board[2][2] is Counter(Color.BLACK)
+    game.move(Coords(x=6, y=6), Coords(x=4, y=4))
+    assert game.board[6][6] is None
+    assert game.board[5][5] is None
+    assert game.board[4][4] is None
+    assert game.board[3][3] is None
+    assert game.board[2][2] == Counter(Color.BLACK)
 
 
-# def test_two_piece_capture_force_to_make_three_move_capture_if_possible():
-#     game = DraughtsGame({
-#         '66': Counter(Color.BLACK),
-#         '55': Counter(Color.WHITE),
-#         '33': Counter(Color.WHITE),
-#         '11': Counter(Color.WHITE),
-#     })
+def test_two_piece_capture_force_to_make_three_move_capture_if_possible():
+    game = DraughtsGame({
+        '66': Counter(Color.BLACK),
+        '55': Counter(Color.WHITE),
+        '33': Counter(Color.WHITE),
+        '11': Counter(Color.WHITE),
+    })
 
-#     game.move(Coords(x=6, y=6), Coords(x=2, y=2))
-#     assert game.board[6][6] is None
-#     assert game.board[5][5] is None
-#     assert game.board[3][3] is None
-#     assert game.board[2][2] is None
-#     assert game.board[1][1] is None
-#     assert game.board[0][0] is Counter(Color.BLACK)
+    game.move(Coords(x=6, y=6), Coords(x=2, y=2))
+    assert game.board[6][6] is None
+    assert game.board[5][5] is None
+    assert game.board[3][3] is None
+    assert game.board[2][2] is None
+    assert game.board[1][1] is None
+    assert game.board[0][0] == Counter(Color.BLACK)
