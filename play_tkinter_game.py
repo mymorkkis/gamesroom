@@ -3,9 +3,10 @@ from itertools import cycle
 from copy import deepcopy
 
 import tkinter as tk
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 
 from src.chess_game import ChessGame
+from src.draughts_game import DraughtsGame
 from src.othello_game import OthelloGame
 from src.game_errors import IllegalMoveError
 from src.command_line_helper import parse_args_to_fetch_game
@@ -19,6 +20,8 @@ GREEN = 'green'
 LIGHT_BROWN = '#804000'
 DARK_BROWN = '#1a0300'
 LIGHT_GREY = '#adad85'
+ONE_COORD_MSG = 'Invalid coords. Example usage: a1'
+TWO_COORD_MSG = 'Invalid coords, coords seperated by white space. Example usage: a1 a2'
 
 
 class Board(tk.Frame):
@@ -193,24 +196,27 @@ GAME_OPTIONS = {
         'title': 'Chess Game',
         'square_colors': cycle([WHITE, LIGHT_BROWN]),
         'two_coord_move': True,
-        'err_msg': 'Input coords using chess notation, seperated by white space. Example usage: a1 a2'
+        'err_msg': TWO_COORD_MSG
+    },
+    'D': {
+        'game': DraughtsGame(),
+        'title': 'Draughts Game',
+        'square_colors': cycle([WHITE, LIGHT_BROWN]),
+        'two_coord_move': True,
+        'err_msg': TWO_COORD_MSG
     },
     'O': {
         'game': OthelloGame(),
         'title': 'Othello Game',
         'square_colors': cycle([GREEN]),
         'two_coord_move': False,
-        'err_msg': 'Input coords using chess notation. Example usage: a1'
+        'err_msg': ONE_COORD_MSG
     }
 }
 
 
 def _play_game():
     root = tk.Tk()
-    # game_type = simpledialog.askstring(
-    #     'Choose a game to play...', 'Options: (C)hess, (O)thello'
-    # ).title()[0]
-    # game = GAME[game_type]
     game = parse_args_to_fetch_game(GAME_OPTIONS)
     root.title(game['title'])
     board = Board(parent=root, game=game['game'], square_colors=game['square_colors'],

@@ -8,7 +8,7 @@ END = '\033[0m'
 INVALID_ARG_ERROR = f'''{RED}
 Invalid Args provided.....\n
 Usage: python {sys.argv[0]} GAME_TYPE\n
-Game type options: (C)hess, (O)thello
+Game type options: (C)hess, (D)raughts, (O)thello
 {END}'''
 
 

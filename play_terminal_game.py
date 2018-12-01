@@ -1,13 +1,19 @@
 """Command line script to play chess game."""
 from src.chess_game import ChessGame
+from src.draughts_game import DraughtsGame
 from src.othello_game import OthelloGame
 from src.game_errors import IllegalMoveError
 from src.command_line_helper import parse_args_to_fetch_game, RED, END
 
 
+ONE_COORD_MSG = 'Invalid coords. Example usage: a1'
+TWO_COORD_MSG = 'Invalid coords, coords seperated by white space. Example usage: a1 a2'
+
+
 GAME_OPTIONS = {
-    'C': (ChessGame(), True, 'Invalid coords, coords seperated by white space. Example usage: a1 a2'),
-    'O': (OthelloGame(), False, 'Invalid coords. Example usage: a1')
+    'C': (ChessGame(), True, TWO_COORD_MSG),
+    'D': (DraughtsGame(), True, TWO_COORD_MSG),
+    'O': (OthelloGame(), False, ONE_COORD_MSG)
 }
 
 
