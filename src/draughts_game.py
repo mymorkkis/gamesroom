@@ -1,7 +1,7 @@
 from itertools import cycle, product
 
 from src.game_enums import Color
-from src.game import Coords, Game
+from src.game import Game, NEXT_ADJACENT_COORD
 from src.game_pieces.draughts_counter import Counter
 from src.game_errors import IllegalMoveError
 
@@ -16,9 +16,12 @@ class DraughtsGame(Game):
         )
         self.playing_color = Color.BLACK
         self.opponent_color = Color.WHITE
+        self._piece_valid_move_directions = None
 
     def move(self, from_coords, to_coords):
+        self.validate_coords(from_coords, to_coords)
         self.set_move_attributes(from_coords, to_coords, self.playing_color)
+        self._set_valid_move_directions_for_piece()
 
         if self.playing_piece.legal_move(to_coords) and not self._potential_capture():
             self._move_piece()
@@ -31,6 +34,11 @@ class DraughtsGame(Game):
             raise IllegalMoveError('Illegal move attempted')
 
         self._switch_players()
+
+    def _set_valid_move_directions_for_piece(self):
+        self._piece_valid_move_directions = ['NE', 'NW'] if self.playing_color == Color.WHITE else ['SE', 'SW']
+        if self.playing_piece.crowned:
+            self._piece_valid_move_directions = ['NE', 'SE', 'SW', 'NW']
 
     def _switch_players(self):
         playing_color = self.playing_color
@@ -59,26 +67,20 @@ class DraughtsGame(Game):
 
     def _collect_capture_coords(self, captures=None):
         capture_coords = []
-        direction_combinations = product('EW', repeat=captures)
+        direction_combinations = product(self._piece_valid_move_directions, repeat=captures)
         for combination in direction_combinations:
             coords = self.from_coords
             for direction in combination:
-                coords = self._next_coords(coords, direction)
+                if not coords:
+                    continue
+                coords = self._capture_coords(direction, coords)
                 capture_coords.append(coords)
             if self._move_route_found(capture_coords):
                 return (self.from_coords, *capture_coords)
             capture_coords = []
         raise IllegalMoveError('Illegal capture attempted. No piece to capture or piece blocking move')
 
-    def _next_coords(self, coords, direction):
-        if direction == 'E':
-            return self._capture_east_coords(coords)
-        return self._capture_west_coords(coords)
-
     def _move_route_found(self, capture_coords):
-        for coords in capture_coords:
-            if not coords:
-                return False
         return capture_coords[-1] == self.to_coords
 
     def _king_row_reached(self):
@@ -88,8 +90,11 @@ class DraughtsGame(Game):
 
     def _potential_capture(self):
         for piece in self._playing_pieces():
-            if self._capture_east_coords(piece.coords) or self._capture_west_coords(piece.coords):
-                raise IllegalMoveError('Move Illegal as capture is possible')
+            for direction in self._piece_valid_move_directions:
+                if self._capture_coords(direction, piece.coords):
+                    raise IllegalMoveError('Move Illegal as capture is possible')
+            if piece.crowned and self._crowned_piece_capture_coords(piece.coords):
+                raise IllegalMoveError('Move Illegal as capture by crowned piece is possible')
         return False
 
     def _playing_pieces(self):
@@ -98,44 +103,17 @@ class DraughtsGame(Game):
                 and piece.color == self.playing_color)
 
     def _force_capture_if_extra_capture_possible(self):
-        for capture_possible in (self._capture_east_coords, self._capture_west_coords):
-            coords = capture_possible(self.to_coords)
+        for direction in self._piece_valid_move_directions:
+            coords = self._capture_coords(direction, self.to_coords)
             if coords:
                 self._capture(self.coords_between(self.to_coords, coords))
                 self.to_coords = coords
                 # TODO message to screen?
 
-    def _capture_east_coords(self, from_coords):
-        if not from_coords:
-            return None
+    def _capture_coords(self, direction, from_coords):
+        capture_coords = NEXT_ADJACENT_COORD[direction](from_coords)
+        to_coords = NEXT_ADJACENT_COORD[direction](capture_coords)
 
-        if self.playing_color == Color.WHITE:
-            capture_coords = Coords(from_coords.x + 1, from_coords.y + 1)
-            to_coords = Coords(from_coords.x + 2, from_coords.y + 2)
-        else:
-            capture_coords = Coords(from_coords.x + 1, from_coords.y - 1)
-            to_coords = Coords(from_coords.x + 2, from_coords.y - 2)
-
-        if self._capture_possible(capture_coords, to_coords):
-            return to_coords
-        return None
-
-    def _capture_west_coords(self, from_coords):
-        if not from_coords:
-            return None
-
-        if self.playing_color == Color.WHITE:
-            capture_coords = Coords(from_coords.x - 1, from_coords.y + 1)
-            to_coords = Coords(from_coords.x - 2, from_coords.y + 2)
-        else:
-            capture_coords = Coords(from_coords.x - 1, from_coords.y - 1)
-            to_coords = Coords(from_coords.x - 2, from_coords.y - 2)
-
-        if self._capture_possible(capture_coords, to_coords):
-            return to_coords
-        return None
-
-    def _capture_possible(self, capture_coords, to_coords):
         for coords in (capture_coords, to_coords):
             if not self.coords_on_board(coords):
                 return False
@@ -143,7 +121,16 @@ class DraughtsGame(Game):
         capture_square = self.board[capture_coords.x][capture_coords.y]
         move_to_square = self.board[to_coords.x][to_coords.y]
 
-        return capture_square == Counter(self.opponent_color) and move_to_square is None
+        if capture_square == Counter(self.opponent_color) and move_to_square is None:
+            return to_coords
+        return None
+
+    def _crowned_piece_capture_coords(self, piece_coords):
+        for direction in 'NE SE SW NW'.split():
+            to_coords = self._capture_coords(direction, piece_coords)
+            if to_coords:
+                return to_coords
+        return None
 
     @staticmethod
     def new_setup():

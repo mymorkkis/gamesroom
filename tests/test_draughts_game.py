@@ -61,6 +61,22 @@ def test_illegal_move_raises_exception():
         game.move(Coords(x=4, y=2), Coords(x=4, y=3))
 
 
+def test_same_from_and_to_coords_raises_exception():
+    game = DraughtsGame({
+        '66': Counter(Color.BLACK),
+    })
+
+    with pytest.raises(IllegalMoveError):
+        game.move(Coords(x=6, y=6), Coords(x=6, y=6))
+
+
+def test_no_counter_at_from_coords_raises_exception():
+    game = DraughtsGame({})  # empty board
+
+    with pytest.raises(IllegalMoveError):
+        game.move(Coords(x=6, y=6), Coords(x=5, y=5))
+
+
 def test_draughts_piece_can_capture():
     game = DraughtsGame({
         '00': Counter(Color.WHITE),
@@ -106,6 +122,33 @@ def test_counters_can_be_crowned():
     game.move(Coords(x=1, y=6), Coords(x=0, y=7))
     assert white_piece.crowned
     assert str(white_piece) == '\u26C1'
+
+
+def test_crowned_white_piece_can_capture_backwards():
+    game = DraughtsGame({
+        '22': Counter(Color.WHITE),
+        '11': Counter(Color.BLACK),
+    })
+    game.playing_color = Color.WHITE
+    game.opponent_color = Color.BLACK
+    game.board[2][2].crowned = True
+
+    game.move(Coords(x=2, y=2), Coords(x=0, y=0))
+    assert game.board[1][1] is None
+    assert game.board[0][0] == Counter(Color.WHITE)
+
+
+def test_crowned_black_piece_can_capture_backwards():
+    game = DraughtsGame({
+        '55': Counter(Color.BLACK),
+        '66': Counter(Color.WHITE),
+    })
+    game.board[5][5].crowned = True
+
+    game.move(Coords(x=5, y=5), Coords(x=7, y=7))
+    assert game.board[6][6] is None
+    assert game.board[7][7] == Counter(Color.BLACK)
+
 
 def test_can_capture_two_pieces_in_straight_line():
     game = DraughtsGame({
@@ -213,7 +256,7 @@ def test_black_can_capture_three_pieces_in_multiple_directions_s_shape():
     assert game.board[4][0] == Counter(Color.BLACK)
 
 
-def test_move_raises_error_if_capture_possible():
+def test_move_raises_error_if_capture_possible_for_piece():
     game = DraughtsGame({
         '66': Counter(Color.BLACK),
         '55': Counter(Color.WHITE),
@@ -221,6 +264,18 @@ def test_move_raises_error_if_capture_possible():
 
     with pytest.raises(IllegalMoveError):
         game.move(Coords(x=6, y=6), Coords(x=7, y=5))
+
+
+def test_move_raises_error_if_capture_possible_for_crowned_piece():
+    game = DraughtsGame({
+        '77': Counter(Color.BLACK),
+        '55': Counter(Color.WHITE),
+        '64': Counter(Color.BLACK)
+    })
+    game.board[6][4].crowned = True
+
+    with pytest.raises(IllegalMoveError):
+        game.move(Coords(x=7, y=7), Coords(x=6, y=6))
 
 
 def test_one_piece_capture_forced_to_make_two_move_capture_if_possible():
