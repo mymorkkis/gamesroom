@@ -308,3 +308,17 @@ def test_two_piece_capture_force_to_make_three_move_capture_if_possible():
     assert game.board[2][2] is None
     assert game.board[1][1] is None
     assert game.board[0][0] == Counter(Color.BLACK)
+
+
+def test_crowned_piece_can_take_two_pieces_and_return_to_same_y_index():
+    game = DraughtsGame({
+        '66': Counter(Color.BLACK),
+        '55': Counter(Color.WHITE),
+        '35': Counter(Color.WHITE),
+    })
+    game.board[6][6].crowned = True
+
+    game.move(Coords(x=6, y=6), Coords(x=2, y=6))
+    assert game.board[5][5] is None
+    assert game.board[3][5] is None
+    assert game.board[2][6] == Counter(Color.BLACK)

@@ -7,6 +7,8 @@ from src.game_errors import IllegalMoveError
 
 
 class DraughtsGame(Game):
+    MAX_CAPTURES = 4
+
     def __init__(self, restore_positions=None):
         super().__init__(
             board=[[None] * 8 for _ in range(8)],
@@ -56,6 +58,8 @@ class DraughtsGame(Game):
             self.board[coords.x][coords.y] = None
 
     def _capture_move_count(self):
+        if self.playing_piece.crowned:
+            return self.MAX_CAPTURES
         return int(abs(self.from_coords.y - self.to_coords.y) / 2)
 
     def _collect_capture_coords(self, captures=None):
@@ -68,8 +72,8 @@ class DraughtsGame(Game):
                     break
                 coords = self._capture_coords(direction, coords)
                 capture_coords.append(coords)
-            if self._move_route_found(capture_coords):
-                return (self.from_coords, *capture_coords)
+                if self._move_route_found(capture_coords):
+                    return (self.from_coords, *capture_coords)
             capture_coords = []
         raise IllegalMoveError('Illegal capture attempted. No piece to capture or piece blocking move')
 
