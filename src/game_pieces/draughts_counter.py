@@ -13,6 +13,11 @@ class Counter(GamePiece):
             return '\u26C1' if self.color == Color.WHITE else '\u26C3'
         return '\u26C0' if self.color == Color.WHITE else '\u26C2'
 
+    def legal_move_directions(self):
+        if self.crowned:
+            return ['NE', 'SE', 'SW', 'NW']
+        return ['NE', 'NW'] if self.color == Color.WHITE else ['SE', 'SW']
+
     def legal_move(self, to_coords):
         legal_x_coords = (self.coords.x + 1, self.coords.x - 1)
         crowned_legal_y_coords = (self.coords.y + 1, self.coords.y - 1)

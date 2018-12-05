@@ -16,12 +16,10 @@ class DraughtsGame(Game):
         )
         self.playing_color = Color.BLACK
         self.opponent_color = Color.WHITE
-        self._piece_valid_move_directions = None
 
     def move(self, from_coords, to_coords):
         self.validate_coords(from_coords, to_coords)
         self.set_move_attributes(from_coords, to_coords, self.playing_color)
-        self._set_valid_move_directions_for_piece()
 
         if self.playing_piece.legal_move(to_coords) and not self._potential_capture():
             self._move_piece()
@@ -34,11 +32,6 @@ class DraughtsGame(Game):
             raise IllegalMoveError('Illegal move attempted')
 
         self._switch_players()
-
-    def _set_valid_move_directions_for_piece(self):
-        self._piece_valid_move_directions = ['NE', 'NW'] if self.playing_color == Color.WHITE else ['SE', 'SW']
-        if self.playing_piece.crowned:
-            self._piece_valid_move_directions = ['NE', 'SE', 'SW', 'NW']
 
     def _switch_players(self):
         playing_color = self.playing_color
@@ -67,12 +60,12 @@ class DraughtsGame(Game):
 
     def _collect_capture_coords(self, captures=None):
         capture_coords = []
-        direction_combinations = product(self._piece_valid_move_directions, repeat=captures)
+        direction_combinations = product(self.playing_piece.legal_move_directions(), repeat=captures)
         for combination in direction_combinations:
             coords = self.from_coords
             for direction in combination:
                 if not coords:
-                    continue
+                    break
                 coords = self._capture_coords(direction, coords)
                 capture_coords.append(coords)
             if self._move_route_found(capture_coords):
@@ -90,11 +83,9 @@ class DraughtsGame(Game):
 
     def _potential_capture(self):
         for piece in self._playing_pieces():
-            for direction in self._piece_valid_move_directions:
+            for direction in piece.legal_move_directions():
                 if self._capture_coords(direction, piece.coords):
                     raise IllegalMoveError('Move Illegal as capture is possible')
-            if piece.crowned and self._crowned_piece_capture_coords(piece.coords):
-                raise IllegalMoveError('Move Illegal as capture by crowned piece is possible')
         return False
 
     def _playing_pieces(self):
@@ -103,12 +94,13 @@ class DraughtsGame(Game):
                 and piece.color == self.playing_color)
 
     def _force_capture_if_extra_capture_possible(self):
-        for direction in self._piece_valid_move_directions:
+        for direction in self.playing_piece.legal_move_directions():
             coords = self._capture_coords(direction, self.to_coords)
             if coords:
                 self._capture(self.coords_between(self.to_coords, coords))
                 self.to_coords = coords
                 # TODO message to screen?
+                # TODO Force more than one capture?
 
     def _capture_coords(self, direction, from_coords):
         capture_coords = NEXT_ADJACENT_COORD[direction](from_coords)
@@ -116,20 +108,13 @@ class DraughtsGame(Game):
 
         for coords in (capture_coords, to_coords):
             if not self.coords_on_board(coords):
-                return False
+                return None
 
         capture_square = self.board[capture_coords.x][capture_coords.y]
         move_to_square = self.board[to_coords.x][to_coords.y]
 
         if capture_square == Counter(self.opponent_color) and move_to_square is None:
             return to_coords
-        return None
-
-    def _crowned_piece_capture_coords(self, piece_coords):
-        for direction in 'NE SE SW NW'.split():
-            to_coords = self._capture_coords(direction, piece_coords)
-            if to_coords:
-                return to_coords
         return None
 
     @staticmethod
