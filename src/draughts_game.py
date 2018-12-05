@@ -7,7 +7,7 @@ from src.game_errors import IllegalMoveError
 
 
 class DraughtsGame(Game):
-    MAX_CAPTURES = 4
+    MAX_CAPTURE_MOVE_COUNT = 4
 
     def __init__(self, restore_positions=None):
         super().__init__(
@@ -26,9 +26,9 @@ class DraughtsGame(Game):
         if self.playing_piece.legal_move(to_coords) and not self._potential_capture():
             self._move_piece()
         elif self.playing_piece.legal_capture(to_coords):
-            capture_coords = self._collect_capture_coords(captures=self._capture_move_count())
+            capture_coords = self._collect_capture_coords()
             self._capture_pieces(capture_coords)
-            self._force_capture_if_extra_capture_possible()
+            self._force_capture_if_extra_captures_possible()
             self._move_piece()
         else:
             raise IllegalMoveError('Illegal move attempted')
@@ -59,12 +59,12 @@ class DraughtsGame(Game):
 
     def _capture_move_count(self):
         if self.playing_piece.crowned:
-            return self.MAX_CAPTURES
+            return self.MAX_CAPTURE_MOVE_COUNT
         return int(abs(self.from_coords.y - self.to_coords.y) / 2)
 
-    def _collect_capture_coords(self, captures=None):
+    def _collect_capture_coords(self):
         capture_coords = []
-        direction_combinations = product(self.playing_piece.legal_move_directions(), repeat=captures)
+        direction_combinations = product(self.playing_piece.legal_move_directions(), repeat=self._capture_move_count())
         for combination in direction_combinations:
             coords = self.from_coords
             for direction in combination:
@@ -97,14 +97,16 @@ class DraughtsGame(Game):
                 for piece in row if piece
                 and piece.color == self.playing_color)
 
-    def _force_capture_if_extra_capture_possible(self):
-        for direction in self.playing_piece.legal_move_directions():
-            coords = self._capture_coords(direction, self.to_coords)
-            if coords:
-                self._capture(self.coords_between(self.to_coords, coords))
-                self.to_coords = coords
-                # TODO message to screen?
-                # TODO Force more than one capture?
+    def _force_capture_if_extra_captures_possible(self):
+        from_coords = self.to_coords
+        while from_coords:
+            for direction in self.playing_piece.legal_move_directions():
+                to_coords = self._capture_coords(direction, from_coords)
+                if to_coords:
+                    self._capture(self.coords_between(from_coords, to_coords))
+                    self.to_coords = to_coords
+                    # TODO message to screen?
+            from_coords = to_coords if to_coords else None
 
     def _capture_coords(self, direction, from_coords):
         capture_coords = NEXT_ADJACENT_COORD[direction](from_coords)
