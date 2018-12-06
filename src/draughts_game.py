@@ -33,12 +33,7 @@ class DraughtsGame(Game):
         else:
             raise IllegalMoveError('Illegal move attempted')
 
-        self._switch_players()
-
-    def _switch_players(self):
-        playing_color = self.playing_color
-        self.playing_color = self.opponent_color
-        self.opponent_color = playing_color
+        self.switch_players()
 
     def _move_piece(self):
         self.board[self.from_coords.x][self.from_coords.y] = None

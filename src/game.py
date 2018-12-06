@@ -44,6 +44,8 @@ class Game(ABC):
         self._setup_game(restore_positions)
         self.winner = None
         # Move attributes
+        self.playing_color = None
+        self.opponent_color = None
         self.from_coords = None
         self.to_coords = None
         self.playing_piece = None
@@ -93,14 +95,13 @@ class Game(ABC):
         self.from_coords = from_coords
         self.to_coords = to_coords
         self.playing_piece = self.board[from_coords.x][from_coords.y]
-        # piece_to_attack = self.board[self.to_coords.x][self.to_coords.y]
 
         if self.playing_piece.color != playing_color:
             raise IllegalMoveError('Incorrect piece color for current player')
 
-        # TODO Chess specific, needs to move
-        # if piece_to_attack and piece_to_attack.color == playing_color:
-        #     raise IllegalMoveError('Cannot attack own piece')
+    def switch_players(self):
+        """When two game colors, switch player and opponent colors."""
+        self.playing_color, self.opponent_color = self.opponent_color, self.playing_color
 
     def coords_on_board(self, coords):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""

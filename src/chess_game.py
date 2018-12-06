@@ -70,7 +70,7 @@ class ChessGame(Game):
             make_move()
             if self._check_mate():
                 self.winner = self.playing_color.value
-            self._switch_players()
+            self.switch_players()
         else:
             raise IllegalMoveError('Illegal chess move attempted')
 
@@ -84,11 +84,6 @@ class ChessGame(Game):
         if self._capture_move():
             return self.playing_piece.legal_capture, self._capture
         return self.playing_piece.legal_move, self._move
-
-    def _switch_players(self):
-        playing_color = self.playing_color
-        self.playing_color = self.opponent_color
-        self.opponent_color = playing_color
 
     def _piece_blocking(self, from_coords, to_coords):
         if move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
@@ -130,6 +125,8 @@ class ChessGame(Game):
 
     def _capture(self):
         captured_piece = self.board[self.to_coords.x][self.to_coords.y]
+        if captured_piece.color == self.playing_color:
+            raise IllegalMoveError('Cannot attack own piece')
         captured_piece.coords = None
         self._move()
 

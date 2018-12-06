@@ -1,5 +1,3 @@
-from itertools import cycle
-
 from src.game_enums import Color
 from src.game_pieces.othello_disc import Disc
 from src.game_errors import IllegalMoveError
@@ -14,8 +12,8 @@ class OthelloGame(Game):
             legal_piece_names={'Disc'},
             restore_positions=restore_positions
         )
-        self._playing_colors = cycle([Color.BLACK, Color.WHITE])
-        self.playing_color = next(self._playing_colors)
+        self.playing_color = Color.BLACK
+        self.opponent_color = Color.WHITE
 
     def move(self, to_coords):
         self.validate_coords(to_coords=to_coords)
@@ -30,11 +28,11 @@ class OthelloGame(Game):
         if not self._empty_square_coords():
             self.winner = self._winning_color_or_draw()
         elif self.next_player_cant_move():
-            self.playing_color = next(self._playing_colors)
+            self.switch_players()
             if self.next_player_cant_move():
                 self.winner = self._winning_color_or_draw()
         else:
-            self.playing_color = next(self._playing_colors)
+            self.switch_players()
 
     def _winning_color_or_draw(self):
         white_discs = self.disc_count(Color.WHITE)
@@ -81,13 +79,13 @@ class OthelloGame(Game):
                 disc = self.board[next_coords.x][next_coords.y]
                 if not disc:
                     break
-                elif disc.color == self.playing_color:
+                elif disc.color == self.opponent_color:
+                    possible_trapped_discs.append(disc)
+                else:
                     trapped_discs.extend(possible_trapped_discs)
                     if trapped_discs and not scan_all_directions:
                         return trapped_discs
                     break
-                else:
-                    possible_trapped_discs.append(disc)
         return trapped_discs
 
     def _empty_square_coords(self):
