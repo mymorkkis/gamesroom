@@ -1,35 +1,38 @@
+"""Contains Othello game class."""
 from src.game_enums import Color
 from src.game_pieces.othello_disc import Disc
 from src.game_errors import IllegalMoveError
-from src.game import Coords, Game, NEXT_ADJACENT_COORD
+from src.game import Coords, Game, NEXT_ADJACENT_COORD, ONE_COORD_ERR_MSG
 
 
 class OthelloGame(Game):
+    """Game logic for Othello."""
+
     def __init__(self, restore_positions=None):
-        super().__init__(
-            board=[[None] * 8 for _ in range(8)],
-            legal_piece_colors={Color.WHITE, Color.BLACK},
-            legal_piece_names={'Disc'},
-            restore_positions=restore_positions
-        )
-        self.playing_color = Color.BLACK
-        self.opponent_color = Color.WHITE
 
-    def move(self, to_coords):
-        self.validate_coords(to_coords=to_coords)
+        OTHELLO_SETUP = {
+            'board': [[None] * 8 for _ in range(8)],
+            'legal_piece_colors': {Color.WHITE, Color.BLACK},
+            'legal_piece_names': {'Disc'},
+            'start_color': Color.BLACK,
+            'input_err_msg': ONE_COORD_ERR_MSG
+        }
 
-        for disc in self._trapped_discs(to_coords):
+        super().__init__(OTHELLO_SETUP, restore_positions)
+
+    def make_move(self):
+        for disc in self._trapped_discs(self.to_coords):
             disc.color = self.playing_color
 
-        self._place_disc(to_coords)
+        self._place_disc(self.to_coords)
         self._declare_winner_or_switch_players()
 
     def _declare_winner_or_switch_players(self):
         if not self._empty_square_coords():
             self.winner = self._winning_color_or_draw()
-        elif self.next_player_cant_move():
+        elif self._next_player_cant_move():
             self.switch_players()
-            if self.next_player_cant_move():
+            if self._next_player_cant_move():
                 self.winner = self._winning_color_or_draw()
         else:
             self.switch_players()
@@ -57,7 +60,7 @@ class OthelloGame(Game):
 
         return trapped_discs
 
-    def next_player_cant_move(self):
+    def _next_player_cant_move(self):
         empty_square_coords = self._empty_square_coords()
 
         for square_coords in empty_square_coords:
@@ -97,12 +100,13 @@ class OthelloGame(Game):
         return empty_squares
 
     def disc_count(self, color):
+        """Return int count of discs for given Disc color."""
         return len([disc for row in self.board
                     for disc in row
                     if disc and disc.color == color])
 
     @staticmethod
-    def new_setup():
+    def _new_board_setup():
         return {
             '34': Disc(Color.WHITE),
             '43': Disc(Color.WHITE),

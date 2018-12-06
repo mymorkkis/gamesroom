@@ -14,7 +14,7 @@ def test_illegal_move_error():
 def test_not_on_board_error():
     err_msg = 'To_coordinates not legal board coordidnates'
     try:
-        raise NotOnBoardError(Coords(x=1, y=5), err_msg)
+        raise NotOnBoardError(Coords(x='z', y='10'), err_msg)
     except NotOnBoardError as err:
-        assert err.coords == Coords(x=1, y=5)
+        assert err.coords == Coords(x='z', y='10')
         assert err.message == err_msg

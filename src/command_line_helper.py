@@ -1,3 +1,8 @@
+"""Helper module to parse game aguments for tkinter/command line games.
+
+   functions:
+        parse_args_to_fetch_game
+"""
 import sys
 
 
@@ -13,6 +18,10 @@ Game type options: (C)hess, (D)raughts, (O)thello
 
 
 def parse_args_to_fetch_game(game_options):
+    """Use given argument as key in game_options Dict.
+
+       Print error message and quit if no valid argument passed.
+    """
     try:
         game_type = sys.argv[1].title()[0]
         return game_options[game_type]

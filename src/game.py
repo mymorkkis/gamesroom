@@ -5,16 +5,17 @@
         adjacent_squares: return bool
 """
 from abc import ABC, abstractmethod
-from itertools import chain
 from collections import namedtuple
 
 from tabulate import tabulate
 
-from src.game_enums import Direction
+from src.game_enums import Color, Direction
 from src.game_errors import IllegalMoveError, NotOnBoardError
 
 
 ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
+ONE_COORD_ERR_MSG = 'Invalid coords. Example usage: a1'
+TWO_COORD_ERR_MSG = 'Invalid coords, coords seperated by white space. Example usage: a1 a2'
 
 
 Coords = namedtuple('Coords', 'x y')
@@ -24,49 +25,101 @@ class Game(ABC):
     """Abstract Base class for game.
 
        Methods:
-            validate_coords
             add
-            set_move_attributes
+            move
             coords_on_board
             coords_between
+            switch_players
+            opponenet_color
+            x_axis
+            y_axis
             display_board
+            display_board_to_terminal
+            gui_display_board
+            save_game
 
        Abstract methods:
-            move
-            new_setup
+            make_move
+            _new_board_setup
     """
-    def __init__(self, board, legal_piece_colors, legal_piece_names, restore_positions):
-        self.board = board
+    def __init__(self, setup, restore_positions):
+        self.board = setup['board']
         self.board_width = len(self.board[0])
         self.board_height = len(self.board)
-        self.legal_piece_names = legal_piece_names
-        self.legal_piece_colors = legal_piece_colors
+        self.legal_piece_names = setup['legal_piece_names']
+        self.legal_piece_colors = setup['legal_piece_colors']
+        self.input_error_msg = setup['input_err_msg']
         self._setup_game(restore_positions)
-        self.winner = None
         # Move attributes
-        self.playing_color = None
-        self.opponent_color = None
+        self.playing_color = setup['start_color']
+        self.opponent_color = self.fetch_opponent_color(self.playing_color)
         self.from_coords = None
         self.to_coords = None
         self.playing_piece = None
+        self.winner = None
 
     @abstractmethod
-    def move(self):
+    def make_move(self):
+        """Move piece from coordinates, to coordianates. Remove captured piece, if any.
+           Args:
+                from_coords: Namedtuple with coordinates x & y. E.g. Coords(x='a', y='2').
+                to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x='a', y='2').
+           Raises:
+                IllegalMoveError
+        """
         raise NotImplementedError
 
     @abstractmethod
-    def new_setup(self):
+    def _new_board_setup(self):
+        """Return dictionary of new game default piece start postitions and pieces.
+
+        Dictionary is in following format:
+        key = str representation of game coordinates xy
+        value = GamePiece
+        e.g '00': Piece(Color.WHITE)
+        """
         raise NotImplementedError
 
     def _setup_game(self, restore_positions):
         """Setup board for new or previously stored game."""
-        game_positions = self.new_setup() if restore_positions is None else restore_positions
+        game_positions = self._new_board_setup() if restore_positions is None else restore_positions
 
         for coords, piece in game_positions.items():
             assert piece.color in self.legal_piece_colors
             assert piece.name in self.legal_piece_names
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             self.add(piece, coords)
+
+    def move(self, *input_coords):
+        """Move piece from coordinates, to coordianates. Remove captured piece, if any.
+           Args (optional):
+                from_coords: Chess notation str, eg a1
+           Args:
+                to_coords:   Chess notation str, eg a2
+           Raises:
+                IllegalMoveError
+        """
+        processed_coords = []
+        for coords in input_coords:
+            try:
+                processed_coords.append(self._coords_from(coords))
+            except (ValueError, KeyError):
+                raise IllegalMoveError(self.input_error_msg)
+        self._set_current_move_attributes_or_raise_errors(*reversed(processed_coords))
+        self.make_move()
+
+    @classmethod
+    def restore(cls, restore_positions):
+        """Restore new game with previously saved game state."""
+        raise NotImplementedError()
+
+    @staticmethod
+    def _coords_from(input_coords):
+        input_x, input_y = input_coords
+        x_coords = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
+        y_coords = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7}
+        x_coord, y_coord = x_coords[input_x], y_coords[input_y]
+        return Coords(x_coord, y_coord)
 
     def save_game(self):
         'TODO'
@@ -86,48 +139,41 @@ class Game(ABC):
         except IndexError:
             raise NotOnBoardError(coords, 'Saved coordinates are not legal coordinates')
 
-    def set_move_attributes(self, from_coords, to_coords, playing_color):
-        """Sets temporary game attributes, from_coords, to_coords and playing_piece.
-
-           Raises:
-                IllegalMoveError
-        """
-        self.from_coords = from_coords
-        self.to_coords = to_coords
-        self.playing_piece = self.board[from_coords.x][from_coords.y]
-
-        if self.playing_piece.color != playing_color:
-            raise IllegalMoveError('Incorrect piece color for current player')
-
     def switch_players(self):
-        """When two game colors, switch player and opponent colors."""
+        """For games with two game colors. Switch player and opponent colors."""
         self.playing_color, self.opponent_color = self.opponent_color, self.playing_color
+
+    def fetch_opponent_color(self, playing_color):
+        """Return Color enum type of opponent color to playing color."""
+        return Color.WHITE if playing_color == Color.BLACK else Color.BLACK
 
     def coords_on_board(self, coords):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
         return coords.x in range(self.board_width) and coords.y in range(self.board_height)
 
-    def validate_coords(self, from_coords=None, to_coords=None):
-        """Check for errors in passed board coordinates.
-        Args:
-                from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
-                to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
-        Raises:
-                IllegalMoveError
-        """
+    def _set_current_move_attributes_or_raise_errors(self, to_coords=None, from_coords=None):
         if from_coords:
             if from_coords == to_coords:
                 raise IllegalMoveError('Move to same square illegal')
 
             if not self.board[from_coords.x][from_coords.y]:
                 raise IllegalMoveError('No piece found at from coordinates')
+
+            self.from_coords = from_coords
+            self.to_coords = to_coords
+            self.playing_piece = self.board[from_coords.x][from_coords.y]
+
+            if self.playing_piece.color != self.playing_color:
+                raise IllegalMoveError('Incorrect piece color for current player')
         else:
             if self.board[to_coords.x][to_coords.y]:
-                raise IllegalMoveError('Piece found at coordinates')
+                raise IllegalMoveError('Piece already found at coordinates')
+
+            self.to_coords = to_coords
 
 
     def coords_between(self, from_coords, to_coords):
-        """Helper function. Return generator of all coords between from_coords and to_coords."""
+        """Return generator of all Coords(x, y) between from_coords and to_coords."""
         x_coords = self._coords_between(from_coords.x, to_coords.x, abs(from_coords.y - to_coords.y))
         y_coords = self._coords_between(from_coords.y, to_coords.y, abs(from_coords.x - to_coords.x))
         return (Coords(x, y) for x, y in zip(x_coords, y_coords))
@@ -141,9 +187,11 @@ class Game(ABC):
         return list(range(from_coord + 1, to_coord))
 
     def x_axis(self):
+        """Return list of letters in range a-z for length of board x-axis width"""
         return list(ALPHABET[:self.board_width])
 
     def y_axis(self):
+        """Return reversed list of ints for length of board y-axis height"""
         return list(reversed(range(self.board_height + 1)))
 
     def display_board(self):
@@ -173,25 +221,12 @@ class Game(ABC):
         board.append(self.x_axis())
         print(tabulate(board, tablefmt="fancy_grid", showindex=self.y_axis()))
 
-    def process_input_coords(self, input_coords):
-        processed_coords = [self._coords_from(coords)
-                            for coords in input_coords]
-        self.move(*processed_coords)
-
-    @staticmethod
-    def _coords_from(input_coords):
-        input_x, input_y = input_coords
-        x_coords = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
-        y_coords = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7}
-        x_coord, y_coord = x_coords[input_x], y_coords[input_y]
-        return Coords(x_coord, y_coord)
-
 
 def move_direction(from_coords, to_coords):
     """Calculate direction from from_coordinates to coordinates. Return Direction enum.
     Args:
-            from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
-            to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
+            from_coords: Namedtuple with coordinates x & y. E.g. Coords(x='a', y='2').
+            to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x='a', y='2').
     Returns:
             Direction enum type.
     """
@@ -222,4 +257,4 @@ NEXT_ADJACENT_COORD = {
     'SW': lambda c: Coords(c.x - 1, c.y - 1),
     'W': lambda c: Coords(c.x - 1, c.y),
     'NW': lambda c: Coords(c.x - 1, c.y + 1)
-    }
+}

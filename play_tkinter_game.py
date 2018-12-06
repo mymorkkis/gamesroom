@@ -20,17 +20,14 @@ GREEN = 'green'
 LIGHT_BROWN = '#804000'
 DARK_BROWN = '#1a0300'
 LIGHT_GREY = '#adad85'
-ONE_COORD_MSG = 'Invalid coords. Example usage: a1'
-TWO_COORD_MSG = 'Invalid coords, coords seperated by white space. Example usage: a1 a2'
 
 
 class Board(tk.Frame):
     """Main tkinter frame"""
-    def __init__(self, parent, game, square_colors, two_coord_move, err_msg, pixel_size=64):
+    def __init__(self, parent, game, square_colors, two_coord_move, pixel_size=64):
         self.game = game
         self.pixel_size = pixel_size
         self.square_colors = square_colors
-        self.illegal_coord_error_message = err_msg
         self.new_chess_setup = deepcopy(game.board)
         self.move = self._two_coord_move if two_coord_move else self._one_coord_move
 
@@ -75,7 +72,7 @@ class Board(tk.Frame):
             self.refresh()
         except (ValueError, KeyError):
             self.move_entry.delete(0, 'end')
-            messagebox.showerror('Incorrect coords entered!', self.illegal_coord_error_message)
+            messagebox.showerror('Incorrect coords entered!', self.game.input_error_msg)
             self.refresh()
         except IllegalMoveError as error:
             self.move_entry.delete(0, 'end')
@@ -90,11 +87,11 @@ class Board(tk.Frame):
 
     def _one_coord_move(self):
         to_coords = self.move_entry.get()
-        self.game.process_input_coords([to_coords])
+        self.game.move(to_coords)
 
     def _two_coord_move(self):
         from_coords, to_coords = self.move_entry.get().split()
-        self.game.process_input_coords([from_coords, to_coords])
+        self.game.move(from_coords, to_coords)
 
     def refresh(self, event=None):
         """Redraw the board, either move taken or window being resized"""
@@ -195,22 +192,19 @@ GAME_OPTIONS = {
         'game': ChessGame(),
         'title': 'Chess Game',
         'square_colors': cycle([WHITE, LIGHT_BROWN]),
-        'two_coord_move': True,
-        'err_msg': TWO_COORD_MSG
+        'two_coord_move': True
     },
     'D': {
         'game': DraughtsGame(),
         'title': 'Draughts Game',
         'square_colors': cycle([WHITE, LIGHT_BROWN]),
-        'two_coord_move': True,
-        'err_msg': TWO_COORD_MSG
+        'two_coord_move': True
     },
     'O': {
         'game': OthelloGame(),
         'title': 'Othello Game',
         'square_colors': cycle([GREEN]),
-        'two_coord_move': False,
-        'err_msg': ONE_COORD_MSG
+        'two_coord_move': False
     }
 }
 
@@ -220,7 +214,7 @@ def _play_game():
     game = parse_args_to_fetch_game(GAME_OPTIONS)
     root.title(game['title'])
     board = Board(parent=root, game=game['game'], square_colors=game['square_colors'],
-                  two_coord_move=game['two_coord_move'], err_msg=game['err_msg'])
+                  two_coord_move=game['two_coord_move'])
     board.pack(side='top', fill='y', expand=True, padx=4, pady=4)
     return root
 

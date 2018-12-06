@@ -1,31 +1,33 @@
+"""Contains DraughtsGame class."""
 from itertools import cycle, product
 
 from src.game_enums import Color
-from src.game import Game, NEXT_ADJACENT_COORD
+from src.game import Game, NEXT_ADJACENT_COORD, TWO_COORD_ERR_MSG
 from src.game_pieces.draughts_counter import Counter
 from src.game_errors import IllegalMoveError
 
 
 class DraughtsGame(Game):
+    """Game logic for Draughts."""
+
     MAX_CAPTURE_MOVE_COUNT = 4
 
     def __init__(self, restore_positions=None):
-        super().__init__(
-            board=[[None] * 8 for _ in range(8)],
-            legal_piece_colors={Color.WHITE, Color.BLACK},
-            legal_piece_names={'Counter'},
-            restore_positions=restore_positions
-        )
-        self.playing_color = Color.BLACK
-        self.opponent_color = Color.WHITE
 
-    def move(self, from_coords, to_coords):
-        self.validate_coords(from_coords, to_coords)
-        self.set_move_attributes(from_coords, to_coords, self.playing_color)
+        DRAUGHTS_SETUP = {
+            'board': [[None] * 8 for _ in range(8)],
+            'legal_piece_colors': {Color.WHITE, Color.BLACK},
+            'legal_piece_names': {'Counter'},
+            'start_color': Color.BLACK,
+            'input_err_msg': TWO_COORD_ERR_MSG
+        }
 
-        if self.playing_piece.legal_move(to_coords) and not self._potential_capture():
+        super().__init__(DRAUGHTS_SETUP, restore_positions)
+
+    def make_move(self):
+        if self.playing_piece.legal_move(self.to_coords) and not self._potential_capture():
             self._move_piece()
-        elif self.playing_piece.legal_capture(to_coords):
+        elif self.playing_piece.legal_capture(self.to_coords):
             capture_coords = self._collect_capture_coords()
             self._capture_pieces(capture_coords)
             self._force_capture_if_extra_captures_possible()
@@ -59,7 +61,8 @@ class DraughtsGame(Game):
 
     def _collect_capture_coords(self):
         capture_coords = []
-        direction_combinations = product(self.playing_piece.legal_move_directions(), repeat=self._capture_move_count())
+        direction_combinations = product(self.playing_piece.legal_move_directions(),
+                                         repeat=self._capture_move_count())
         for combination in direction_combinations:
             coords = self.from_coords
             for direction in combination:
@@ -119,26 +122,15 @@ class DraughtsGame(Game):
         return None
 
     @staticmethod
-    def new_setup():
-        return draught_start_pieces()
+    def _new_board_setup():
+        x_axis_nums = cycle([0, 2, 4, 6, 1, 3, 5, 7])
+        y_axis_nums = [0, 1, 2, 5, 6, 7]
+        pieces = {}
 
+        for y_axis_num in y_axis_nums:
+            color = Color.WHITE if y_axis_num < 3 else Color.BLACK
+            for _ in range(4):
+                coords = f'{next(x_axis_nums)}{y_axis_num}'
+                pieces[coords] = Counter(color)
 
-def draught_start_pieces():
-    """Return dictionary of new draughts game default piece postitions.
-
-    Dictionary is in following format:
-    key = str representation of game coordinates xy
-    value = draughts GamePiece
-    e.g '00': Counter(Color.WHITE)
-    """
-    x_axis_nums = cycle([0, 2, 4, 6, 1, 3, 5, 7])
-    y_axis_nums = [0, 1, 2, 5, 6, 7]
-    pieces = {}
-
-    for y_axis_num in y_axis_nums:
-        color = Color.WHITE if y_axis_num < 3 else Color.BLACK
-        for _ in range(4):
-            coords = f'{next(x_axis_nums)}{y_axis_num}'
-            pieces[coords] = Counter(color)
-
-    return pieces
+        return pieces

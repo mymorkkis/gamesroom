@@ -23,25 +23,26 @@ def test_move_direction_correct_for_coordinates(to_coords, direction):
 
 
 def test_same_from_and_to_coords_raise_exception(game):
-    from_coords = Coords(x=4, y=4)
-    to_coords = Coords(x=4, y=4)
+    from_coords = Coords(x='a', y='1')
+    to_coords = Coords(x='a', y='1')
     with pytest.raises(IllegalMoveError):
-        game.validate_coords(from_coords, to_coords)
+        game.move(from_coords, to_coords)
 
 
 def test_no_piece_at_from_coords_raises_exception(game):
-    from_coords = Coords(x=1, y=6)
-    to_coords = Coords(x=1, y=5)
+    from_coords = Coords(x='a', y='3')
+    to_coords = Coords(x='a', y='4')
     with pytest.raises(IllegalMoveError):
         # No piece passed to function
-        game.validate_coords(from_coords, to_coords)
+        game.move(from_coords, to_coords)
 
 
-# def test_attacking_piece_of_own_color_raises_exception(game):
-#     game.add(Pawn(Color.WHITE), Coords(x=1, y=1))
-#     with pytest.raises(IllegalMoveError):
-#         # White king can't attack white Pawn
-#         game.move(Coords(x=0, y=0), Coords(x=1, y=1))  # TODO rewrite the code for this
+def test_attacking_piece_of_own_color_raises_exception(game):
+    game.add(Pawn(Color.WHITE), Coords(x=1, y=1))
+    with pytest.raises(IllegalMoveError):
+        # White king can't attack white Pawn
+        game.move(Coords(x=0, y=0), Coords(x=1, y=1))
+
 
 def test_adjacent_squares():
     assert not adjacent_squares(Coords(x=0, y=0), Coords(x=7, y=7))

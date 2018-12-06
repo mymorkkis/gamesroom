@@ -1,9 +1,9 @@
-"""Module with one class: ChessGame."""
+"""Contains ChessGame class."""
 from copy import deepcopy
 
 from src.game_enums import ChessPiece, Color, Direction
 from src.game_errors import IllegalMoveError
-from src.game import Coords, Game, move_direction, NEXT_ADJACENT_COORD
+from src.game import Coords, Game, move_direction, NEXT_ADJACENT_COORD, TWO_COORD_ERR_MSG
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -14,59 +14,28 @@ from src.game_pieces.rook import Rook
 
 
 class ChessGame(Game):
-    """Contains logic for chess game.
-       Optional Argument:
-            restore_positions:
-                dict of pieces for game restore
-                expected in the following key/value format:
-                key = str representation of game coordinates xy
-                value = chess GamePiece
-                e.g. "32": Queen.WHITE
-                White Queen will be placed at Coords(x=3, y=2)
+    """Contains logic for Chess."""
 
-       Methods:
-            move: move piece from coordinates, to coordinates
-    """
     def __init__(self, restore_positions=None):
-        super().__init__(
-            board=[[None] * 8 for _ in range(8)],
-            legal_piece_colors={Color.WHITE, Color.BLACK},
-            legal_piece_names={piece.value for piece in ChessPiece},
-            restore_positions=restore_positions
-        )
-        self.playing_color = Color.WHITE
-        self.opponent_color = Color.BLACK
+
+        CHESS_SETUP = {
+            'board': [[None] * 8 for _ in range(8)],
+            'legal_piece_colors': {Color.WHITE, Color.BLACK},
+            'legal_piece_names': {piece.value for piece in ChessPiece},
+            'start_color': Color.WHITE,
+            'input_err_msg': TWO_COORD_ERR_MSG
+        }
+
+        super().__init__(CHESS_SETUP, restore_positions)
+
         self.last_move_pawn = None  # Used for checking legality of en passant attempt
 
-    @staticmethod
-    def new_setup():
-        """Return dictionary of new chess game default piece postitions.
-
-        Dictionary is in following format:
-        key = str representation of game coordinates xy
-        value = chess GamePiece
-        e.g '00': Rook(Color.WHITE)
-        """
-        white_pieces = chess_pieces(Color.WHITE, y_idxs=[0, 1])
-        black_pieces = chess_pieces(Color.BLACK, y_idxs=[7, 6])
-        return dict(white_pieces + black_pieces)
-
-    def move(self, from_coords, to_coords):
-        """Move piece from coordinates, to coordianates. Remove captured piece, if any.
-           Args:
-                from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
-                to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
-           Raises:
-                IllegalMoveError
-        """
-        self.validate_coords(from_coords, to_coords)
-        self.set_move_attributes(from_coords, to_coords, self.playing_color)
-        if self._own_king_in_check():
-            raise IllegalMoveError('Must move king out of check')
+    def make_move(self):
+        self.raise_errors_if_chess_specific_illegal_move()
 
         legal_move, make_move = self._move_type()
 
-        if legal_move(to_coords) and not self._piece_blocking(from_coords, to_coords):
+        if legal_move(self.to_coords) and not self._piece_blocking(self.from_coords, self.to_coords):
             make_move()
             if self._check_mate():
                 self.winner = self.playing_color.value
@@ -114,6 +83,15 @@ class ChessGame(Game):
         if self.playing_piece in [King(self.playing_color), Rook(self.playing_color)]:
             self.playing_piece.moved = True
 
+    def raise_errors_if_chess_specific_illegal_move(self):
+        captured_piece = self.board[self.to_coords.x][self.to_coords.y]
+
+        if captured_piece and captured_piece.color == self.playing_color:
+            raise IllegalMoveError('Cannot attack own piece')
+
+        if self._own_king_in_check():
+            raise IllegalMoveError('Must move king out of check')
+
     def _pawn_two_space_first_move(self):
         if (self.playing_piece == Pawn(Color.WHITE)
                 and self.from_coords.y == 1 and self.to_coords.y == 3):
@@ -125,8 +103,6 @@ class ChessGame(Game):
 
     def _capture(self):
         captured_piece = self.board[self.to_coords.x][self.to_coords.y]
-        if captured_piece.color == self.playing_color:
-            raise IllegalMoveError('Cannot attack own piece')
         captured_piece.coords = None
         self._move()
 
@@ -344,9 +320,18 @@ class ChessGame(Game):
                 if self.coords_on_board(coords)
                 and self.board[coords.x][coords.y] is None]
 
+    @staticmethod
+    def _new_board_setup():
+        white_pieces = chess_pieces(Color.WHITE, y_idxs=[0, 1])
+        black_pieces = chess_pieces(Color.BLACK, y_idxs=[7, 6])
+        return dict(white_pieces + black_pieces)
+
 
 def chess_pieces(color, *, y_idxs=None):
-    """Helper function for new_chess_setup."""
+    """Helper function for new Chess setup.
+
+       Return list of [start_coords, pieces] for given color
+    """
     coords = [f'{x_idx}{y_idx}' for y_idx in y_idxs for x_idx in range(8)]
     pieces = [
         Rook(color),

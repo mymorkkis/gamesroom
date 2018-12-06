@@ -3,7 +3,6 @@ import pytest
 
 from src.chess_game import ChessGame
 from src.game_enums import Color
-from src.game import Coords
 from src.game_pieces.king import King
 from src.game_pieces.rook import Rook
 
@@ -21,20 +20,22 @@ def game():
        Kings are required so as not to throw errors.
        A game would always have Kings.
     """
-    chess_game = ChessGame(restore_positions={})
-    chess_game.add(King(Color.WHITE), Coords(x=0, y=0))
-    chess_game.add(King(Color.BLACK), Coords(x=7, y=7))
+    chess_game = ChessGame(restore_positions={
+        '00': King(Color.WHITE),
+        '77': King(Color.BLACK)
+    })
     return chess_game
 
 
 @pytest.fixture(scope='function')
 def castle_game():
     """Return game with only King/Rook postions pre-set"""
-    chess_game = ChessGame(restore_positions={})
-    chess_game.add(King(Color.WHITE), Coords(x=4, y=0))
-    chess_game.add(King(Color.BLACK), Coords(x=4, y=7))
-    chess_game.add(Rook(Color.WHITE), Coords(x=0, y=0))
-    chess_game.add(Rook(Color.WHITE), Coords(x=7, y=0))
-    chess_game.add(Rook(Color.BLACK), Coords(x=0, y=7))
-    chess_game.add(Rook(Color.BLACK), Coords(x=7, y=7))
+    chess_game = ChessGame(restore_positions={
+        '40': King(Color.WHITE),
+        '47': King(Color.BLACK),
+        '00': Rook(Color.WHITE),
+        '70': Rook(Color.WHITE),
+        '07': Rook(Color.BLACK),
+        '77': Rook(Color.BLACK)
+    })
     return chess_game
