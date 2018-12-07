@@ -58,6 +58,12 @@ class Game(ABC):
         self.playing_piece = None
         self.winner = None
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}()'
+
+    def __str__(self):
+        return tabulate(self.display_board(), tablefmt="fancy_grid")
+
     @abstractmethod
     def make_move(self):
         """Move piece from coordinates, to coordianates. Remove captured piece, if any.
