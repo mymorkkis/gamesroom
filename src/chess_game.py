@@ -31,7 +31,7 @@ class ChessGame(Game):
         self.last_move_pawn = None  # Used for checking legality of en passant attempt
 
     def make_move(self):
-        self.raise_errors_if_chess_specific_illegal_move()
+        self._raise_errors_if_chess_specific_illegal_move()
 
         legal_move, make_move = self._move_type()
 
@@ -83,7 +83,7 @@ class ChessGame(Game):
         if self.playing_piece in [King(self.playing_color), Rook(self.playing_color)]:
             self.playing_piece.moved = True
 
-    def raise_errors_if_chess_specific_illegal_move(self):
+    def _raise_errors_if_chess_specific_illegal_move(self):
         captured_piece = self.board[self.to_coords.x][self.to_coords.y]
 
         if captured_piece and captured_piece.color == self.playing_color:

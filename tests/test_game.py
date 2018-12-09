@@ -1,7 +1,10 @@
 """Test module form game_helper module."""
+from pathlib import Path
+
 import pytest
 
 from src.game_enums import Color, Direction
+from src.chess_game import ChessGame
 from src.game import adjacent_squares, Coords, move_direction
 from src.game_errors import IllegalMoveError, NotOnBoardError
 from src.game_pieces.pawn import Pawn
@@ -49,3 +52,19 @@ def test_adjacent_squares():
     assert not adjacent_squares(Coords(x=0, y=0), Coords(x=2, y=2))
     assert adjacent_squares(Coords(x=0, y=0), Coords(x=1, y=1))
     assert adjacent_squares(Coords(x=0, y=0), Coords(x=0, y=1))
+
+
+def test_can_save_game_to_file_and_load_from_file():
+    file_path = Path.cwd() / 'saved_games' / 'test.pkl'
+
+    original_game = ChessGame()
+    original_game.save(file_path)
+
+    restored_game = ChessGame.restore(file_path)
+    assert original_game == restored_game
+
+
+def test_invalid_file_path_raises_error_on_game_restore():
+    file_path = Path.cwd() / 'saved_games' / 'fail.pkl'
+    restored_game = ChessGame.restore(file_path)
+    assert not restored_game

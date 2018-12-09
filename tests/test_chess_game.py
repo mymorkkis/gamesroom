@@ -258,7 +258,6 @@ def test_adjacent_coords_does_not_return_non_empty_coords(game):
     (King(Color.BLACK), Coords(x=3, y=1), Pawn(Color.WHITE), True)
 ])
 def test_king_in_check_returns_correct_result(game, king, coords, opponent_piece, result):
-    # TODO rewrite this test, feels messy
     game.board[0][0] = None
     game.add(king, Coords(x=2, y=2))
     game.add(opponent_piece, coords)

@@ -6,6 +6,8 @@
 """
 from abc import ABC, abstractmethod
 from collections import namedtuple
+from pathlib import Path
+import pickle
 
 from tabulate import tabulate
 
@@ -64,6 +66,11 @@ class Game(ABC):
     def __str__(self):
         return tabulate(self.display_board(), tablefmt="fancy_grid")
 
+    def __eq__(self, other):
+        if other.__class__ is self.__class__:
+            return (self.board, self.playing_color) == (other.board, other.playing_color)
+        return NotImplemented
+
     @abstractmethod
     def make_move(self):
         """Move piece from coordinates, to coordianates. Remove captured piece, if any.
@@ -114,11 +121,6 @@ class Game(ABC):
         self._set_current_move_attributes_or_raise_errors(*reversed(processed_coords))
         self.make_move()
 
-    @classmethod
-    def restore(cls, restore_positions):
-        """Restore new game with previously saved game state."""
-        raise NotImplementedError()
-
     @staticmethod
     def _coords_from(input_coords):
         input_x, input_y = input_coords
@@ -127,9 +129,25 @@ class Game(ABC):
         x_coord, y_coord = x_coords[input_x], y_coords[input_y]
         return Coords(x_coord, y_coord)
 
-    def save_game(self):
-        'TODO'
-        pass
+    @classmethod
+    def restore(cls, file_name):
+        """Restore previously saved game state from saved_games folder."""
+        file_path = Path.cwd() / 'saved_games' / file_name
+
+        try:
+            with open(file_path, 'rb') as from_file:
+                restored_game = pickle.load(from_file)
+                return restored_game
+        except FileNotFoundError:
+            # TODO Handle this with gui error msg
+            pass
+
+    def save(self, file_name):
+        """Save current game state to pickle file in saved_games folder."""
+        file_path = Path.cwd() / 'saved_games' / file_name
+
+        with open(file_path, 'wb') as to_file:
+            pickle.dump(self, to_file)
 
     def add(self, piece, coords):
         """Add piece on board at given coordinates and update piece coordinates.

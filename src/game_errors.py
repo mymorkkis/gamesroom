@@ -2,15 +2,14 @@
 
    Exceptions:
         NotOnBoardError:    Passed coordinates not on game board
-        PieceNotFoundError: No piece located at from coordinates
         IllegalMoveError:   Illegal move attempted
 """
-class Error(Exception):
+class GameError(Exception):
     """Base class for exceptions in this module."""
     pass
 
 
-class NotOnBoardError(Error):
+class NotOnBoardError(GameError):
     """Exception raised for passed coordinates are not on game board.
 
        Attributes:
@@ -22,13 +21,11 @@ class NotOnBoardError(Error):
         self.message = message
 
 
-class IllegalMoveError(Error):
+class IllegalMoveError(GameError):
     """Exception raised when Illegal move attempted on game board.
 
        Attributes:
-            from_coords: Attempted to move piece from
-            to_coords:   Attempted to move piece to
-            message:     Explanation of the error
+            message: Explanation of the error
     """
     def __init__(self, message):
         self.message = message
