@@ -28,23 +28,23 @@ def test_move_direction_correct_for_coordinates(to_coords, direction):
 def test_same_from_and_to_coords_raise_exception(game):
     from_coords = Coords(x='a', y='1')
     to_coords = Coords(x='a', y='1')
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.SAME_SQUARE):
         game.move(from_coords, to_coords)
 
 
 def test_no_piece_at_from_coords_raises_exception(game):
     from_coords = Coords(x='a', y='3')
     to_coords = Coords(x='a', y='4')
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.NO_PIECE):
         # No piece passed to function
         game.move(from_coords, to_coords)
 
 
 def test_attacking_piece_of_own_color_raises_exception(game):
     game.add(Pawn(Color.WHITE), Coords(x=1, y=1))
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.OWN_PIECE_ATTACK):
         # White king can't attack white Pawn
-        game.move(Coords(x=0, y=0), Coords(x=1, y=1))
+        game.move(Coords(x='a', y='1'), Coords(x='b', y='2'))
 
 
 def test_adjacent_squares():
@@ -64,7 +64,7 @@ def test_can_save_game_to_file_and_load_from_file():
     assert original_game == restored_game
 
 
-def test_invalid_file_path_raises_error_on_game_restore():
+def test_game_not_restored_for_invalid_file_path():
     file_path = Path.cwd() / 'saved_games' / 'fail.pkl'
     restored_game = ChessGame.restore(file_path)
     assert not restored_game

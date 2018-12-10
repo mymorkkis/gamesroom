@@ -44,6 +44,11 @@ class Game(ABC):
             make_move
             _new_board_setup
     """
+    SAME_SQUARE = 'Move to same square illegal'
+    NO_PIECE = 'No piece found at from coordinates'
+    WRONG_COLOR = 'Incorrect piece color for current player'
+    SQUARE_TAKEN = 'Piece already found at coordinates'
+
     def __init__(self, setup, restore_positions):
         self.board = setup['board']
         self.board_width = len(self.board[0])
@@ -54,7 +59,7 @@ class Game(ABC):
         self._setup_game(restore_positions)
         # Move attributes
         self.playing_color = setup['start_color']
-        self.opponent_color = self.fetch_opponent_color(self.playing_color)
+        self.move_error_msg = None
         self.from_coords = None
         self.to_coords = None
         self.playing_piece = None
@@ -80,7 +85,7 @@ class Game(ABC):
            Raises:
                 IllegalMoveError
         """
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def _new_board_setup(self):
@@ -91,7 +96,7 @@ class Game(ABC):
         value = GamePiece
         e.g '00': Piece(Color.WHITE)
         """
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def _setup_game(self, restore_positions):
         """Setup board for new or previously stored game."""
@@ -126,7 +131,7 @@ class Game(ABC):
         input_x, input_y = input_coords
         x_coords = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
         y_coords = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7}
-        x_coord, y_coord = x_coords[input_x], y_coords[input_y]
+        x_coord, y_coord = x_coords[str(input_x).lower()], y_coords[str(input_y)]
         return Coords(x_coord, y_coord)
 
     @classmethod
@@ -140,7 +145,7 @@ class Game(ABC):
                 return restored_game
         except FileNotFoundError:
             # TODO Handle this with gui error msg
-            pass
+            return None
 
     def save(self, file_name):
         """Save current game state to pickle file in saved_games folder."""
@@ -165,11 +170,12 @@ class Game(ABC):
 
     def switch_players(self):
         """For games with two game colors. Switch player and opponent colors."""
-        self.playing_color, self.opponent_color = self.opponent_color, self.playing_color
+        self.playing_color = self.opponent_color
 
-    def fetch_opponent_color(self, playing_color):
-        """Return Color enum type of opponent color to playing color."""
-        return Color.WHITE if playing_color == Color.BLACK else Color.BLACK
+    @property
+    def opponent_color(self):
+        """Return Color enum type of opponent color to current playing color."""
+        return Color.WHITE if self.playing_color == Color.BLACK else Color.BLACK
 
     def coords_on_board(self, coords):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
@@ -178,20 +184,20 @@ class Game(ABC):
     def _set_current_move_attributes_or_raise_errors(self, to_coords=None, from_coords=None):
         if from_coords:
             if from_coords == to_coords:
-                raise IllegalMoveError('Move to same square illegal')
+                raise IllegalMoveError(self.SAME_SQUARE)
 
             if not self.board[from_coords.x][from_coords.y]:
-                raise IllegalMoveError('No piece found at from coordinates')
+                raise IllegalMoveError(self.NO_PIECE)
 
             self.from_coords = from_coords
             self.to_coords = to_coords
             self.playing_piece = self.board[from_coords.x][from_coords.y]
 
             if self.playing_piece.color != self.playing_color:
-                raise IllegalMoveError('Incorrect piece color for current player')
+                raise IllegalMoveError(self.WRONG_COLOR)
         else:
             if self.board[to_coords.x][to_coords.y]:
-                raise IllegalMoveError('Piece already found at coordinates')
+                raise IllegalMoveError(self.SQUARE_TAKEN)
 
             self.to_coords = to_coords
 

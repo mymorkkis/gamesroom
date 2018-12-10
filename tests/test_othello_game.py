@@ -60,13 +60,13 @@ def test_illegal_disc_placement_raises_exception():
     game = OthelloGame()
     assert game.playing_color == Color.BLACK
 
-    with pytest.raises(IllegalMoveError):
-        game.move(Coords(x='e', y='5'))  # square taken
+    with pytest.raises(IllegalMoveError, match=game.SQUARE_TAKEN):
+        game.move(Coords(x='e', y='5'))
 
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.ILLEGAL_MOVE):
         game.move(Coords(x='f', y='5'))  # doesn't trap opponent discs
 
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.ILLEGAL_MOVE):
         game.move(Coords(x='h', y='8'))  # not next to any discs
 
     assert game.playing_color == Color.BLACK  # same color to play
@@ -121,14 +121,3 @@ def test_game_ends_if_both_players_cant_move():
 
     game.move(Coords(x='f', y='4'))
     assert game.winner == Color.BLACK
-
-
-def test_placing_piece_on_taken_square_raises_error():
-    game = OthelloGame(restore_positions={
-        '42': Disc(Color.WHITE),
-        '43': Disc(Color.WHITE),
-        '44': Disc(Color.BLACK),
-    })
-
-    with pytest.raises(IllegalMoveError):
-        game.move(Coords(x='e', y='3'))

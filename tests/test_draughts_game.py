@@ -46,7 +46,6 @@ def test_draughts_setup_correctly():
 def test_draughts_piece_can_move():
     game = DraughtsGame()
     game.playing_color = Color.WHITE
-    game.opponent_color = Color.BLACK
     assert game.board[5][3] is None
 
     game.move(Coords(x='e', y='3'), Coords(x='f', y='4'))
@@ -56,8 +55,9 @@ def test_draughts_piece_can_move():
 
 def test_illegal_move_raises_exception():
     game = DraughtsGame()
+    game.playing_color = Color.WHITE
 
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.ILLEGAL_MOVE):
         game.move(Coords(x='e', y='3'), Coords(x='e', y='4'))
 
 
@@ -66,14 +66,14 @@ def test_same_from_and_to_coords_raises_exception():
         '66': Counter(Color.BLACK),
     })
 
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.SAME_SQUARE):
         game.move(Coords(x='g', y='7'), Coords(x='g', y='7'))
 
 
 def test_no_counter_at_from_coords_raises_exception():
     game = DraughtsGame({})  # empty board
 
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.NO_PIECE):
         game.move(Coords(x='g', y='7'), Coords(x='f', y='6'))
 
 
@@ -83,7 +83,6 @@ def test_draughts_piece_can_capture():
         '11': Counter(Color.BLACK),
     })
     game.playing_color = Color.WHITE
-    game.opponent_color = Color.BLACK
 
     game.move(Coords(x='a', y='1'), Coords(x='c', y='3'))
     assert game.board[1][1] is None
@@ -95,9 +94,8 @@ def test_illegal_capture_raises_exception():
         '00': Counter(Color.WHITE),
     })
     game.playing_color = Color.WHITE
-    game.opponent_color = Color.BLACK
 
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.ILLEGAL_CAPTURE):
         game.move(Coords(x='a', y='1'), Coords(x='c', y='3'))
 
 
@@ -130,7 +128,6 @@ def test_crowned_white_piece_can_capture_backwards():
         '11': Counter(Color.BLACK),
     })
     game.playing_color = Color.WHITE
-    game.opponent_color = Color.BLACK
     game.board[2][2].crowned = True
 
     game.move(Coords(x='c', y='3'), Coords(x='a', y='1'))
@@ -157,7 +154,6 @@ def test_can_capture_two_pieces_in_straight_line():
         '33': Counter(Color.BLACK),
     })
     game.playing_color = Color.WHITE
-    game.opponent_color = Color.BLACK
 
     game.move(Coords(x='a', y='1'), Coords(x='e', y='5'))
     assert game.board[1][1] is None
@@ -172,7 +168,6 @@ def test_can_capture_two_pieces_in_multiple_direction():
         '13': Counter(Color.BLACK),
     })
     game.playing_color = Color.WHITE
-    game.opponent_color = Color.BLACK
 
     game.move(Coords(x='a', y='1'), Coords(x='a', y='5'))
     assert game.board[1][1] is None
@@ -215,7 +210,6 @@ def test_white_can_capture_three_pieces_in_multiple_directions_l_shape():
         '35': Counter(Color.BLACK),
     })
     game.playing_color = Color.WHITE
-    game.opponent_color = Color.BLACK
 
     game.move(Coords(x='g', y='1'), Coords(x='e', y='7'))
     assert game.board[5][1] is None
@@ -232,7 +226,6 @@ def test_white_can_capture_three_pieces_in_multiple_directions_s_shape():
         '55': Counter(Color.BLACK),
     })
     game.playing_color = Color.WHITE
-    game.opponent_color = Color.BLACK
 
     game.move(Coords(x='g', y='1'), Coords(x='e', y='7'))
     assert game.board[5][1] is None
@@ -262,7 +255,7 @@ def test_move_raises_error_if_capture_possible_for_piece():
         '55': Counter(Color.WHITE),
     })
 
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.CAPTURE_POSSIBLE):
         game.move(Coords(x='g', y='7'), Coords(x='h', y='6'))
 
 
@@ -274,7 +267,7 @@ def test_move_raises_error_if_capture_possible_for_crowned_piece():
     })
     game.board[6][4].crowned = True
 
-    with pytest.raises(IllegalMoveError):
+    with pytest.raises(IllegalMoveError, match=game.CAPTURE_POSSIBLE):
         game.move(Coords(x='h', y='8'), Coords(x='g', y='7'))
 
 

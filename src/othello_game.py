@@ -8,6 +8,8 @@ from src.game import Coords, Game, NEXT_ADJACENT_COORD, ONE_COORD_ERR_MSG
 class OthelloGame(Game):
     """Game logic for Othello."""
 
+    ILLEGAL_MOVE = 'Either incorrect coords or move not trapping opponent discs'
+
     def __init__(self, restore_positions=None):
 
         OTHELLO_SETUP = {
@@ -56,7 +58,7 @@ class OthelloGame(Game):
         trapped_discs = self._scan_board_for_trapped_discs(to_coords)
 
         if not trapped_discs:
-            raise IllegalMoveError('Either incorrect coords or move not trapping opponent discs')
+            raise IllegalMoveError(self.ILLEGAL_MOVE)
 
         return trapped_discs
 

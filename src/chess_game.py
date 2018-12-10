@@ -16,6 +16,16 @@ from src.game_pieces.rook import Rook
 class ChessGame(Game):
     """Contains logic for Chess."""
 
+    ILLEGAL_MOVE = 'Illegal move for piece'
+    ILLEGAL_CAPTURE = 'Illegal capture for piece'
+    ILLEGAL_CASTLE = 'Illegal castle move attempted'
+    ILLEGAL_EN_PASSANT = 'Illegal en passant attempted'
+    KING_IN_CHECK = 'Must move king out of check'
+    OWN_PIECE_ATTACK = 'Cannot attack own piece'
+    PIECE_BLOCKING = 'Piece blocking attempted move'
+    CASTLE_IN_CHECK = 'Cannot castle out of, through or into check'
+
+
     def __init__(self, restore_positions=None):
 
         CHESS_SETUP = {
@@ -33,26 +43,36 @@ class ChessGame(Game):
     def make_move(self):
         self._raise_errors_if_chess_specific_illegal_move()
 
-        legal_move, make_move = self._move_type()
+        make_move, legal_move, error_message = self._move_type()
 
-        if legal_move(self.to_coords) and not self._piece_blocking(self.from_coords, self.to_coords):
+        if legal_move(self.to_coords):
             make_move()
             if self._check_mate():
                 self.winner = self.playing_color.value
             self.switch_players()
         else:
-            raise IllegalMoveError('Illegal chess move attempted')
+            raise IllegalMoveError(error_message)
 
     def _move_type(self):
         if self._castle_move():
-            return self._legal_castle, self._castle_move_type()
+            return (self._castle_move_type(),
+                    self._legal_castle,
+                    self.ILLEGAL_CASTLE)
         if self._prawn_promotion():
-            return self.playing_piece.legal_move, self._promote_pawn
+            return (self._promote_pawn,
+                    self.playing_piece.legal_move,
+                    self.ILLEGAL_MOVE)
         if self._en_passant():
-            return self._legal_en_passant, self._capture_en_passant
+            return (self._capture_en_passant,
+                    self._legal_en_passant,
+                    self.ILLEGAL_EN_PASSANT)
         if self._capture_move():
-            return self.playing_piece.legal_capture, self._capture
-        return self.playing_piece.legal_move, self._move
+            return (self._capture,
+                    self.playing_piece.legal_capture,
+                    self.ILLEGAL_CAPTURE)
+        return (self._move,
+                self.playing_piece.legal_move,
+                self.ILLEGAL_MOVE)
 
     def _piece_blocking(self, from_coords, to_coords):
         if move_direction(from_coords, to_coords) != Direction.NON_LINEAR:
@@ -87,10 +107,15 @@ class ChessGame(Game):
         captured_piece = self.board[self.to_coords.x][self.to_coords.y]
 
         if captured_piece and captured_piece.color == self.playing_color:
-            raise IllegalMoveError('Cannot attack own piece')
+            raise IllegalMoveError(self.OWN_PIECE_ATTACK)
+
+        if self._piece_blocking(self.from_coords, self.to_coords):
+            raise IllegalMoveError(self.PIECE_BLOCKING)
 
         if self._own_king_in_check():
-            raise IllegalMoveError('Must move king out of check')
+            if self._castle_move():
+                raise IllegalMoveError(self.CASTLE_IN_CHECK)
+            raise IllegalMoveError(self.KING_IN_CHECK)
 
     def _pawn_two_space_first_move(self):
         if (self.playing_piece == Pawn(Color.WHITE)
@@ -256,8 +281,11 @@ class ChessGame(Game):
         cloned_game = deepcopy(self)
         cloned_game.board[self.from_coords.x][self.from_coords.y] = None
         cloned_game.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
+
         king = cloned_game._king(self.playing_color)
-        return cloned_game._king_in_check(king.color, king.coords)
+        king_coords = self.to_coords if king == self.playing_piece else king.coords
+
+        return cloned_game._king_in_check(self.playing_color, king_coords)
 
     def _check_mate(self):
         king = self._king(self.opponent_color)

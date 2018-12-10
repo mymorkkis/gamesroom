@@ -11,6 +11,9 @@ class DraughtsGame(Game):
     """Game logic for Draughts."""
 
     MAX_CAPTURE_MOVE_COUNT = 4
+    CAPTURE_POSSIBLE = 'Move Illegal as capture is possible'
+    ILLEGAL_CAPTURE = 'Illegal capture attempted. No piece to capture or piece blocking move'
+    ILLEGAL_MOVE = 'Illegal move attempted'
 
     def __init__(self, restore_positions=None):
 
@@ -33,7 +36,7 @@ class DraughtsGame(Game):
             self._force_capture_if_extra_captures_possible()
             self._move_piece()
         else:
-            raise IllegalMoveError('Illegal move attempted')
+            raise IllegalMoveError(self.ILLEGAL_MOVE)
 
         self.switch_players()
 
@@ -73,7 +76,7 @@ class DraughtsGame(Game):
                 if self._move_route_found(capture_coords):
                     return (self.from_coords, *capture_coords)
             capture_coords = []
-        raise IllegalMoveError('Illegal capture attempted. No piece to capture or piece blocking move')
+        raise IllegalMoveError(self.ILLEGAL_CAPTURE)
 
     def _move_route_found(self, capture_coords):
         return capture_coords[-1] == self.to_coords
@@ -87,7 +90,7 @@ class DraughtsGame(Game):
         for piece in self._playing_pieces():
             for direction in piece.legal_move_directions():
                 if self._capture_coords(direction, piece.coords):
-                    raise IllegalMoveError('Move Illegal as capture is possible')
+                    raise IllegalMoveError(self.CAPTURE_POSSIBLE)
         return False
 
     def _playing_pieces(self):
