@@ -94,7 +94,7 @@ def test_drawer_declared():
     })
 
     game.move(Coords(x='d', y='6'))
-    assert game.winner == 'Draw'
+    assert game.winner == Color.NONE
 
 
 def test_player_can_move_detected_correctly():

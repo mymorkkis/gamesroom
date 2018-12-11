@@ -17,6 +17,7 @@ class Color(Enum):
     """Colors: WHITE, BLACK"""
     WHITE = 'White'
     BLACK = 'Black'
+    NONE = None
 
 
 @unique

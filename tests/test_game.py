@@ -61,6 +61,8 @@ def test_can_save_game_to_file_and_load_from_file():
     original_game.save(file_path)
 
     restored_game = ChessGame.restore(file_path)
+    file_path.unlink()  # Clear up test
+
     assert original_game == restored_game
 
 

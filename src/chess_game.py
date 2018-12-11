@@ -87,7 +87,7 @@ class ChessGame(Game):
         # Defaults to Queen as most players want this
         # TODO Add functionality to choose promotion piece
         promoted_piece = Queen(self.playing_color)
-        promoted_piece.coords = Coords(self.to_coords.x, self.to_coords.y)
+        promoted_piece.coords = self.to_coords
         self.board[self.to_coords.x][self.to_coords.y] = promoted_piece
 
     def _move(self):

@@ -31,15 +31,15 @@ class OthelloGame(Game):
 
     def _declare_winner_or_switch_players(self):
         if not self._empty_square_coords():
-            self.winner = self._winning_color_or_draw()
+            self.winner = self._winning_color()
         elif self._next_player_cant_move():
             self.switch_players()
             if self._next_player_cant_move():
-                self.winner = self._winning_color_or_draw()
+                self.winner = self._winning_color()
         else:
             self.switch_players()
 
-    def _winning_color_or_draw(self):
+    def _winning_color(self):
         white_discs = self.disc_count(Color.WHITE)
         black_discs = self.disc_count(Color.BLACK)
 
@@ -47,7 +47,7 @@ class OthelloGame(Game):
             return Color.WHITE
         if white_discs < black_discs:
             return Color.BLACK
-        return 'Draw'
+        return Color.NONE
 
     def _place_disc(self, to_coords):
         disc = Disc(self.playing_color)
@@ -94,12 +94,12 @@ class OthelloGame(Game):
         return trapped_discs
 
     def _empty_square_coords(self):
-        empty_squares = []
+        empty_square_coords = []
         for x_idx, row in enumerate(self.board):
             for y_idx, disc in enumerate(row):
                 if not disc:
-                    empty_squares.append(Coords(x_idx, y_idx))
-        return empty_squares
+                    empty_square_coords.append(Coords(x_idx, y_idx))
+        return empty_square_coords
 
     def disc_count(self, color):
         """Return int count of discs for given Disc color."""
