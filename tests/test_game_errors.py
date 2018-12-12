@@ -1,5 +1,5 @@
 """Test module for game_errors."""
-from src.game import Coords
+from src.games.game import Coords
 from src.game_errors import IllegalMoveError, NotOnBoardError
 
 

@@ -1,7 +1,7 @@
 """Shared pytest fixtures for test functions."""
 import pytest
 
-from src.chess_game import ChessGame
+from src.games.chess import Chess
 from src.game_enums import Color
 from src.game_pieces.king import King
 from src.game_pieces.rook import Rook
@@ -10,7 +10,7 @@ from src.game_pieces.rook import Rook
 @pytest.fixture(scope='function')
 def new_game():
     """Return game with pieces set at new game starting postions."""
-    new_chess_game = ChessGame()
+    new_chess_game = Chess()
     return new_chess_game
 
 
@@ -20,7 +20,7 @@ def game():
        Kings are required so as not to throw errors.
        A game would always have Kings.
     """
-    chess_game = ChessGame(restore_positions={
+    chess_game = Chess(restore_positions={
         '00': King(Color.WHITE),
         '77': King(Color.BLACK)
     })
@@ -30,7 +30,7 @@ def game():
 @pytest.fixture(scope='function')
 def castle_game():
     """Return game with only King/Rook postions pre-set"""
-    chess_game = ChessGame(restore_positions={
+    chess_game = Chess(restore_positions={
         '40': King(Color.WHITE),
         '47': King(Color.BLACK),
         '00': Rook(Color.WHITE),

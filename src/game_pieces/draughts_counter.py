@@ -1,6 +1,6 @@
 from src.game_enums import Color
 from src.game_pieces.game_piece import GamePiece
-from src.game import NEXT_ADJACENT_COORD
+from src.games.game import NEXT_ADJACENT_COORD
 
 class Counter(GamePiece):
     def __init__(self, color):

@@ -1,6 +1,6 @@
 """Module for King class."""
 from src.game_enums import Color
-from src.game import adjacent_squares, Coords
+from src.games.game import adjacent_squares, Coords
 from src.game_pieces.game_piece import GamePiece
 
 

@@ -5,9 +5,9 @@ from copy import deepcopy
 import tkinter as tk
 from tkinter import messagebox
 
-from src.chess_game import ChessGame
-from src.draughts_game import DraughtsGame
-from src.othello_game import OthelloGame
+from src.games.chess import Chess
+from src.games.draughts import Draughts
+from src.games.othello import Othello
 from src.game_errors import IllegalMoveError
 from src.command_line_helper import parse_args_to_fetch_game
 
@@ -189,19 +189,19 @@ class Board(tk.Frame):
 
 GAME_OPTIONS = {
     'C': {
-        'game': ChessGame(),
+        'game': Chess(),
         'title': 'Chess Game',
         'square_colors': cycle([WHITE, LIGHT_BROWN]),
         'two_coord_move': True
     },
     'D': {
-        'game': DraughtsGame(),
+        'game': Draughts(),
         'title': 'Draughts Game',
         'square_colors': cycle([WHITE, LIGHT_BROWN]),
         'two_coord_move': True
     },
     'O': {
-        'game': OthelloGame(),
+        'game': Othello(),
         'title': 'Othello Game',
         'square_colors': cycle([GREEN]),
         'two_coord_move': False

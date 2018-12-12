@@ -1,7 +1,7 @@
 """Module for Queen class."""
 from src.game_enums import Color, Direction
 from src.game_pieces.game_piece import GamePiece
-from src.game import move_direction
+from src.games.game import move_direction
 
 
 class Queen(GamePiece):

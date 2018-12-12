@@ -2,10 +2,10 @@
 from src.game_enums import Color
 from src.game_pieces.othello_disc import Disc
 from src.game_errors import IllegalMoveError
-from src.game import Coords, Game, NEXT_ADJACENT_COORD, ONE_COORD_ERR_MSG
+from src.games.game import Coords, Game, NEXT_ADJACENT_COORD, ONE_COORD_ERR_MSG
 
 
-class OthelloGame(Game):
+class Othello(Game):
     """Game logic for Othello."""
 
     ILLEGAL_MOVE = 'Either incorrect coords or move not trapping opponent discs'
@@ -66,13 +66,12 @@ class OthelloGame(Game):
         empty_square_coords = self._empty_square_coords()
 
         for square_coords in empty_square_coords:
-            trapped_discs = self._scan_board_for_trapped_discs(passed_coords=square_coords,
-                                                               scan_all_directions=False)
+            trapped_discs = self._scan_board_for_trapped_discs(square_coords)
             if trapped_discs:
                 return False
         return True
 
-    def _scan_board_for_trapped_discs(self, passed_coords, scan_all_directions=True):
+    def _scan_board_for_trapped_discs(self, passed_coords):
         trapped_discs = []
         for direction in 'N NE E SE S SW W NW'.split():
             next_coords = passed_coords
@@ -88,9 +87,6 @@ class OthelloGame(Game):
                     possible_trapped_discs.append(disc)
                 else:
                     trapped_discs.extend(possible_trapped_discs)
-                    if trapped_discs and not scan_all_directions:
-                        return trapped_discs
-                    break
         return trapped_discs
 
     def _empty_square_coords(self):
@@ -101,11 +97,10 @@ class OthelloGame(Game):
                     empty_square_coords.append(Coords(x_idx, y_idx))
         return empty_square_coords
 
-    def disc_count(self, color):
+    def disc_count(self, wanted_color):
         """Return int count of discs for given Disc color."""
-        return len([disc for row in self.board
-                    for disc in row
-                    if disc and disc.color == color])
+        return len([disc for disc in self.current_board_pieces()
+                    if disc.color == wanted_color])
 
     @staticmethod
     def _new_board_setup():

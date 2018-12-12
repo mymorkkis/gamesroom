@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 
 from src.game_enums import Color, Direction
-from src.chess_game import ChessGame
-from src.game import adjacent_squares, Coords, move_direction
+from src.games.chess import Chess
+from src.games.game import adjacent_squares, Coords, move_direction
 from src.game_errors import IllegalMoveError, NotOnBoardError
 from src.game_pieces.pawn import Pawn
 
@@ -57,10 +57,10 @@ def test_adjacent_squares():
 def test_can_save_game_to_file_and_load_from_file():
     file_path = Path.cwd() / 'saved_games' / 'test.pkl'
 
-    original_game = ChessGame()
+    original_game = Chess()
     original_game.save(file_path)
 
-    restored_game = ChessGame.restore(file_path)
+    restored_game = Chess.restore(file_path)
     file_path.unlink()  # Clear up test
 
     assert original_game == restored_game
@@ -68,5 +68,5 @@ def test_can_save_game_to_file_and_load_from_file():
 
 def test_game_not_restored_for_invalid_file_path():
     file_path = Path.cwd() / 'saved_games' / 'fail.pkl'
-    restored_game = ChessGame.restore(file_path)
+    restored_game = Chess.restore(file_path)
     assert not restored_game

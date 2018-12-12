@@ -1,13 +1,13 @@
-"""Contains DraughtsGame class."""
+"""Contains Draughts class."""
 from itertools import cycle, product
 
 from src.game_enums import Color
-from src.game import Game, NEXT_ADJACENT_COORD, TWO_COORD_ERR_MSG
+from src.games.game import Game, NEXT_ADJACENT_COORD, TWO_COORD_ERR_MSG
 from src.game_pieces.draughts_counter import Counter
 from src.game_errors import IllegalMoveError
 
 
-class DraughtsGame(Game):
+class Draughts(Game):
     """Game logic for Draughts."""
 
     MAX_CAPTURE_MOVE_COUNT = 4
@@ -41,9 +41,8 @@ class DraughtsGame(Game):
         self.switch_players()
 
     def _move_piece(self):
-        self.board[self.from_coords.x][self.from_coords.y] = None
-        self.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
-        self.playing_piece.coords = self.to_coords
+        self._move_piece_and_update_coords()
+
         if self._king_row_reached():
             self.playing_piece.crowned = True
 
@@ -94,9 +93,8 @@ class DraughtsGame(Game):
         return False
 
     def _playing_pieces(self):
-        return (piece for row in self.board
-                for piece in row if piece
-                and piece.color == self.playing_color)
+        return [piece for piece in self.current_board_pieces()
+                if piece.color == self.playing_color]
 
     def _force_capture_if_extra_captures_possible(self):
         from_coords = self.to_coords

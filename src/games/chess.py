@@ -1,9 +1,9 @@
-"""Contains ChessGame class."""
+"""Contains Chess class."""
 from copy import deepcopy
 
 from src.game_enums import ChessPiece, Color, Direction
 from src.game_errors import IllegalMoveError
-from src.game import Coords, Game, move_direction, NEXT_ADJACENT_COORD, TWO_COORD_ERR_MSG
+from src.games.game import Coords, Game, move_direction, NEXT_ADJACENT_COORD, TWO_COORD_ERR_MSG
 
 from src.game_pieces.bishop import Bishop
 from src.game_pieces.king import King
@@ -13,7 +13,7 @@ from src.game_pieces.queen import Queen
 from src.game_pieces.rook import Rook
 
 
-class ChessGame(Game):
+class Chess(Game):
     """Contains logic for Chess."""
 
     ILLEGAL_MOVE = 'Illegal move for piece'
@@ -67,7 +67,7 @@ class ChessGame(Game):
                     self._legal_en_passant,
                     self.ILLEGAL_EN_PASSANT)
         if self._capture_move():
-            return (self._capture,
+            return (self._move,
                     self.playing_piece.legal_capture,
                     self.ILLEGAL_CAPTURE)
         return (self._move,
@@ -91,9 +91,7 @@ class ChessGame(Game):
         self.board[self.to_coords.x][self.to_coords.y] = promoted_piece
 
     def _move(self):
-        self.board[self.from_coords.x][self.from_coords.y] = None
-        self.playing_piece.coords = self.to_coords
-        self.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
+        self._move_piece_and_update_coords()
 
         if self._pawn_two_space_first_move():
             self.last_move_pawn = self.playing_piece
@@ -125,11 +123,6 @@ class ChessGame(Game):
                 and self.from_coords.y == 6 and self.to_coords.y == 4):
             return True
         return False
-
-    def _capture(self):
-        captured_piece = self.board[self.to_coords.x][self.to_coords.y]
-        captured_piece.coords = None
-        self._move()
 
     def _capture_en_passant(self):
         coords = self.last_move_pawn.coords
@@ -209,10 +202,9 @@ class ChessGame(Game):
         return castle_coords
 
     def _king(self, wanted_color):
-        for row in self.board:
-            for piece in row:
-                if piece == King(wanted_color):
-                    return piece
+        for piece in self.current_board_pieces():
+            if piece == King(wanted_color):
+                return piece
 
     def _king_moved(self, playing_color):
         king = self._king(playing_color)
@@ -334,10 +326,8 @@ class ChessGame(Game):
     def _board_pieces(self, color, king_wanted=True):
         king = None if king_wanted else King(color)
 
-        return [piece for row in self.board
-                for piece in row
-                if piece and piece.color == color
-                and piece != king]
+        return [piece for piece in self.current_board_pieces()
+                if piece.color == color and piece != king]
 
     def _adjacent_empty_square_coords(self, king_coords):
         potential_coords = [adjacent_coord(king_coords)

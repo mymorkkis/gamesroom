@@ -1,8 +1,8 @@
-"""Test module form ChessGame class."""
+"""Test module form Chess class."""
 import pytest
 
 from src.game_enums import Color
-from src.game import Coords
+from src.games.game import Coords
 from src.game_errors import IllegalMoveError
 
 from src.game_pieces.bishop import Bishop
@@ -93,16 +93,12 @@ def test_piece_moved_on_board(game):
 def test_captured_piece_removed_from_board(game):
     game.add(Pawn(Color.WHITE), Coords(x=1, y=1))
     game.add(Pawn(Color.BLACK), Coords(x=2, y=2))
-    opponent_piece = game.board[2][2]
     # Attack opponent
     game.move(Coords(x='b', y='2'), Coords(x='c', y='3'))
     # Previous position empty
     assert game.board[1][1] is None
     # Captured piece removed and replaced by attacking piece
     assert game.board[2][2] == Pawn(Color.WHITE)
-    # Captured piece no longer on board
-    assert opponent_piece.coords is None
-    assert game.board[2][2] != opponent_piece
 
 
 def test_piece_blocking_move_raises_exception(game):

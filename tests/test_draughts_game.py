@@ -1,14 +1,14 @@
 import pytest
 
 from src.game_enums import Color
-from src.game import Coords
-from src.draughts_game import DraughtsGame
+from src.games.game import Coords
+from src.games.draughts import Draughts
 from src.game_pieces.draughts_counter import Counter
 from src.game_errors import IllegalMoveError
 
 
 def test_draughts_setup_correctly():
-    game = DraughtsGame()
+    game = Draughts()
     expected_board_setup = set([
         (Color.WHITE, Coords(x=0, y=0)),
         (Color.WHITE, Coords(x=2, y=0)),
@@ -44,7 +44,7 @@ def test_draughts_setup_correctly():
 
 
 def test_draughts_piece_can_move():
-    game = DraughtsGame()
+    game = Draughts()
     game.playing_color = Color.WHITE
     assert game.board[5][3] is None
 
@@ -54,7 +54,7 @@ def test_draughts_piece_can_move():
 
 
 def test_illegal_move_raises_exception():
-    game = DraughtsGame()
+    game = Draughts()
     game.playing_color = Color.WHITE
 
     with pytest.raises(IllegalMoveError, match=game.ILLEGAL_MOVE):
@@ -62,7 +62,7 @@ def test_illegal_move_raises_exception():
 
 
 def test_same_from_and_to_coords_raises_exception():
-    game = DraughtsGame({
+    game = Draughts({
         '66': Counter(Color.BLACK),
     })
 
@@ -71,14 +71,14 @@ def test_same_from_and_to_coords_raises_exception():
 
 
 def test_no_counter_at_from_coords_raises_exception():
-    game = DraughtsGame({})  # empty board
+    game = Draughts({})  # empty board
 
     with pytest.raises(IllegalMoveError, match=game.NO_PIECE):
         game.move(Coords(x='g', y='7'), Coords(x='f', y='6'))
 
 
 def test_draughts_piece_can_capture():
-    game = DraughtsGame({
+    game = Draughts({
         '00': Counter(Color.WHITE),
         '11': Counter(Color.BLACK),
     })
@@ -90,7 +90,7 @@ def test_draughts_piece_can_capture():
 
 
 def test_illegal_capture_raises_exception():
-    game = DraughtsGame({
+    game = Draughts({
         '00': Counter(Color.WHITE),
     })
     game.playing_color = Color.WHITE
@@ -100,7 +100,7 @@ def test_illegal_capture_raises_exception():
 
 
 def test_counters_can_be_crowned():
-    game = DraughtsGame({
+    game = Draughts({
         '16': Counter(Color.WHITE),
         '11': Counter(Color.BLACK),
     })
@@ -123,7 +123,7 @@ def test_counters_can_be_crowned():
 
 
 def test_crowned_white_piece_can_capture_backwards():
-    game = DraughtsGame({
+    game = Draughts({
         '22': Counter(Color.WHITE),
         '11': Counter(Color.BLACK),
     })
@@ -136,7 +136,7 @@ def test_crowned_white_piece_can_capture_backwards():
 
 
 def test_crowned_black_piece_can_capture_backwards():
-    game = DraughtsGame({
+    game = Draughts({
         '55': Counter(Color.BLACK),
         '66': Counter(Color.WHITE),
     })
@@ -148,7 +148,7 @@ def test_crowned_black_piece_can_capture_backwards():
 
 
 def test_can_capture_two_pieces_in_straight_line():
-    game = DraughtsGame({
+    game = Draughts({
         '00': Counter(Color.WHITE),
         '11': Counter(Color.BLACK),
         '33': Counter(Color.BLACK),
@@ -162,7 +162,7 @@ def test_can_capture_two_pieces_in_straight_line():
 
 
 def test_can_capture_two_pieces_in_multiple_direction():
-    game = DraughtsGame({
+    game = Draughts({
         '00': Counter(Color.WHITE),
         '11': Counter(Color.BLACK),
         '13': Counter(Color.BLACK),
@@ -176,7 +176,7 @@ def test_can_capture_two_pieces_in_multiple_direction():
 
 
 def test_black_can_capture_two_pieces_in_multiple_direction():
-    game = DraughtsGame({
+    game = Draughts({
         '66': Counter(Color.BLACK),
         '55': Counter(Color.WHITE),
         '53': Counter(Color.WHITE),
@@ -189,7 +189,7 @@ def test_black_can_capture_two_pieces_in_multiple_direction():
 
 
 def test_can_capture_three_pieces_in_straight_line():
-    game = DraughtsGame({
+    game = Draughts({
         '77': Counter(Color.BLACK),
         '66': Counter(Color.WHITE),
         '44': Counter(Color.WHITE),
@@ -203,7 +203,7 @@ def test_can_capture_three_pieces_in_straight_line():
     assert game.board[1][1] == Counter(Color.BLACK)
 
 def test_white_can_capture_three_pieces_in_multiple_directions_l_shape():
-    game = DraughtsGame({
+    game = Draughts({
         '60': Counter(Color.WHITE),
         '51': Counter(Color.BLACK),
         '33': Counter(Color.BLACK),
@@ -219,7 +219,7 @@ def test_white_can_capture_three_pieces_in_multiple_directions_l_shape():
 
 
 def test_white_can_capture_three_pieces_in_multiple_directions_s_shape():
-    game = DraughtsGame({
+    game = Draughts({
         '60': Counter(Color.WHITE),
         '51': Counter(Color.BLACK),
         '53': Counter(Color.BLACK),
@@ -235,7 +235,7 @@ def test_white_can_capture_three_pieces_in_multiple_directions_s_shape():
 
 
 def test_black_can_capture_three_pieces_in_multiple_directions_s_shape():
-    game = DraughtsGame({
+    game = Draughts({
         '66': Counter(Color.BLACK),
         '55': Counter(Color.WHITE),
         '53': Counter(Color.WHITE),
@@ -250,7 +250,7 @@ def test_black_can_capture_three_pieces_in_multiple_directions_s_shape():
 
 
 def test_move_raises_error_if_capture_possible_for_piece():
-    game = DraughtsGame({
+    game = Draughts({
         '66': Counter(Color.BLACK),
         '55': Counter(Color.WHITE),
     })
@@ -260,7 +260,7 @@ def test_move_raises_error_if_capture_possible_for_piece():
 
 
 def test_move_raises_error_if_capture_possible_for_crowned_piece():
-    game = DraughtsGame({
+    game = Draughts({
         '77': Counter(Color.BLACK),
         '55': Counter(Color.WHITE),
         '64': Counter(Color.BLACK)
@@ -272,7 +272,7 @@ def test_move_raises_error_if_capture_possible_for_crowned_piece():
 
 
 def test_one_piece_capture_forced_to_make_two_move_capture_if_possible():
-    game = DraughtsGame({
+    game = Draughts({
         '66': Counter(Color.BLACK),
         '55': Counter(Color.WHITE),
         '33': Counter(Color.WHITE),
@@ -287,7 +287,7 @@ def test_one_piece_capture_forced_to_make_two_move_capture_if_possible():
 
 
 def test_two_piece_capture_force_to_make_three_move_capture_if_possible():
-    game = DraughtsGame({
+    game = Draughts({
         '66': Counter(Color.BLACK),
         '55': Counter(Color.WHITE),
         '33': Counter(Color.WHITE),
@@ -304,7 +304,7 @@ def test_two_piece_capture_force_to_make_three_move_capture_if_possible():
 
 
 def test_two_extra_captures_forced_if_possible():
-    game = DraughtsGame({
+    game = Draughts({
         '66': Counter(Color.BLACK),
         '55': Counter(Color.WHITE),
         '33': Counter(Color.WHITE),
@@ -320,7 +320,7 @@ def test_two_extra_captures_forced_if_possible():
 
 
 def test_crowned_piece_can_take_two_pieces_and_return_to_same_y_index():
-    game = DraughtsGame({
+    game = Draughts({
         '66': Counter(Color.BLACK),
         '55': Counter(Color.WHITE),
         '35': Counter(Color.WHITE),

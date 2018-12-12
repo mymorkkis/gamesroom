@@ -177,6 +177,18 @@ class Game(ABC):
         """Return Color enum type of opponent color to current playing color."""
         return Color.WHITE if self.playing_color == Color.BLACK else Color.BLACK
 
+    def _move_piece_and_update_coords(self):
+        self.board[self.from_coords.x][self.from_coords.y] = None
+        self.board[self.to_coords.x][self.to_coords.y] = self.playing_piece
+        self.playing_piece.coords = self.to_coords
+
+    def current_board_pieces(self):
+        """Generator of all pieces currently on game board."""
+        for row in self.board:
+            for piece in row:
+                if piece:
+                    yield piece
+
     def coords_on_board(self, coords):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
         return coords.x in range(self.board_width) and coords.y in range(self.board_height)

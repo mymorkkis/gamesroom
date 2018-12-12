@@ -2,7 +2,7 @@
 import pytest
 
 from src.game_enums import Color
-from src.game import Coords
+from src.games.game import Coords
 from src.game_pieces.knight import Knight
 
 
