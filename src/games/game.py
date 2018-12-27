@@ -125,14 +125,19 @@ class Game(ABC):
                 raise IllegalMoveError(self.input_error_msg)
         self._set_current_move_attributes_or_raise_errors(*reversed(processed_coords))
         self.make_move()
+        from_coords, to_coords = processed_coords
+        from_piece = self.board[from_coords.x][from_coords.y]
+        to_piece = self.board[to_coords.x][to_coords.y]
+        return from_piece, to_piece
 
     @staticmethod
     def _coords_from(input_coords):
-        input_x, input_y = input_coords
-        x_coords = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
-        y_coords = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7}
-        x_coord, y_coord = x_coords[str(input_x).lower()], y_coords[str(input_y)]
-        return Coords(x_coord, y_coord)
+        # input_x, input_y = input_coords
+        # x_coords = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
+        # y_coords = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7}
+        # x_coord, y_coord = x_coords[str(input_x).lower()], y_coords[str(input_y)]
+        x_coord, y_coord = input_coords
+        return Coords(int(x_coord), int(y_coord))
 
     @classmethod
     def restore(cls, file_name):

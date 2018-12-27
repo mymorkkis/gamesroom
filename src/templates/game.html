@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% set square_colors = cycler(*square_colors) %}
+
+<table class="chess-board">
+  <tbody>
+    <tr>
+      <th></th>
+      {% for axis in x_axis %}
+        <th>{{ axis }}</th>
+      {% endfor %}
+    </tr>
+      {% for row in board %}
+        {% set _ = square_colors.next() %}
+        {% set y_idx = loop.revindex0 %}
+        <tr>
+          <th>{{ loop.revindex }}</th>
+            {% for item in row %}
+              {% set x_idx = loop.index0 %}
+              <td id="{{ x_idx ~ y_idx }}" class="{{ square_colors.next() }}" onclick="makeMove(this)">
+                {{ item if item else '' }}
+              </td>
+            {% endfor %}
+          <th>{{ loop.revindex }}</th>
+        </tr>
+      {% endfor %}
+    <tr>
+      <th></th>
+      {% for axis in x_axis %}
+        <th>{{ axis }}</th>
+      {% endfor %}
+    </tr>
+  </tbody>
+</table>
+
+<h1 id='warn' style="color:red;"></h1>
+
+{% endblock %}

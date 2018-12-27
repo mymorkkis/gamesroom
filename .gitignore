@@ -2,5 +2,7 @@
 .coverage
 .pytest_cache/
 .vscode/
+flask_session/
 saved_games/*
+config.py
 scratch*
