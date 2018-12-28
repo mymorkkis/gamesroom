@@ -1,24 +1,83 @@
-.chess-board {
-  border-spacing: 0;
-  border-collapse: collapse;
+@import "normalize.css";
+
+.navbar {
+  position: sticky;
+  top: 0;
+  background-color: #333;
+  padding: 0px 90px;
 }
 
-.chess-board th {
-  padding: .5em;
+.nav {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-.chess-board td {
-  border: 1px solid;
-  width: 2em;
-  height: 2em;
+.home-link {
+  float: left;
+}
+
+.game-link {
+  float: right;
+}
+
+.nav-item a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.nav-item a:hover {
+  background-color: #111;
+}
+
+.game {
+  width: 40vw;
+  padding: 20px 50px 10px 100px;
+  float: left;
+}
+
+.game-info {
+  width: 30vw;
+  padding: 40px 100px 10px 50px;
+  float: left;
+}
+
+.game-square {
   text-align: center;
   vertical-align: middle;
+  border: 0.25px solid black;
+  height: 8vh;
+  width: 8vh;
 }
 
-.chess-board .light {
+.game-border {
+  border: none;
+}
+
+.border-square {
+  border: none;
+  color: green;
+  text-align: center;
+  height: 8vh;
+  width: 8vh;
+}
+
+.light {
   background: #eee;
 }
 
-.chess-board .dark {
+.dark {
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.green {
+  background-color: greenyellow
+}
+
+#game-error {
+  color: red;
 }

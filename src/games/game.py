@@ -21,6 +21,7 @@ TWO_COORD_ERR_MSG = 'Invalid coords, coords seperated by white space. Example us
 
 
 Coords = namedtuple('Coords', 'x y')
+BoardSquare = namedtuple('BoardSquare', 'id image')
 
 
 class Game(ABC):
@@ -108,7 +109,7 @@ class Game(ABC):
             coords = Coords(x=int(coords[0]), y=int(coords[1]))
             self.add(piece, coords)
 
-    def move(self, *input_coords):
+    def move(self, from_coords=None, to_coords=None):
         """Move piece from coordinates, to coordianates. Remove captured piece, if any.
            Args (optional):
                 from_coords: Chess notation str, eg a1
@@ -117,25 +118,14 @@ class Game(ABC):
            Raises:
                 IllegalMoveError
         """
-        processed_coords = []
-        for coords in input_coords:
-            try:
-                processed_coords.append(self._coords_from(coords))
-            except (ValueError, KeyError):
-                raise IllegalMoveError(self.input_error_msg)
-        self._set_current_move_attributes_or_raise_errors(*reversed(processed_coords))
+        to_coords = self._coords_from(to_coords)
+        if from_coords:
+            from_coords = self._coords_from(from_coords)
+        self._set_current_move_attributes_or_raise_errors(from_coords, to_coords)
         self.make_move()
-        from_coords, to_coords = processed_coords
-        from_piece = self.board[from_coords.x][from_coords.y]
-        to_piece = self.board[to_coords.x][to_coords.y]
-        return from_piece, to_piece
 
     @staticmethod
     def _coords_from(input_coords):
-        # input_x, input_y = input_coords
-        # x_coords = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
-        # y_coords = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7}
-        # x_coord, y_coord = x_coords[str(input_x).lower()], y_coords[str(input_y)]
         x_coord, y_coord = input_coords
         return Coords(int(x_coord), int(y_coord))
 
@@ -198,7 +188,7 @@ class Game(ABC):
         """Check if coordinates within board range (negative indexing not allowed). Return bool."""
         return coords.x in range(self.board_width) and coords.y in range(self.board_height)
 
-    def _set_current_move_attributes_or_raise_errors(self, to_coords=None, from_coords=None):
+    def _set_current_move_attributes_or_raise_errors(self, from_coords, to_coords):
         if from_coords:
             if from_coords == to_coords:
                 raise IllegalMoveError(self.SAME_SQUARE)
@@ -217,7 +207,6 @@ class Game(ABC):
                 raise IllegalMoveError(self.SQUARE_TAKEN)
 
             self.to_coords = to_coords
-
 
     def coords_between(self, from_coords, to_coords):
         """Return generator of all Coords(x, y) between from_coords and to_coords."""
@@ -242,31 +231,21 @@ class Game(ABC):
         return list(reversed(range(self.board_height + 1)))
 
     def display_board(self):
-        """Return board in correct position for display purposes"""
+        """Return board as list of (id, image) tuples
+
+           id: str(x_axis_no + y_axis_no)
+           image: game piece unicode image or ''
+        """
         transposed_board = [list(row) for row in zip(*self.board)]
-        return list(reversed(transposed_board))
-
-    def gui_display_board(self):
-        """TODO messy board setup, must be more pythonic way"""
         display_board = []
-        board = [self.x_axis()] + self.display_board() + [self.x_axis()]
-
-        y_axis = [''] + self.y_axis()
-        y_axis.pop()
-        y_axis = y_axis + ['']
-
-        for axis_no, board_row in zip(y_axis, board):
-            board_row.insert(0, axis_no)
-            board_row.append(axis_no)
-            display_board.append(board_row)
-
-        return display_board
-
-    def display_board_to_terminal(self):
-        """Tabulate and display game board current state"""
-        board = self.display_board()
-        board.append(self.x_axis())
-        print(tabulate(board, tablefmt="fancy_grid", showindex=self.y_axis()))
+        for y_idx, row in enumerate(transposed_board):
+            display_row = []
+            for x_idx, piece in enumerate(row):
+                square_id = f'{x_idx}{y_idx}'
+                square_image = str(piece) if piece else ''
+                display_row.append(BoardSquare(id=square_id, image=square_image))
+            display_board.append(display_row)
+        return list(reversed(display_board))
 
 
 def move_direction(from_coords, to_coords):
