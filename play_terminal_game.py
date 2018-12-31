@@ -25,10 +25,13 @@ class TerminalGame():
     QUIT_MSG = f'\n{RED}Got too much for you, did it?!?{END}\n'
 
     GAME_OPTIONS = {
-        'C': (Chess()),
-        'D': (Draughts()),
-        'O': (Othello())
+        'C': Chess(),
+        'D': Draughts(),
+        'O': Othello()
     }
+
+    X_COORD_MAP = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
+    Y_COORD_MAP = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7}
 
     def __init__(self):
         self.game = self._parse_args_to_fetch_game()
@@ -78,9 +81,8 @@ class TerminalGame():
     def _map_coords(self, input_coords):
         try:
             input_x, input_y = input_coords
-            x_coords = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
-            y_coords = {'1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7}
-            x_coord, y_coord = x_coords[str(input_x).lower()], y_coords[str(input_y)]
+            x_coord = self.X_COORD_MAP[str(input_x).lower()]
+            y_coord = self.Y_COORD_MAP[str(input_y)]
             return f'{x_coord}{y_coord}'
         except (ValueError, KeyError):
             raise IllegalMoveError(self.game.input_error_msg)

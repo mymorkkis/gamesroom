@@ -26,15 +26,15 @@ def test_move_direction_correct_for_coordinates(to_coords, direction):
 
 
 def test_same_from_and_to_coords_raise_exception(game):
-    from_coords = Coords(x='a', y='1')
-    to_coords = Coords(x='a', y='1')
+    from_coords = Coords(x=0, y=0)
+    to_coords = Coords(x=0, y=0)
     with pytest.raises(IllegalMoveError, match=game.SAME_SQUARE):
         game.move(from_coords, to_coords)
 
 
 def test_no_piece_at_from_coords_raises_exception(game):
-    from_coords = Coords(x='a', y='3')
-    to_coords = Coords(x='a', y='4')
+    from_coords = Coords(x=0, y=2)
+    to_coords = Coords(x=0, y=3)
     with pytest.raises(IllegalMoveError, match=game.NO_PIECE):
         # No piece passed to function
         game.move(from_coords, to_coords)
@@ -44,7 +44,7 @@ def test_attacking_piece_of_own_color_raises_exception(game):
     game.add(Pawn(Color.WHITE), Coords(x=1, y=1))
     with pytest.raises(IllegalMoveError, match=game.OWN_PIECE_ATTACK):
         # White king can't attack white Pawn
-        game.move(Coords(x='a', y='1'), Coords(x='b', y='2'))
+        game.move(Coords(x=0, y=0), Coords(x=1, y=1))
 
 
 def test_adjacent_squares():

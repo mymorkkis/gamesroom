@@ -26,5 +26,5 @@ class King(GamePiece):
         return adjacent_squares(self.coords, to_coords)
 
     def _legal_castle(self, to_coords):
-        return (self.color == Color.WHITE and to_coords in (Coords(x='c', y='1'), Coords(x='g', y='1'))
-                or self.color == Color.BLACK and to_coords in (Coords(x='c', y='8'), Coords(x='g', y='8')))
+        return (self.color == Color.WHITE and to_coords in (Coords(x=2, y=0), Coords(x=6, y=0))
+                or self.color == Color.BLACK and to_coords in (Coords(x=2, y=7), Coords(x=6, y=7)))

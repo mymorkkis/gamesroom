@@ -264,7 +264,14 @@ class Chess(Game):
     def _en_passant(self):
         if (self.playing_piece == Pawn(self.playing_color)
                 and self.playing_piece.legal_capture(self.to_coords)
-                and self.board[self.to_coords.x][self.to_coords.y] is None):
+                and self.board[self.to_coords.x][self.to_coords.y] is None
+                and self._potential_en_passant_capture_piece()):
+            return True
+        return False
+
+    def _potential_en_passant_capture_piece(self):
+        y_coord = self.to_coords.y - 1 if self.playing_color == Color.WHITE else self.to_coords.y + 1
+        if self.board[self.to_coords.x][y_coord] == Pawn(self.opponent_color):
             return True
         return False
 

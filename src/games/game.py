@@ -81,8 +81,8 @@ class Game(ABC):
     def make_move(self):
         """Move piece from coordinates, to coordianates. Remove captured piece, if any.
            Args:
-                from_coords: Namedtuple with coordinates x & y. E.g. Coords(x='a', y='2').
-                to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x='a', y='2').
+                from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
+                to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
            Raises:
                 IllegalMoveError
         """
@@ -251,8 +251,8 @@ class Game(ABC):
 def move_direction(from_coords, to_coords):
     """Calculate direction from from_coordinates to coordinates. Return Direction enum.
     Args:
-            from_coords: Namedtuple with coordinates x & y. E.g. Coords(x='a', y='2').
-            to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x='a', y='2').
+            from_coords: Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
+            to_coords:   Namedtuple with coordinates x & y. E.g. Coords(x=0, y=1).
     Returns:
             Direction enum type.
     """
