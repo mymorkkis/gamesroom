@@ -5,4 +5,4 @@
 flask_session/
 saved_games/*
 config.py
-scratch*
+.env
