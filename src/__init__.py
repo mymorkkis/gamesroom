@@ -49,3 +49,6 @@ def create_app():
             return jsonify(err=err.message)
 
     return app
+
+
+app = create_app()
