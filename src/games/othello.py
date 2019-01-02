@@ -17,6 +17,7 @@ class Othello(Game):
             'legal_piece_colors': {Color.WHITE, Color.BLACK},
             'legal_piece_names': {'Disc'},
             'start_color': Color.BLACK,
+            'board_colors': ('green',),
             'input_err_msg': ONE_COORD_ERR_MSG
         }
 

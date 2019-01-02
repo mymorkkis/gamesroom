@@ -1,19 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 
-{% set square_colors = cycler(*square_colors) %}
+  {% set square_colors = cycler(*game.board_colors) %}
 
-<div class='game'>
-  <table class="table table-bordered game-border">
-    <tbody>
-      <tr>
-        <th class="border-square"></th>
-        {% for axis in x_axis %}
-          <th class="border-square">{{ axis }}</th>
-        {% endfor %}
-        <th class="border-square"></th>
-      </tr>
-        {% for row in board %}
+  <div class="main-content">
+    <div class="game">
+      <table class="table table-bordered game-border">
+        <tbody>
+        {{ create_x_axis() }}
+        {% for row in game.display_board() %}
           {% set _ = square_colors.next() %} {# alternate row start color for checkered effect #}
           <tr>
             <th class="border-square">{{ loop.revindex }}</th>
@@ -29,24 +24,30 @@
             <th class="border-square">{{ loop.revindex }}</th>
           </tr>
         {% endfor %}
-      <tr>
-        <th class="border-square"></th>
-        {% for axis in x_axis %}
-          <th class="border-square">{{ axis }}</th>
-        {% endfor %}
-        <th class="border-square"></th>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<div class="game-info">
-  <p>Welcome to {{ game_name }}!</p>
-  {% if move_piece_game %}
-    <p>To make a move: Click on the piece you want to move and then the square you want to move to.</p>
-  {% else %}
-    <p>To make a move: Click on the square you want to place your next piece.</p>
-  {% endif %}
-  <h2 id='game-error'></h2>
-</div>
+        {{ create_x_axis() }}
+        </tbody>
+      </table>
+    </div>
+    <div class="game-info">
+      <p>Welcome to {{ game.__class__.__name__ }}!</p>
+      {% if move_piece_game %}
+        <p>To make a move: Click on the piece you want to move and then the square you want to move to.</p>
+      {% else %}
+        <p>To make a move: Click on the square you want to place your next piece.</p>
+      {% endif %}
+      <h2 id='game-error'></h2>
+    </div>
+  </div>
 
 {% endblock %}
+
+
+{% macro create_x_axis() -%}
+  <tr>
+    <th class="border-square"></th>
+    {% for axis in game.x_axis() %}
+      <th class="border-square">{{ axis }}</th>
+    {% endfor %}
+    <th class="border-square"></th>
+  </tr>
+{% endmacro %}

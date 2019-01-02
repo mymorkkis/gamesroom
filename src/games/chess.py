@@ -33,6 +33,7 @@ class Chess(Game):
             'legal_piece_colors': {Color.WHITE, Color.BLACK},
             'legal_piece_names': {piece.value for piece in ChessPiece},
             'start_color': Color.WHITE,
+            'board_colors': ('dark', 'light'),
             'input_err_msg': TWO_COORD_ERR_MSG
         }
 

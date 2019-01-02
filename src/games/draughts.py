@@ -22,6 +22,7 @@ class Draughts(Game):
             'legal_piece_colors': {Color.WHITE, Color.BLACK},
             'legal_piece_names': {'Counter'},
             'start_color': Color.BLACK,
+            'board_colors': ('dark', 'light'),
             'input_err_msg': TWO_COORD_ERR_MSG
         }
 

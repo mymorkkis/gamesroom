@@ -21,24 +21,21 @@ def create_app():
         session['current_game'] = None
         return render_template('base.html')
 
-    def play_game(game, *, square_colors, move_piece_game=True):
+    def play_game(game, *, move_piece_game=True):
         session['current_game'] = game
-
-        return render_template('game.html', game_name=game.__class__.__name__,
-                               board=game.display_board(), x_axis=game.x_axis(),
-                               square_colors=square_colors, move_piece_game=move_piece_game)
+        return render_template('game.html', game=game, move_piece_game=move_piece_game)
 
     @app.route('/chess')
     def chess():
-        return play_game(Chess(), square_colors=('dark', 'light'))
+        return play_game(Chess())
 
     @app.route('/draughts')
     def draughts():
-        return play_game(Draughts(), square_colors=('dark', 'light'))
+        return play_game(Draughts())
 
     @app.route('/othello')
     def othello():
-        return play_game(Othello(), square_colors=('green',), move_piece_game=False)
+        return play_game(Othello(), move_piece_game=False)
 
     @app.route('/move')
     def move():

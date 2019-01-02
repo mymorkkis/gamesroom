@@ -4,7 +4,7 @@
   position: sticky;
   top: 0;
   background-color: #333;
-  padding: 0px 90px;
+  padding: 0px 6vw;
 }
 
 .nav {
@@ -34,16 +34,27 @@
   background-color: #111;
 }
 
+.main-content {
+  width: 84%;
+  margin: 0 auto;
+}
+
 .game {
-  width: 40vw;
-  padding: 20px 50px 10px 100px;
-  float: left;
+  display: inline-block;
+  vertical-align: top;
+  min-width: 96vh;
+  padding: 20px 0px 0px 0px;
 }
 
 .game-info {
+  display: inline-block;
+  vertical-align: top;
   width: 30vw;
-  padding: 40px 100px 10px 50px;
-  float: left;
+  padding: 40px 0px 0px 0px;
+}
+
+.game-border {
+  border: none;
 }
 
 .game-square {
@@ -52,10 +63,11 @@
   border: 0.25px solid black;
   height: 8vh;
   width: 8vh;
+  transition: all .3s ease-in-out;
 }
 
-.game-border {
-  border: none;
+.game-square:hover {
+  transform: scale(1.025);
 }
 
 .border-square {

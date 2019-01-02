@@ -54,6 +54,7 @@ class Game(ABC):
         self.board = setup['board']
         self.board_width = len(self.board[0])
         self.board_height = len(self.board)
+        self.board_colors = setup['board_colors']
         self.legal_piece_names = setup['legal_piece_names']
         self.legal_piece_colors = setup['legal_piece_colors']
         self.input_error_msg = setup['input_err_msg']
