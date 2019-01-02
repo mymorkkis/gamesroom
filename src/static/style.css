@@ -59,6 +59,8 @@
 
 .game-square {
   text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 6.5vh;
   vertical-align: middle;
   border: 0.25px solid black;
   height: 8vh;
