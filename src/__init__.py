@@ -1,3 +1,6 @@
+"""Create main app."""
+import os
+
 from flask import Flask, jsonify, request, render_template, session, url_for
 from flask_session import Session
 
@@ -9,7 +12,8 @@ from src.game_errors import IllegalMoveError
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_pyfile('config.py')
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    app.config['SESSION_TYPE'] = os.environ.get('SESSION_TYPE', 'filesystem')
     Session(app)
 
     @app.route('/')
