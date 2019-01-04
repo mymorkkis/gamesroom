@@ -1,5 +1,11 @@
 @import "normalize.css";
 
+@font-face {
+  font-family: "Dejavu Sans";
+  src: local("Dejavu Sans"),
+       url("DejaVuSans.ttf");
+}
+
 .navbar {
   position: sticky;
   top: 0;
@@ -59,7 +65,7 @@
 
 .game-square {
   text-align: center;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Dejavu Sans";
   font-size: 6.5vh;
   vertical-align: middle;
   border: 0.25px solid black;
