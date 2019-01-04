@@ -19,7 +19,7 @@ def create_app():
     @app.route('/')
     def home():
         session['current_game'] = None
-        return render_template('base.html')
+        return render_template('home.html')
 
     def play_game(game, *, move_piece_game=True):
         session['current_game'] = game
@@ -45,9 +45,17 @@ def create_app():
 
         try:
             game.move(from_coords, to_coords)
-            return jsonify(board=game.display_board(), err='')
+            return json_response(game)
         except IllegalMoveError as err:
-            return jsonify(err=err.message)
+            return json_response(game, err=err.message)
+
+    def json_response(game, err=None):
+        return jsonify(
+            board=game.display_board(),
+            next_player=game.playing_color.value,
+            winner=game.winner,
+            err=err
+        )
 
     return app
 

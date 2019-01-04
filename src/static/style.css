@@ -101,3 +101,7 @@
 #game-error {
   color: red;
 }
+
+#game-winner {
+  color: green
+}
