@@ -78,6 +78,10 @@
   transform: scale(1.025);
 }
 
+.move-from-square {
+  background-color: antiquewhite !important;
+}
+
 .border-square {
   border: none;
   color: green;

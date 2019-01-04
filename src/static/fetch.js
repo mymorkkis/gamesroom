@@ -1,11 +1,13 @@
 function movePiece(event) {
-  if (move['from'] === null) {
-    const moveInfo = document.getElementById('move-info')
-
-    move['from'] = event.id
-    moveInfo.innerText = `Move ${event.innerText}`
+  if (move['fromId'] === null) {
+    const moveFromSquare = document.getElementById(event.id)
+    moveFromSquare.classList.add('move-from-square')
+    move['fromId'] = event.id
 
   } else {
+    const moveFromSquare = document.getElementById(move['fromId'])
+    moveFromSquare.classList.remove('move-from-square')
+
     tryMove(event.id)
   }
 }
@@ -15,8 +17,8 @@ function placePiece(event) {
 }
 
 async function tryMove(event_id) {
-  move['to'] = event_id
-  const moveRoute = `move?from=${move['from']}&to=${move['to']}`
+  move['toId'] = event_id
+  const moveRoute = `move?from=${move['fromId']}&to=${move['toId']}`
 
   try {
     const fetchResult = fetch(moveRoute)
@@ -34,9 +36,6 @@ function makeMove(gameData) {
   const gameError = document.getElementById('game-error')
   const gameWinner = document.getElementById('game-winner')
   const currentPlayer = document.getElementById('current-player')
-  const moveInfo = document.getElementById('move-info')
-
-  moveInfo.innerText = ''
   gameError.innerText = ''
 
   if (gameData.err) {
@@ -65,11 +64,11 @@ function updateBoard(board, gameEnd=false) {
 }
 
 function reset_move() {
-  move['from'] = null
-  move['to'] = null
+  move['fromId'] = null
+  move['toId'] = null
 }
 
 let move = {
-  'from': null,
-  'to': null
+  'fromId': null,
+  'toId': null
 }

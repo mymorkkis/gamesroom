@@ -30,11 +30,14 @@
     </div>
     <div class="game-info">
       <p>Welcome to {{ game.__class__.__name__ }}!</p>
+      <br>
+      <p>To make a move:</p>
       {% if move_piece_game %}
-        <p>To make a move: Click on the piece you want to move and then the square you want to move to.</p>
+        <p>Click on the piece you want to move and then the square you want to move to.</p>
       {% else %}
-        <p>To make a move: Click on the square you want to place your next piece.</p>
+        <p>Click on the square you want to place your next piece.</p>
       {% endif %}
+      <br>
       <p><b id="current-player">{{ game.playing_color.value }}</b> to move.<p>
       <p id="move-info"><p>
       <h2 id="game-error"></h2>
