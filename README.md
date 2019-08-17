@@ -4,6 +4,18 @@
 
 ### Flask app written in Python 3.6 
 
-[Heroku App Here](https://gamesroom.herokuapp.com/)
+[Play Heroku App Here](https://gamesroom.herokuapp.com/)
 
-**Run `python3 play_terminal_game.py` for command line version**
+
+**Command line version also available**
+
+Ensure you have pipenv installed, clone project and cd into project root:
+```
+pipenv install
+pipenv shell
+python3 play_terminal_game.py
+```
+
+
+#### TODO
+- Invert command line game colors so it displays correctly on black terminals
